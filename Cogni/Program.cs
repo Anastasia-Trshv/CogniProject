@@ -1,3 +1,5 @@
+using Cogni.Database.Context;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +8,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddDbContext<CogniDbContext>();
+
+builder.Services.AddCors(option => option.AddPolicy(
+    name: "Default",
+    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
+    ));
 
 var app = builder.Build();
 
@@ -21,5 +30,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors("Default");
 
 app.Run();
