@@ -15,7 +15,7 @@ namespace Cogni.Database.Repositories
 
         public async Task<bool> CheckUser(string login)
         {
-            Customuser? user = await _context.Customusers.FindAsync(login);
+            Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u=> u.Email==login);
             if (user == null)
             {
                 return false;
@@ -23,8 +23,9 @@ namespace Cogni.Database.Repositories
             return true;
         }
 
-        public async Task<long> Create(Customuser user)
+        public async Task<int> Create(Customuser user)
         {
+            //user.IdRoleNavigation = await _context.Roles.FindAsync(user.IdRole);
             await _context.Customusers.AddAsync(user);
             await _context.SaveChangesAsync();
 

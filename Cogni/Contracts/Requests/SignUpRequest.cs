@@ -6,6 +6,7 @@ namespace Cogni.Contracts.Requests
     (
         string Name,
         string Email,
-        string Password
+        string Password,
+        int MbtiId
     );
 }

@@ -1,4 +1,8 @@
+using Cogni.Abstractions.Repositories;
+using Cogni.Abstractions.Services;
 using Cogni.Database.Context;
+using Cogni.Database.Repositories;
+using Cogni.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +14,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<CogniDbContext>();
+
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 builder.Services.AddCors(option => option.AddPolicy(
     name: "Default",
