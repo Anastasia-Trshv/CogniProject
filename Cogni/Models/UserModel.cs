@@ -21,5 +21,19 @@
         public int IdMbtiType { get; set; }
 
         public DateTime? LastLogin { get; set; }
+
+        public UserModel(int idUser, string? name, string? description, string? email, string? image, string? typeMbti, int idRole, int idMbtiType, DateTime? lastLogin)
+        {
+            IdUser = idUser;
+            Name = name;
+            Description = description;
+            Email = email;
+            Image = image;
+            TypeMbti = typeMbti;
+            IdRole = idRole;
+            IdMbtiType = idMbtiType;
+            LastLogin = lastLogin;
+        }
+        public UserModel() { }
     }
 }
