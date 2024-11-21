@@ -52,5 +52,20 @@ namespace Cogni.Database.Repositories
         {
             return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.TypeMbti, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
+
+                public async Task SetTestResult(UserModel user, int mbtiId)
+        {
+            var u = await _context.Customusers
+                .FirstOrDefaultAsync(u => u.IdUser == user.IdUser);
+            if (u != null)
+            {
+                u.IdMbtiType = mbtiId;
+                await _context.SaveChangesAsync();
+                return;
+            }
+            // ачо делать если нет юзера?
+            // todo: handle error
+            return;
+        }
     }
 }
