@@ -6,6 +6,5 @@ namespace Cogni.Abstractions.Repositories
     {
         Task<TestModel> GetAllQuestions();
         Task<QuestionModel?> GetById(int id);
-        Task SetTestResult(UserModel user, int mbtiId);
     }
 }

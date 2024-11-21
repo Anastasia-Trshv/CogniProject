@@ -23,10 +23,5 @@ namespace Cogni.Services
             var question = await _testRepository.GetById(id);
             return question;
         }
-
-        public async Task SetTestResult(UserModel user, int mbtiId)
-        {
-            await _testRepository.SetTestResult(user, mbtiId);
-        }
     }
 }

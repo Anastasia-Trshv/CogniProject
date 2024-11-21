@@ -33,13 +33,5 @@ namespace Cogni.Controllers
             }
             return NotFound();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> SetTestResult(SetTestResultRequest request)
-        {
-            var user = new UserModel { IdUser = -1 };
-            await _testService.SetTestResult(user, request.mbti_id);
-            return Ok();
-        }
     }
 }

@@ -5,6 +5,6 @@ namespace Cogni.Abstractions.Services
 {
     public interface IUserService
     {
-       
+        Task SetTestResult(UserModel user, int mbtiId);
     }
 }

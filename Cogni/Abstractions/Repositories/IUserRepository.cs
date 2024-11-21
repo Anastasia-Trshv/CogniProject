@@ -8,5 +8,6 @@ namespace Cogni.Abstractions.Repositories
         //Task<UserModel> Get(long id); //для профиля
         Task<long> Create(Customuser user);
         Task<bool> CheckUser(string login);//проверка существования пользователя с таким логином
+        Task SetTestResult(UserModel user, int mbtiId);
     }
 }
