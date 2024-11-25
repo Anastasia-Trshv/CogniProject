@@ -49,5 +49,7 @@ namespace Cogni.Controllers
             await service.SetTestResult(user, request.mbti_id);
             return Ok(request.mbti_id);
         }
+
+        
     }
 }

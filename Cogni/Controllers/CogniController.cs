@@ -28,5 +28,18 @@ namespace Cogni.Controllers
             List<Role> roles = await _context.Roles.ToListAsync();  
             return Ok(roles);
         }
+        [HttpPost]
+        public async Task<ActionResult<int>> CreateMbti(string Name)
+        {
+            await _context.MbtiTypes.AddAsync(new MbtiType {NameOfType=Name });
+            _context.SaveChanges();
+            return Ok();
+        }
+        [HttpGet]
+        public async Task<ActionResult<List<string>>> GetMbtiTypes()
+        {
+            List<MbtiType> types = await _context.MbtiTypes.ToListAsync();
+            return Ok(types);
+        }
     }
 }

@@ -26,6 +26,7 @@ namespace Cogni.Database.Repositories
         public async Task<int> Create(Customuser user)
         {
             //user.IdRoleNavigation = await _context.Roles.FindAsync(user.IdRole);
+
             await _context.Customusers.AddAsync(user);
             await _context.SaveChangesAsync();
 
