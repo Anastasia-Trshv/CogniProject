@@ -43,4 +43,14 @@ public partial class Customuser
     public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 
     public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
+
+    public Customuser(string? name, string? email, string? password, int idRole, int idMbtiType)
+    {
+        Name = name;
+        Email = email;
+        Password = password;
+        IdRole = idRole;
+        IdMbtiType = idMbtiType;
+    }
+    public Customuser() { }
 }
