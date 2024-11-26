@@ -1,5 +1,7 @@
 using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
+using Cogni.Authentication;
+using Cogni.Authentication.Abstractions;
 using Cogni.Database.Context;
 using Cogni.Database.Repositories;
 using Cogni.Services;
@@ -17,7 +19,7 @@ builder.Services.AddDbContext<CogniDbContext>();
 
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IUserService, UserService>();
-
+builder.Services.AddTransient<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<ITestService, TestService>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
 

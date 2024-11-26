@@ -35,7 +35,7 @@ namespace Cogni.Controllers
         {
             var user = await service.GetUser(request.login, request.password);
             //конверация в userresponse
-            var response = new UserResponse(user.IdUser, user.Name, user.Description, user.Image, user.IdMbtiType.ToString(), user.IdRole, user.LastLogin);//создать токены
+            var response = new UserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.IdMbtiType.ToString(), user.IdRole, user.LastLogin, user.AToken, user.RToken);//создать токены
 
             return Ok(response);
         }
@@ -45,7 +45,7 @@ namespace Cogni.Controllers
         {
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             // todo: get user from token?
-            var user = new UserModel { IdUser = -1 };
+            var user = new UserModel { Id = -1 };
             await service.SetTestResult(user, request.mbti_id);
             return Ok(request.mbti_id);
         }

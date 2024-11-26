@@ -26,6 +26,8 @@ public partial class Customuser
 
     public string? Image { get; set; }
 
+    public string? BannerImage { get; set; }    
+
     public int IdRole { get; set; }
 
     public int IdMbtiType { get; set; }

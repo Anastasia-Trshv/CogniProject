@@ -34,9 +34,9 @@ namespace Cogni.Database.Repositories
             return us.IdUser;
         }
 
-        public async Task<UserModel> Get(string email, string passwordhash)
+        public async Task<UserModel> Get(string email)
         {
-           Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordhash);
+           Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
                 var newuser = new UserModel();
@@ -49,17 +49,11 @@ namespace Cogni.Database.Repositories
             }
 
         }
-
-        private UserModel Converter(Customuser user)//метод конвертирующие из User-сущности в UserModel 
-        {
-            return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
-        }
-
                
         public async Task SetTestResult(UserModel user, int mbtiId)
         {
             var u = await _context.Customusers
-                .FirstOrDefaultAsync(u => u.IdUser == user.IdUser);
+                .FirstOrDefaultAsync(u => u.IdUser == user.Id);
             if (u != null)
             {
                 u.IdMbtiType = mbtiId;
@@ -69,6 +63,41 @@ namespace Cogni.Database.Repositories
             // ачо делать если нет юзера?
             // todo: handle error
             return;
+        }
+
+        public Task<UserModel> Get(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeAvatar(string picLink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeBanner(string picLink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeName(string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangePassword(string PasHash, byte[] salt)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeDescription(string description)
+        {
+            throw new NotImplementedException();
+        }
+
+        private UserModel Converter(Customuser user)//метод конвертирующие из User-сущности в UserModel 
+        {
+            return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
     }
 }

@@ -2,7 +2,7 @@
 {
     public class UserModel
     {
-        public int IdUser { get; set; }
+        public int Id { get; set; }
 
         public string? Name { get; set; }
 
@@ -10,9 +10,19 @@
 
         public string? Email { get; set; }
 
-        public string? Password { get; set; }
+        public string? PasswordHash { get; set; }
+
+        public byte[] Salt { get; set; } = null!;
+
+        public string? AToken { get; set; }
+
+        public string? RToken { get; set; }
+
+        public DateTime? RefreshTokenExpiryTime { get; set; }
 
         public string? Image { get; set; }
+
+        public string? BannerImage { get; set; }
 
         public int IdRole { get; set; }
 
@@ -22,7 +32,7 @@
 
         public UserModel(int idUser, string? name, string? description, string? email, string? image, int idRole, int idMbtiType, DateTime? lastLogin)
         {
-            IdUser = idUser;
+            Id = idUser;
             Name = name;
             Description = description;
             Email = email;
