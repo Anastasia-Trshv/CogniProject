@@ -14,6 +14,10 @@ namespace Cogni.Abstractions.Repositories
         Task ChangeName(int id, string name);//изменить имя
         Task ChangePassword(int id, string PasHash, byte[] salt);//изменить пароль
         Task ChangeDescription(int id, string description);//изменить описание
-        
+        Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id);//возвращает данные для рефреша access токена
+        Task<long> RemoveTokens(long id); //удаляет токены пользователя(когда разлогиниваем) 
+        Task<long> UpdateUsersAToken(long id, string atoken);//обновляем аксес токенпользователя
+
+
     }
 }

@@ -50,7 +50,7 @@ namespace Cogni.Controllers
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             // todo: get user from token?
             var user = new UserModel { Id = -1 };
-            await service.SetTestResult(user, request.mbti_id);
+            await service.SetMbtiType(user, request.mbti_id);
             return Ok(request.mbti_id);
         }
 

@@ -16,6 +16,31 @@ namespace Cogni.Services
         _repository = repo;
         }
 
+        public Task ChangeAvatar(int id, string picLink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeBanner(int id, string picLink)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeDescription(int id, string description)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangeName(int id, string name)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task ChangePassword(int id, string PasHash, byte[] salt)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<bool> ChekUser(string email)
         {
             return await _repository.CheckUser(email);
@@ -39,6 +64,16 @@ namespace Cogni.Services
             return id;
         }
 
+        public Task<UserModel> Get(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<UserModel> GetUser(string email, string password)
         {
             
@@ -54,10 +89,19 @@ namespace Cogni.Services
             }
         }
 
-        public async Task SetTestResult(UserModel user, int mbtiId)
+        public Task<long> RemoveTokens(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SetMbtiType(UserModel user, int mbtiId)
         {
             await _repository.SetMbtiType(user, mbtiId);
         }
 
+        public Task<long> UpdateUsersAToken(long id, string atoken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -128,6 +128,19 @@ namespace Cogni.Database.Repositories
             return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
 
-        
+        public Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> RemoveTokens(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<long> UpdateUsersAToken(long id, string atoken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
