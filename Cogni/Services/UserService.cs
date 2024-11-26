@@ -56,7 +56,7 @@ namespace Cogni.Services
 
         public async Task SetTestResult(UserModel user, int mbtiId)
         {
-            await _repository.SetTestResult(user, mbtiId);
+            await _repository.SetMbtiType(user, mbtiId);
         }
 
     }

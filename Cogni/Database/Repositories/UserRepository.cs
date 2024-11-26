@@ -1,5 +1,6 @@
 ﻿using Cogni.Abstractions.Repositories;
 using Cogni.Database.Context;
+using Cogni.Database.Entities;
 using Cogni.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,18 +26,26 @@ namespace Cogni.Database.Repositories
 
         public async Task<int> Create(Customuser user)
         {
-            //user.IdRoleNavigation = await _context.Roles.FindAsync(user.IdRole);
+            if (await CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
+            {
+                await _context.Customusers.AddAsync(user);
+                await _context.SaveChangesAsync();
 
-            await _context.Customusers.AddAsync(user);
-            await _context.SaveChangesAsync();
-
-            var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
-            return us.IdUser;
+                var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
+                return us.IdUser;
+            }
+            else
+            {
+                return 0;
+            }
+           
         }
 
         public async Task<UserModel> Get(string email)
         {
-           Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u => u.Email == email);
+           Customuser? user = await _context.Customusers
+                .Include(u => u.Avatars)
+                .FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
                 var newuser = new UserModel();
@@ -45,12 +54,14 @@ namespace Cogni.Database.Repositories
             else
             {
                 UserModel newuser = Converter(user);
+                var pic  = user.Avatars.FirstOrDefault(r => r.IsActive == true);
+                newuser.Image = pic.AvatarUrl;
                 return newuser;
             }
 
         }
                
-        public async Task SetTestResult(UserModel user, int mbtiId)
+        public async Task SetMbtiType(UserModel user, int mbtiId)
         {
             var u = await _context.Customusers
                 .FirstOrDefaultAsync(u => u.IdUser == user.Id);
@@ -65,32 +76,49 @@ namespace Cogni.Database.Repositories
             return;
         }
 
-        public Task<UserModel> Get(long id)
+        public async Task<UserModel> Get(int id)
+        {
+            var user = await _context.Customusers.FindAsync(id);
+            return Converter(user);
+        }
+
+        public async Task ChangeAvatar(int id, string picLink)
+        {
+            var user = await _context.Customusers
+                .Include(u => u.Avatars)
+                .FirstOrDefaultAsync(u => u.IdUser== id);
+
+            var avatar = user.Avatars.FirstOrDefault(r => r.IsActive == true);
+            avatar.IsActive = false;
+
+            user.Avatars.Add(new Avatar 
+            { 
+                AvatarUrl = picLink,
+                UserId=id,
+                IsActive=true,
+                DateAdded = DateTime.Now,
+            });
+
+            await _context.SaveChangesAsync();  
+        }
+
+        public async Task ChangeBanner(int id, string picLink)
+        {
+            var user = await _context.Customusers.FindAsync(id);
+            user.BannerImage = picLink;
+        }
+
+        public Task ChangeName(int id, string name)
         {
             throw new NotImplementedException();
         }
 
-        public Task ChangeAvatar(string picLink)
+        public Task ChangePassword(int id, string PasHash, byte[] salt)
         {
             throw new NotImplementedException();
         }
 
-        public Task ChangeBanner(string picLink)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ChangeName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ChangePassword(string PasHash, byte[] salt)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task ChangeDescription(string description)
+        public Task ChangeDescription(int id, string description)
         {
             throw new NotImplementedException();
         }
@@ -99,5 +127,7 @@ namespace Cogni.Database.Repositories
         {
             return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
+
+        
     }
 }

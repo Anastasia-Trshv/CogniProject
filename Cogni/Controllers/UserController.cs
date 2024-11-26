@@ -15,6 +15,10 @@ namespace Cogni.Controllers
         {
             this.service = service;
         }
+
+        /// <summary>
+        /// Используется при регистрации для проверки уникальности логина
+        /// </summary>
         [HttpGet]
         //используется при регистрации для проверки уникальности логина
         public async Task<ActionResult<bool>> ChekUser(string login)

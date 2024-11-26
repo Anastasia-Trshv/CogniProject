@@ -5,15 +5,15 @@ namespace Cogni.Abstractions.Repositories
     public interface IUserRepository
     {
         Task<UserModel> Get(string login);//вход
-        Task<UserModel> Get(long id); //для профиля
-        Task<int> Create(Customuser user);
+        Task<UserModel> Get(int id); //получение всех данных для страницы профиля
+        Task<int> Create(Customuser user);//создание
         Task<bool> CheckUser(string login);//проверка существования пользователя с таким логином
-        Task SetTestResult(UserModel user, int mbtiId);
-        Task ChangeAvatar(string picLink);
-        Task ChangeBanner(string picLink);
-        Task ChangeName(string name);
-        Task ChangePassword(string PasHash, byte[] salt);
-        Task ChangeDescription(string description);
+        Task SetMbtiType(UserModel user, int mbtiId);//установить результаты теста или изменить тип MBTY
+        Task ChangeAvatar(int id,string picLink);//изменить автарарку
+        Task ChangeBanner(int id, string picLink);//изменить баннер на странице пользователя
+        Task ChangeName(int id, string name);//изменить имя
+        Task ChangePassword(int id, string PasHash, byte[] salt);//изменить пароль
+        Task ChangeDescription(int id, string description);//изменить описание
         
     }
 }

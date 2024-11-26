@@ -26,8 +26,6 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<Customuser> Customusers { get; set; }
 
-    //public virtual DbSet<DjangoMigration> DjangoMigrations { get; set; }
-
     public virtual DbSet<Friend> Friends { get; set; }
 
     public virtual DbSet<Like> Likes { get; set; }
@@ -169,21 +167,6 @@ public partial class CogniDbContext : DbContext
                 .HasConstraintName("customuser_id_role_fkey");
         });
 
-        //modelBuilder.Entity<DjangoMigration>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("django_migrations_pkey");
-
-        //    entity.ToTable("django_migrations");
-
-        //    entity.Property(e => e.Id).HasColumnName("id");
-        //    entity.Property(e => e.App)
-        //        .HasMaxLength(255)
-        //        .HasColumnName("app");
-        //    entity.Property(e => e.Applied).HasColumnName("applied");
-        //    entity.Property(e => e.Name)
-        //        .HasMaxLength(255)
-        //        .HasColumnName("name");
-        //});
 
         modelBuilder.Entity<Friend>(entity =>
         {
