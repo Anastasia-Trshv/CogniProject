@@ -14,11 +14,17 @@ public partial class Customuser
 
     public string? Email { get; set; }
 
-    public string? Password { get; set; }
+    public string? PasswordHash { get; set; }
+
+    public byte[] Salt { get; set; } = null!;
+
+    public string? AToken { get; set; }
+
+    public string? RToken { get; set; }
+
+    public DateTime RefreshTokenExpiryTime { get; set; }
 
     public string? Image { get; set; }
-
-    public string? TypeMbti { get; set; }
 
     public int IdRole { get; set; }
 
@@ -44,13 +50,5 @@ public partial class Customuser
 
     public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
 
-    public Customuser(string? name, string? email, string? password, int idRole, int idMbtiType)
-    {
-        Name = name;
-        Email = email;
-        Password = password;
-        IdRole = idRole;
-        IdMbtiType = idMbtiType;
-    }
     public Customuser() { }
 }

@@ -23,7 +23,14 @@ namespace Cogni.Services
         {
             //TODO: добавление токенов(если будут токены)
             //TODO: хэширование пароля
-            Customuser userEntity = new Customuser(user.Name, user.Email, user.Password, 1, user.MbtiId);
+            Customuser userEntity = new Customuser
+            {
+                Name = user.Name,
+                Email = user.Email,
+                PasswordHash = user.Password,
+                IdRole = 1,
+                IdMbtiType = user.MbtiId
+            };
             int id = await _repository.Create(userEntity);
             return id;
         }

@@ -35,7 +35,7 @@ namespace Cogni.Controllers
         {
             var user = await service.GetUser(request.login, request.password);
             //конверация в userresponse
-            var response = new UserResponse(user.IdUser, user.Name, user.Description, user.Image, user.TypeMbti, user.IdRole, user.LastLogin);//создать токены
+            var response = new UserResponse(user.IdUser, user.Name, user.Description, user.Image, user.IdMbtiType.ToString(), user.IdRole, user.LastLogin);//создать токены
 
             return Ok(response);
         }

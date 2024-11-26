@@ -30,13 +30,13 @@ namespace Cogni.Database.Repositories
             await _context.Customusers.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.Password == l.Password);
+            var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
             return us.IdUser;
         }
 
         public async Task<UserModel> Get(string email, string passwordhash)
         {
-           Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u => u.Email == email && u.Password == passwordhash);
+           Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u => u.Email == email && u.PasswordHash == passwordhash);
             if (user == null)
             {
                 var newuser = new UserModel();
@@ -52,10 +52,11 @@ namespace Cogni.Database.Repositories
 
         private UserModel Converter(Customuser user)//метод конвертирующие из User-сущности в UserModel 
         {
-            return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.TypeMbti, user.IdRole, user.IdMbtiType, user.LastLogin);
+            return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
 
-                public async Task SetTestResult(UserModel user, int mbtiId)
+               
+        public async Task SetTestResult(UserModel user, int mbtiId)
         {
             var u = await _context.Customusers
                 .FirstOrDefaultAsync(u => u.IdUser == user.IdUser);

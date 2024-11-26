@@ -26,7 +26,7 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<Customuser> Customusers { get; set; }
 
-    public virtual DbSet<DjangoMigration> DjangoMigrations { get; set; }
+    //public virtual DbSet<DjangoMigration> DjangoMigrations { get; set; }
 
     public virtual DbSet<Friend> Friends { get; set; }
 
@@ -50,7 +50,7 @@ public partial class CogniDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=89.46.131.128;Port=5432;Database=CogniDB;Username=CogniAdmin;Password=sddbjssb1221j");
+        => optionsBuilder.UseNpgsql("Host=89.46.131.128;Port=5432;Database=CogniDBv2;Username=CogniAdmin;Password=sddbjssb1221j");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -157,12 +157,6 @@ public partial class CogniDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(45)
                 .HasColumnName("name");
-            entity.Property(e => e.Password)
-                .HasMaxLength(45)
-                .HasColumnName("password");
-            entity.Property(e => e.TypeMbti)
-                .HasMaxLength(4)
-                .HasColumnName("type_mbti");
 
             entity.HasOne(d => d.IdMbtiTypeNavigation).WithMany(p => p.Customusers)
                 .HasForeignKey(d => d.IdMbtiType)
@@ -175,21 +169,21 @@ public partial class CogniDbContext : DbContext
                 .HasConstraintName("customuser_id_role_fkey");
         });
 
-        modelBuilder.Entity<DjangoMigration>(entity =>
-        {
-            entity.HasKey(e => e.Id).HasName("django_migrations_pkey");
+        //modelBuilder.Entity<DjangoMigration>(entity =>
+        //{
+        //    entity.HasKey(e => e.Id).HasName("django_migrations_pkey");
 
-            entity.ToTable("django_migrations");
+        //    entity.ToTable("django_migrations");
 
-            entity.Property(e => e.Id).HasColumnName("id");
-            entity.Property(e => e.App)
-                .HasMaxLength(255)
-                .HasColumnName("app");
-            entity.Property(e => e.Applied).HasColumnName("applied");
-            entity.Property(e => e.Name)
-                .HasMaxLength(255)
-                .HasColumnName("name");
-        });
+        //    entity.Property(e => e.Id).HasColumnName("id");
+        //    entity.Property(e => e.App)
+        //        .HasMaxLength(255)
+        //        .HasColumnName("app");
+        //    entity.Property(e => e.Applied).HasColumnName("applied");
+        //    entity.Property(e => e.Name)
+        //        .HasMaxLength(255)
+        //        .HasColumnName("name");
+        //});
 
         modelBuilder.Entity<Friend>(entity =>
         {
