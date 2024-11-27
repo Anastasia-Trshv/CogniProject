@@ -4,9 +4,10 @@ using Cogni.Database.Entities;
 
 namespace Cogni;
 
-public partial class Customuser
+public partial class User
 {
-    public int IdUser { get; set; }
+   
+    public int Id { get; set; }
 
     public string? Name { get; set; }
 
@@ -52,5 +53,5 @@ public partial class Customuser
 
     public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
 
-    public Customuser() { }
+    public User() { }
 }

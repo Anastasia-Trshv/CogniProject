@@ -9,7 +9,7 @@ public partial class Role
 
     public string? NameRole { get; set; }
 
-    public virtual ICollection<Customuser> Customusers { get; set; } = new List<Customuser>();
+    public virtual ICollection<User> Customusers { get; set; } = new List<User>();
 
     public Role(int idRole, string? nameRole)
     {

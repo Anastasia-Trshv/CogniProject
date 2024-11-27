@@ -17,5 +17,5 @@ public partial class Avatar
 
     public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
 
-    public virtual Customuser User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

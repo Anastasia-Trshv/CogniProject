@@ -13,5 +13,5 @@ public partial class UserTag
 
     public virtual Tag IdTagNavigation { get; set; } = null!;
 
-    public virtual Customuser IdUserNavigation { get; set; } = null!;
+    public virtual User IdUserNavigation { get; set; } = null!;
 }

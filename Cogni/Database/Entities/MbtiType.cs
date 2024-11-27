@@ -9,5 +9,5 @@ public partial class MbtiType
 
     public string? NameOfType { get; set; }
 
-    public virtual ICollection<Customuser> Customusers { get; set; } = new List<Customuser>();
+    public virtual ICollection<User> Customusers { get; set; } = new List<User>();
 }

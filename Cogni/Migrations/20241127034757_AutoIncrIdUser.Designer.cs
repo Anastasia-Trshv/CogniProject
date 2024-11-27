@@ -3,6 +3,7 @@ using System;
 using Cogni.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cogni.Migrations
 {
     [DbContext(typeof(CogniDbContext))]
-    partial class CogniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241127034757_AutoIncrIdUser")]
+    partial class AutoIncrIdUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,12 +27,12 @@ namespace Cogni.Migrations
 
             modelBuilder.Entity("Cogni.Customuser", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("IdUser")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id_user");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("IdUser"));
 
                     b.Property<string>("AToken")
                         .HasColumnType("text");
@@ -84,7 +87,7 @@ namespace Cogni.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
-                    b.HasKey("Id")
+                    b.HasKey("IdUser")
                         .HasName("customuser_pkey");
 
                     b.HasIndex("IdMbtiType");

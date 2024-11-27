@@ -13,7 +13,7 @@ public partial class Friend
 
     public DateTime? DateAdded { get; set; }
 
-    public virtual Customuser FriendNavigation { get; set; } = null!;
+    public virtual User FriendNavigation { get; set; } = null!;
 
-    public virtual Customuser User { get; set; } = null!;
+    public virtual User User { get; set; } = null!;
 }

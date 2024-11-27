@@ -16,7 +16,7 @@ namespace Cogni.Database.Repositories
 
         public async Task<bool> CheckUser(string login)
         {
-            Customuser? user = await _context.Customusers.FirstOrDefaultAsync(u=> u.Email==login);
+            User? user = await _context.Customusers.FirstOrDefaultAsync(u=> u.Email==login);
             if (user == null)
             {
                 return false;
@@ -24,26 +24,18 @@ namespace Cogni.Database.Repositories
             return true;
         }
 
-        public async Task<int> Create(Customuser user)
+        public async Task<int> Create(User user)
         {
-            if (await CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
-            {
-                await _context.Customusers.AddAsync(user);
-                await _context.SaveChangesAsync();
+            await _context.Customusers.AddAsync(user);
+            await _context.SaveChangesAsync();
 
-                var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
-                return us.IdUser;
-            }
-            else
-            {
-                return 0;
-            }
-           
+            var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
+            return us.Id;
         }
 
         public async Task<UserModel> Get(string email)
         {
-           Customuser? user = await _context.Customusers
+           User? user = await _context.Customusers
                 .Include(u => u.Avatars)
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
@@ -57,7 +49,15 @@ namespace Cogni.Database.Repositories
             {
                 UserModel newuser = Converter(user);
                 var pic  = user.Avatars.FirstOrDefault(r => r.IsActive == true);
-                newuser.Image = pic.AvatarUrl;
+                if (pic != null)
+                { 
+                    newuser.Image = pic.AvatarUrl; 
+                }
+                else 
+                { 
+                    newuser.Image = "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg"; 
+                }
+               
                 newuser.RoleName = user.IdRoleNavigation.NameRole;
                 newuser.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
                 return newuser;
@@ -68,7 +68,7 @@ namespace Cogni.Database.Repositories
         public async Task SetMbtiType(UserModel user, int mbtiId)
         {
             var u = await _context.Customusers
-                .FirstOrDefaultAsync(u => u.IdUser == user.Id);
+                .FirstOrDefaultAsync(u => u.Id == user.Id);
             if (u != null)
             {
                 u.IdMbtiType = mbtiId;
@@ -85,7 +85,7 @@ namespace Cogni.Database.Repositories
             var user = await _context.Customusers
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
-                .FirstOrDefaultAsync(u => u.IdUser == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
             var userModel = Converter(user);
             userModel.RoleName = user.IdRoleNavigation.NameRole;
             userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
@@ -96,7 +96,7 @@ namespace Cogni.Database.Repositories
         {
             var user = await _context.Customusers
                 .Include(u => u.Avatars)
-                .FirstOrDefaultAsync(u => u.IdUser== id);
+                .FirstOrDefaultAsync(u => u.Id== id);
 
             var avatar = user.Avatars.FirstOrDefault(r => r.IsActive == true);
             avatar.IsActive = false;
@@ -146,7 +146,7 @@ namespace Cogni.Database.Repositories
         {
             var user = await _context.Customusers
                .Include(u => u.IdRoleNavigation)
-               .FirstOrDefaultAsync(u => u.IdUser == id);
+               .FirstOrDefaultAsync(u => u.Id == id);
             return (user.RToken, user.RefreshTokenExpiryTime, user.IdRoleNavigation.NameRole);
         }
 
@@ -174,9 +174,9 @@ namespace Cogni.Database.Repositories
             user.AToken = atoken;
             await _context.SaveChangesAsync();
         }
-        private UserModel Converter(Customuser user)//метод конвертирующие из User-сущности в UserModel 
+        private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
         {
-            return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
+            return new UserModel(user.Id, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
 
     }

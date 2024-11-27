@@ -41,5 +41,11 @@ namespace Cogni.Controllers
             List<MbtiType> types = await _context.MbtiTypes.ToListAsync();
             return Ok(types);
         }
+        [HttpGet]
+        public async Task<ActionResult<List<string>>> GetAllUsers()
+        {
+            List<User> users = await _context.Customusers.ToListAsync();
+            return Ok(users);
+        }
     }
 }

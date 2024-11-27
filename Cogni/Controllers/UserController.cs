@@ -8,6 +8,7 @@ using System.Net.Mime;
 using Cogni.Authentication.Abstractions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Swashbuckle.Swagger.Annotations;
 
 namespace Cogni.Controllers
 {
@@ -33,12 +34,19 @@ namespace Cogni.Controllers
         [HttpPost]
         public async Task<ActionResult<long>> CreateUser([FromBody] SignUpRequest request)
         {
+            var result = await _userService.CreateUser(request);
+            if(result == 0)
+            {
+                return BadRequest("Логин занят");
+            }
+            else{
 
-            return Ok(await _userService.CreateUser(request));
+                return Ok(result);
+            }
         }
 
 
-        [HttpGet]
+        [HttpPost]
         public async Task<ActionResult<UserResponse>> GetUserByLogin([FromBody] LoginRequest request)
         {
             var user = await _userService.GetUser(request.login, request.password);
@@ -48,6 +56,7 @@ namespace Cogni.Controllers
             return Ok(response);
         }
 
+        [SwaggerOperation(Tags = new[] { "api" })]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<ActionResult> SetTestResult(HttpRequest request, [FromBody] SetTestResultRequest testRequest)

@@ -24,7 +24,7 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<Chat> Chats { get; set; }
 
-    public virtual DbSet<Customuser> Customusers { get; set; }
+    public virtual DbSet<User> Customusers { get; set; }
 
     public virtual DbSet<Friend> Friends { get; set; }
 
@@ -54,11 +54,11 @@ public partial class CogniDbContext : DbContext
     {
         modelBuilder.Entity<Article>(entity =>
         {
-            entity.HasKey(e => e.IdArticle).HasName("article_pkey");
+            entity.HasKey(e => e.Id).HasName("article_pkey");
 
             entity.ToTable("article");
 
-            entity.Property(e => e.IdArticle).HasColumnName("id_article");
+            entity.Property(e => e.Id).HasColumnName("id_article");
             entity.Property(e => e.ArticleBody)
                 .HasMaxLength(1024)
                 .HasColumnName("article_body");
@@ -128,15 +128,17 @@ public partial class CogniDbContext : DbContext
                 .HasConstraintName("chats_user_id_fkey");
         });
 
-        modelBuilder.Entity<Customuser>(entity =>
+        modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.IdUser).HasName("customuser_pkey");
+            entity.HasKey(e => e.Id).HasName("customuser_pkey");
 
             entity.ToTable("customuser");
 
             entity.HasIndex(e => e.Name, "customuser_name_key").IsUnique();
 
-            entity.Property(e => e.IdUser).HasColumnName("id_user");
+            entity.Property(e => e.Id)
+            .HasColumnName("id_user")
+            .ValueGeneratedOnAdd();
             entity.Property(e => e.Description)
                 .HasMaxLength(45)
                 .HasColumnName("description");

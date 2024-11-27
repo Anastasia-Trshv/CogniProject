@@ -67,25 +67,31 @@ namespace Cogni.Services
 
         public async Task<int> CreateUser(SignUpRequest user)
         {
-            //TODO: добавление токенов(если будут токены)
-            
-            byte[] salt;
-            string passHash = _passwordHasher.HashPassword(user.Password, out salt);
-            Customuser userEntity = new Customuser
+            if (await _userRepository.CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
             {
-                Name = user.Name,
-                Email = user.Email,
-                PasswordHash = passHash,
-                Salt = salt,
-                IdRole = 1,
-                IdMbtiType = user.MbtiId
-            };
-            int id = await _userRepository.Create(userEntity);
-            var rtoken = _tokenService.GenerateRefreshToken();
-            var atoken = _tokenService.GenerateAccessToken(id, userEntity.IdRole.ToString());
-            var time = _tokenService.GetRefreshTokenExpireTime();
-            await _userRepository.AddTokens(id, rtoken, atoken, time);
-            return id;
+
+                byte[] salt;
+                string passHash = _passwordHasher.HashPassword(user.Password, out salt);
+                User userEntity = new User
+                {
+                    Name = user.Name,
+                    Email = user.Email,
+                    PasswordHash = passHash,
+                    Salt = salt,
+                    IdRole = 1,
+                    IdMbtiType = user.MbtiId
+                };
+                int id = await _userRepository.Create(userEntity);
+                var rtoken = _tokenService.GenerateRefreshToken();
+                var atoken = _tokenService.GenerateAccessToken(id, userEntity.IdRole.ToString());
+                var time = _tokenService.GetRefreshTokenExpireTime();
+                await _userRepository.AddTokens(id, rtoken, atoken, time);
+                return id;
+            }
+            else
+            {
+                return 0;
+            }
         }
 
         public async Task<UserModel> Get(int id)
