@@ -53,9 +53,16 @@ namespace Cogni.Controllers
         {
             var user = await _userService.GetUser(request.login, request.password);
             //конверация в userresponse
-            var response = new FullUserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
+            if(user.Id == 0)
+            {
+                return NotFound();
+            }
+            else
+            {
+                var response = new FullUserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
 
-            return Ok(response);
+                return Ok(response);
+            }
         }
 
 
@@ -130,9 +137,16 @@ namespace Cogni.Controllers
         public async Task<ActionResult<UserByIdResponse>> GetUserById(int id)
         {
             var user = await _userService.Get(id);
-            UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType,user.LastLogin);
+            if(user.Id == 0)
+            {
+                return NotFound();
+            }
+            else
+            {
+                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.LastLogin);
 
-            return Ok(response);
+                return Ok(response);
+            }
         }
 
 
