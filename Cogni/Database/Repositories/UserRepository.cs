@@ -45,6 +45,8 @@ namespace Cogni.Database.Repositories
         {
            Customuser? user = await _context.Customusers
                 .Include(u => u.Avatars)
+                .Include(u => u.IdMbtiTypeNavigation)
+                .Include(u => u.IdRoleNavigation)
                 .FirstOrDefaultAsync(u => u.Email == email);
             if (user == null)
             {
@@ -56,6 +58,8 @@ namespace Cogni.Database.Repositories
                 UserModel newuser = Converter(user);
                 var pic  = user.Avatars.FirstOrDefault(r => r.IsActive == true);
                 newuser.Image = pic.AvatarUrl;
+                newuser.RoleName = user.IdRoleNavigation.NameRole;
+                newuser.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
                 return newuser;
             }
 
@@ -78,8 +82,14 @@ namespace Cogni.Database.Repositories
 
         public async Task<UserModel> Get(int id)
         {
-            var user = await _context.Customusers.FindAsync(id);
-            return Converter(user);
+            var user = await _context.Customusers
+                .Include(u => u.IdMbtiTypeNavigation)
+                .Include(u => u.IdRoleNavigation)
+                .FirstOrDefaultAsync(u => u.IdUser == id);
+            var userModel = Converter(user);
+            userModel.RoleName = user.IdRoleNavigation.NameRole;
+            userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
+            return userModel;
         }
 
         public async Task ChangeAvatar(int id, string picLink)
@@ -106,41 +116,68 @@ namespace Cogni.Database.Repositories
         {
             var user = await _context.Customusers.FindAsync(id);
             user.BannerImage = picLink;
+            await _context.SaveChangesAsync();
         }
 
-        public Task ChangeName(int id, string name)
+        public async Task ChangeName(int id, string name)
         {
-            throw new NotImplementedException();
+            var user = await _context.Customusers.FindAsync(id);
+            user.Name = name;
+            await _context.SaveChangesAsync();
         }
 
-        public Task ChangePassword(int id, string PasHash, byte[] salt)
+        public async Task ChangePassword(int id, string PasHash, byte[] salt)
         {
-            throw new NotImplementedException();
+            var user = await _context.Customusers.FindAsync(id);
+            user.Salt = salt;
+            user.PasswordHash = PasHash;
+            await _context.SaveChangesAsync();
         }
 
-        public Task ChangeDescription(int id, string description)
+        public async Task ChangeDescription(int id, string description)
         {
-            throw new NotImplementedException();
+            var user = await _context.Customusers.FindAsync(id);
+            user.Description = description;
+            await _context.SaveChangesAsync();
         }
 
+       
+        public async Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
+        {
+            var user = await _context.Customusers
+               .Include(u => u.IdRoleNavigation)
+               .FirstOrDefaultAsync(u => u.IdUser == id);
+            return (user.RToken, user.RefreshTokenExpiryTime, user.IdRoleNavigation.NameRole);
+        }
+
+        public async Task RemoveTokens(int id)
+        {
+            var user = await _context.Customusers.FindAsync(id);
+            user.AToken = null;
+            user.RToken = null;
+            user.RefreshTokenExpiryTime = default;
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task AddTokens(int id, string RToken, string AToken, DateTime expiry)
+        {
+            var user1 = await _context.Customusers.FindAsync(id);
+            user1.AToken = AToken;
+            user1.RToken = RToken;
+            user1.RefreshTokenExpiryTime = expiry;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateUsersAToken(int id, string atoken)
+        {
+            var user = await _context.Customusers.FindAsync(id);
+            user.AToken = atoken;
+            await _context.SaveChangesAsync();
+        }
         private UserModel Converter(Customuser user)//метод конвертирующие из User-сущности в UserModel 
         {
             return new UserModel(user.IdUser, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
         }
 
-        public Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<long> RemoveTokens(long id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<long> UpdateUsersAToken(long id, string atoken)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

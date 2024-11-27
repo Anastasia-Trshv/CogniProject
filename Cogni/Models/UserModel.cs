@@ -27,6 +27,10 @@
         public int IdRole { get; set; }
 
         public int IdMbtiType { get; set; }
+        
+        public string? MbtyType { get; set; }
+
+        public string? RoleName { get; set; }   
 
         public DateTime? LastLogin { get; set; }
 

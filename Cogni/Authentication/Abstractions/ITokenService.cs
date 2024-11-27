@@ -8,5 +8,6 @@ namespace Cogni.Authentication.Abstractions
         string GenerateRefreshToken();
         ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
         DateTime GetRefreshTokenExpireTime();
+        int GetIdFromToken(string token);
     }
 }

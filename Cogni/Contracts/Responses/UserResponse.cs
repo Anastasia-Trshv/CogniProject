@@ -8,7 +8,7 @@
         string? Image,
         string? BannerImage,
         string TypeMbti,
-        int IdRole,
+        string Role,
         DateTime? LastLogin,
         string? AToken,
         string? RToken

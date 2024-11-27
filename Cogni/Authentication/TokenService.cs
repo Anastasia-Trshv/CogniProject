@@ -70,5 +70,13 @@ namespace Cogni.Authentication
         {
             return DateTime.UtcNow.AddDays(RefressExpiryDays);
         }
+
+        public int GetIdFromToken(string token)
+        {
+            var claims = GetPrincipalFromExpiredToken(token);
+            var idclaim = claims.FindFirst(ClaimTypes.NameIdentifier);
+            int id = int.Parse(idclaim.Value);
+            return id;
+        }
     }
 }
