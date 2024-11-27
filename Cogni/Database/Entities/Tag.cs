@@ -5,7 +5,7 @@ namespace Cogni.Database.Entities;
 
 public partial class Tag
 {
-    public int IdTag { get; set; }
+    public int Id { get; set; }
 
     public string? NameTag { get; set; }
 

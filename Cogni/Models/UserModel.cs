@@ -34,7 +34,7 @@
 
         public DateTime? LastLogin { get; set; }
 
-        public UserModel(int idUser, string? name, string? description, string? email, string? image, int idRole, int idMbtiType, DateTime? lastLogin)
+        public UserModel(int idUser, string? name, string? description, string? email, string? image, int idRole, int idMbtiType, DateTime? lastLogin, byte[] salt)
         {
             Id = idUser;
             Name = name;
@@ -44,6 +44,7 @@
             IdRole = idRole;
             IdMbtiType = idMbtiType;
             LastLogin = lastLogin;
+            Salt = salt;
         }
         public UserModel() { }
     }

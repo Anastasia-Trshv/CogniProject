@@ -16,7 +16,7 @@ namespace Cogni.Database.Repositories
 
         public async Task<bool> CheckUser(string login)
         {
-            User? user = await _context.Customusers.FirstOrDefaultAsync(u=> u.Email==login);
+            User? user = await _context.Users.FirstOrDefaultAsync(u=> u.Email==login);
             if (user == null)
             {
                 return false;
@@ -26,16 +26,15 @@ namespace Cogni.Database.Repositories
 
         public async Task<int> Create(User user)
         {
-            await _context.Customusers.AddAsync(user);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            var us = await _context.Customusers.FirstAsync(l => user.Email == l.Email && user.PasswordHash == l.PasswordHash);
-            return us.Id;
+            return user.Id;
         }
 
         public async Task<UserModel> Get(string email)
         {
-           User? user = await _context.Customusers
+           User? user = await _context.Users
                 .Include(u => u.Avatars)
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
@@ -67,7 +66,7 @@ namespace Cogni.Database.Repositories
                
         public async Task SetMbtiType(UserModel user, int mbtiId)
         {
-            var u = await _context.Customusers
+            var u = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == user.Id);
             if (u != null)
             {
@@ -82,7 +81,7 @@ namespace Cogni.Database.Repositories
 
         public async Task<UserModel> Get(int id)
         {
-            var user = await _context.Customusers
+            var user = await _context.Users
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
                 .FirstOrDefaultAsync(u => u.Id == id);
@@ -94,7 +93,7 @@ namespace Cogni.Database.Repositories
 
         public async Task ChangeAvatar(int id, string picLink)
         {
-            var user = await _context.Customusers
+            var user = await _context.Users
                 .Include(u => u.Avatars)
                 .FirstOrDefaultAsync(u => u.Id== id);
 
@@ -114,21 +113,21 @@ namespace Cogni.Database.Repositories
 
         public async Task ChangeBanner(int id, string picLink)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.BannerImage = picLink;
             await _context.SaveChangesAsync();
         }
 
         public async Task ChangeName(int id, string name)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.Name = name;
             await _context.SaveChangesAsync();
         }
 
         public async Task ChangePassword(int id, string PasHash, byte[] salt)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.Salt = salt;
             user.PasswordHash = PasHash;
             await _context.SaveChangesAsync();
@@ -136,7 +135,7 @@ namespace Cogni.Database.Repositories
 
         public async Task ChangeDescription(int id, string description)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.Description = description;
             await _context.SaveChangesAsync();
         }
@@ -144,7 +143,7 @@ namespace Cogni.Database.Repositories
        
         public async Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
         {
-            var user = await _context.Customusers
+            var user = await _context.Users
                .Include(u => u.IdRoleNavigation)
                .FirstOrDefaultAsync(u => u.Id == id);
             return (user.RToken, user.RefreshTokenExpiryTime, user.IdRoleNavigation.NameRole);
@@ -152,7 +151,7 @@ namespace Cogni.Database.Repositories
 
         public async Task RemoveTokens(int id)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.AToken = null;
             user.RToken = null;
             user.RefreshTokenExpiryTime = default;
@@ -161,7 +160,7 @@ namespace Cogni.Database.Repositories
         
         public async Task AddTokens(int id, string RToken, string AToken, DateTime expiry)
         {
-            var user1 = await _context.Customusers.FindAsync(id);
+            var user1 = await _context.Users.FindAsync(id);
             user1.AToken = AToken;
             user1.RToken = RToken;
             user1.RefreshTokenExpiryTime = expiry;
@@ -170,13 +169,31 @@ namespace Cogni.Database.Repositories
 
         public async Task UpdateUsersAToken(int id, string atoken)
         {
-            var user = await _context.Customusers.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
             user.AToken = atoken;
             await _context.SaveChangesAsync();
         }
         private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
         {
-            return new UserModel(user.Id, user.Name, user.Description, user.Email, user.Image, user.IdRole, user.IdMbtiType, user.LastLogin);
+            return new UserModel
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Description = user.Description,
+                AToken = user.AToken,
+                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                RToken = user.RToken,
+                Salt = user.Salt,
+                PasswordHash = user.PasswordHash,
+                Email = user.Email,
+                Image = user.Image,
+                BannerImage = user.BannerImage,
+                IdRole = user.IdRole,
+                IdMbtiType = user.IdMbtiType,
+                MbtyType = user.IdMbtiTypeNavigation.NameOfType,
+                RoleName = user.IdRoleNavigation.NameRole
+
+            };
         }
 
     }

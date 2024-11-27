@@ -17,16 +17,16 @@ namespace Cogni.Database.Repositories
         {
             var questions = await _context.MbtiQuestions.ToListAsync();
             var questionModels = questions.Select(q => 
-                new QuestionModel(q.IdMbtiQuestion, q.Question)).ToList();
+                new QuestionModel(q.Id, q.Question)).ToList();
             return new TestModel(questionModels);
         }
 
         public async Task<QuestionModel?> GetById(int id)
         {
             var question = await _context.MbtiQuestions
-                .FirstOrDefaultAsync(u => u.IdMbtiQuestion == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
             return question == null ? null : 
-                new QuestionModel(question.IdMbtiQuestion, question.Question);
+                new QuestionModel(question.Id, question.Question);
         }
     }
 }

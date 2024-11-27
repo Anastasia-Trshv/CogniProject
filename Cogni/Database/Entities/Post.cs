@@ -5,7 +5,7 @@ namespace Cogni;
 
 public partial class Post
 {
-    public int IdPost { get; set; }
+    public int Id { get; set; }
 
     public string? PostBody { get; set; }
 

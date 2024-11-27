@@ -44,7 +44,7 @@ namespace Cogni.Controllers
         [HttpGet]
         public async Task<ActionResult<List<string>>> GetAllUsers()
         {
-            List<User> users = await _context.Customusers.ToListAsync();
+            List<User> users = await _context.Users.ToListAsync();
             return Ok(users);
         }
     }

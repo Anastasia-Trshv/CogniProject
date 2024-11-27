@@ -5,7 +5,7 @@ namespace Cogni.Database.Entities;
 
 public partial class Role
 {
-    public int IdRole { get; set; }
+    public int Id { get; set; }
 
     public string? NameRole { get; set; }
 
@@ -13,7 +13,7 @@ public partial class Role
 
     public Role(int idRole, string? nameRole)
     {
-        IdRole = idRole;
+        Id = idRole;
         NameRole = nameRole;
     }
     public Role() { }

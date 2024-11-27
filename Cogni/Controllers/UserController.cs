@@ -9,6 +9,7 @@ using Cogni.Authentication.Abstractions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.Swagger.Annotations;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Cogni.Controllers
 {
@@ -56,12 +57,13 @@ namespace Cogni.Controllers
             return Ok(response);
         }
 
-        [SwaggerOperation(Tags = new[] { "api" })]
+
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
-        public async Task<ActionResult> SetTestResult(HttpRequest request, [FromBody] SetTestResultRequest testRequest)
+        public async Task<ActionResult> SetTestResult([FromBody] SetTestResultRequest testRequest)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             // todo: get user from token?
             var user = new UserModel { Id = -1 };
@@ -71,41 +73,46 @@ namespace Cogni.Controllers
 
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeAvatar(HttpRequest request, [FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeAvatar([FromHeader] ContentType content)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeAvatar(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
             return Ok();
         }
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeBanner(HttpRequest request, [FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeBanner([FromHeader] ContentType content)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeBanner(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
             return Ok();
         }
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeDescription(HttpRequest request, [FromBody] ChangeDescriptionRequest descRequest)
+        public async Task<ActionResult> ChangeDescription([FromBody] ChangeDescriptionRequest descRequest)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeDescription (id, descRequest.Description);
             return Ok();
         }
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeName(HttpRequest request, [FromBody] ChangeNameRequest name)
+        public async Task<ActionResult> ChangeName([FromBody] ChangeNameRequest name)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeName(id, name.Name);
             return Ok();
         }
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangePassword(HttpRequest request, [FromBody] ChangePasswordRequest pasRequest)
+        public async Task<ActionResult> ChangePassword( [FromBody] ChangePasswordRequest pasRequest)
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             var result = await _userService.ChangePassword(id, pasRequest.OldPassword, pasRequest.NewPassword);
             if (result){
                 return Ok();
@@ -119,9 +126,10 @@ namespace Cogni.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<UserResponse>> GetUserById(HttpRequest request)
+        public async Task<ActionResult<UserResponse>> GetUserById()
         {
-            int id = _tokenService.GetIdFromToken(request.Headers["Authorization"]);
+            string token = Request.Headers["Authorization"];
+            int id = _tokenService.GetIdFromToken(token);
             var user = await _userService.Get(id);
             UserResponse response = new UserResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);
 

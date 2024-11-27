@@ -5,7 +5,7 @@ namespace Cogni;
 
 public partial class MbtiQuestion
 {
-    public int IdMbtiQuestion { get; set; }
+    public int Id { get; set; }
 
     public string? Question { get; set; }
 }

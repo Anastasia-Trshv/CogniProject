@@ -24,7 +24,7 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<Chat> Chats { get; set; }
 
-    public virtual DbSet<User> Customusers { get; set; }
+    public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Friend> Friends { get; set; }
 
@@ -48,7 +48,7 @@ public partial class CogniDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=89.46.131.128;Port=5432;Database=CogniDBv2;Username=CogniAdmin;Password=sddbjssb1221j");
+        => optionsBuilder.UseNpgsql("Host=89.46.131.128;Port=5432;Database=CogniDBv3;Username=CogniAdmin;Password=sddbjssb1221j");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,7 +58,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("article");
 
-            entity.Property(e => e.Id).HasColumnName("id_article");
+            entity.Property(e => e.Id)
+            .HasColumnName("id_article")
+            .ValueGeneratedOnAdd();
             entity.Property(e => e.ArticleBody)
                 .HasMaxLength(1024)
                 .HasColumnName("article_body");
@@ -79,7 +81,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("article_images");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.ArticleId).HasColumnName("article_id");
             entity.Property(e => e.ImageUrl)
                 .HasMaxLength(255)
@@ -96,7 +100,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("avatars");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.AvatarUrl)
                 .HasMaxLength(255)
                 .HasColumnName("avatar_url");
@@ -120,7 +126,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("chats");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.Chats)
@@ -134,7 +142,7 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("customuser");
 
-            entity.HasIndex(e => e.Name, "customuser_name_key").IsUnique();
+            entity.HasIndex(e => e.Name, "customuser_name_key");
 
             entity.Property(e => e.Id)
             .HasColumnName("id_user")
@@ -176,7 +184,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("friends");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.DateAdded)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
@@ -219,11 +229,13 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<MbtiQuestion>(entity =>
         {
-            entity.HasKey(e => e.IdMbtiQuestion).HasName("mbti_question_pkey");
+            entity.HasKey(e => e.Id).HasName("mbti_question_pkey");
 
             entity.ToTable("mbti_question");
 
-            entity.Property(e => e.IdMbtiQuestion).HasColumnName("id_mbti_question");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_mbti_question");
             entity.Property(e => e.Question)
                 .HasMaxLength(45)
                 .HasColumnName("question");
@@ -231,14 +243,37 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<MbtiType>(entity =>
         {
-            entity.HasKey(e => e.IdMbtiType).HasName("mbti_type_pkey");
+            entity.HasKey(e => e.Id).HasName("mbti_type_pkey");
 
             entity.ToTable("mbti_type");
 
-            entity.Property(e => e.IdMbtiType).HasColumnName("id_mbti_type");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_mbti_type");
             entity.Property(e => e.NameOfType)
                 .HasMaxLength(45)
                 .HasColumnName("name_of_type");
+            entity.HasData(
+                new MbtiType[]
+                {
+                    new MbtiType{Id = 1, NameOfType ="ENFJ"},
+                    new MbtiType{Id = 2, NameOfType ="ENTJ"},
+                    new MbtiType{Id = 3, NameOfType ="ENFP"},
+                    new MbtiType{Id = 4, NameOfType ="ENTP"},
+                    new MbtiType{Id = 5, NameOfType ="INFJ"},
+                    new MbtiType{Id = 6, NameOfType ="INTJ"},
+                    new MbtiType{Id = 7, NameOfType ="INFP"},
+                    new MbtiType{Id = 8, NameOfType ="INTP"},
+                    new MbtiType{Id = 9, NameOfType ="ISFP"},
+                    new MbtiType{Id = 10, NameOfType ="ISFG"},
+                    new MbtiType{Id = 11, NameOfType ="ESFP"},
+                    new MbtiType{Id = 12, NameOfType ="ESFJ"},
+                    new MbtiType{Id = 13, NameOfType ="ISTJ"},
+                    new MbtiType{Id = 14, NameOfType ="ISTP"},
+                    new MbtiType{Id = 15, NameOfType ="ESTP"},
+                    new MbtiType{Id = 16, NameOfType ="ESTJ"},
+                }
+                );
         });
 
         modelBuilder.Entity<Message>(entity =>
@@ -247,7 +282,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("messages");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.AttachmentUrl)
                 .HasMaxLength(255)
                 .HasColumnName("attachment_url");
@@ -266,11 +303,13 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.IdPost).HasName("post_pkey");
+            entity.HasKey(e => e.Id).HasName("post_pkey");
 
             entity.ToTable("post");
 
-            entity.Property(e => e.IdPost).HasColumnName("id_post");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_post");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.PostBody)
                 .HasMaxLength(1024)
@@ -288,7 +327,9 @@ public partial class CogniDbContext : DbContext
 
             entity.ToTable("post_images");
 
-            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id");
             entity.Property(e => e.ImageUrl)
                 .HasMaxLength(255)
                 .HasColumnName("image_url");
@@ -301,23 +342,35 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.IdRole).HasName("role_pkey");
+            entity.HasKey(e => e.Id).HasName("role_pkey");
 
             entity.ToTable("role");
 
-            entity.Property(e => e.IdRole).HasColumnName("id_role");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_role");
             entity.Property(e => e.NameRole)
                 .HasMaxLength(45)
                 .HasColumnName("name_role");
+            entity.HasData(
+                new Role[]
+                {
+                    new Role{ Id = 1, NameRole = "User"},
+                    new Role{ Id = 2, NameRole = "Admin"},
+                    new Role{ Id = 3, NameRole = "Moderator"}
+                }
+                );
         });
 
         modelBuilder.Entity<Tag>(entity =>
         {
-            entity.HasKey(e => e.IdTag).HasName("tag_pkey");
+            entity.HasKey(e => e.Id).HasName("tag_pkey");
 
             entity.ToTable("tag");
 
-            entity.Property(e => e.IdTag).HasColumnName("id_tag");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_tag");
             entity.Property(e => e.NameTag)
                 .HasMaxLength(45)
                 .HasColumnName("name_tag");
@@ -325,11 +378,13 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<UserTag>(entity =>
         {
-            entity.HasKey(e => e.IdUserTags).HasName("user_tags_pkey");
+            entity.HasKey(e => e.Id).HasName("user_tags_pkey");
 
             entity.ToTable("user_tags");
 
-            entity.Property(e => e.IdUserTags).HasColumnName("id_user_tags");
+            entity.Property(e => e.Id)
+            .ValueGeneratedOnAdd()
+            .HasColumnName("id_user_tags");
             entity.Property(e => e.IdTag).HasColumnName("id_tag");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
 
