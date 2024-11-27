@@ -41,6 +41,6 @@ namespace Cogni.Database.Repositories
             }
             await _cogniDbContext.SaveChangesAsync();
         }
-    }
+    
     }
 }

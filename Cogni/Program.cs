@@ -54,6 +54,8 @@ builder.Services.AddTransient<IPasswordHasher, PasswordHasher>();
 builder.Services.AddTransient<ITokenService, TokenService>();
 builder.Services.AddScoped<ITestService, TestService>();
 builder.Services.AddScoped<ITestRepository, TestRepository>();
+builder.Services.AddTransient<IUserTagRepository, UserTagRepository>();
+builder.Services.AddTransient<IUserTagService, UserTagService>();
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
