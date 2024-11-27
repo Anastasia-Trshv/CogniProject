@@ -28,16 +28,16 @@ namespace Cogni.Controllers
         /// <summary>
         /// Используется при регистрации для проверки уникальности логина
         /// </summary>
-        /// <remarks>Awesomeness!</remarks>
-        /// <response code="200">Product created</response>
-        /// <response code="400">Product has missing/invalid values</response>
-        /// <response code="500">Oops! Can't create your product right now</response>
         [HttpGet]
         public async Task<ActionResult<bool>> ChekUser(string login)
         {
             return Ok(await _userService.ChekUser(login));
         }
-
+        /// <summary>
+        /// Создание нового пользователя
+        /// </summary>
+        /// <response code="200">Пользователь создан</response>
+        /// <response code="404">Логин занят</response>
         [HttpPost]
         public async Task<ActionResult<long>> CreateUser([FromBody] SignUpRequest request)
         {

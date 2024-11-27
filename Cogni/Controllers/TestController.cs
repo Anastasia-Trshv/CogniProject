@@ -15,14 +15,29 @@ namespace Cogni.Controllers
         {
             _testService = testService;
         }
-        
+        /// <summary>
+        /// Получение всех вопросов теста
+        /// </summary>
+        /// <response code="200">Вопросы отправлены</response>
+        /// <response code="404">В бд нет вопросов или что-то сломалось</response>
         [HttpGet]
         public async Task<IActionResult> GetAllQuestions()
         {
             var questions = await _testService.GetAllQuestions();
-            return Ok(questions);
+            if (questions == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(questions);
+            }
         }
-
+        /// <summary>
+        /// Получение вопроса теста по id
+        /// </summary>
+        /// <response code="200">Вопросы отправлен</response>
+        /// <response code="404">В бд нет вопросов или что-то сломалось</response>
         [HttpGet]
         public async Task<IActionResult> GetQuestion(QuestionRequest request)
         {

@@ -47,5 +47,20 @@ namespace Cogni.Controllers
             List<User> users = await _context.Users.ToListAsync();
             return Ok(users);
         }
+        [HttpPost]
+        public async Task<ActionResult> CreateQuestion()
+        {
+            await _context.MbtiQuestions.AddRangeAsync(new MbtiQuestion[]
+             {
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" },
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" },
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" },
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" },
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" },
+            new MbtiQuestion { Question = "Почему у нас маскот это хомяк?" }
+             });
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
     }
 }
