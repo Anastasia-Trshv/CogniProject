@@ -81,12 +81,12 @@ namespace Cogni.Services
                     IdRole = 1,
                     IdMbtiType = user.MbtiId
                 };
-                int id = await _userRepository.Create(userEntity);
+                var newuser = await _userRepository.Create(userEntity);
                 var rtoken = _tokenService.GenerateRefreshToken();
-                var atoken = _tokenService.GenerateAccessToken(id, userEntity.IdRole.ToString());
+                var atoken = _tokenService.GenerateAccessToken(newuser.Id, newuser.RoleName);
                 var time = _tokenService.GetRefreshTokenExpireTime();
-                await _userRepository.AddTokens(id, rtoken, atoken, time);
-                return id;
+                await _userRepository.AddTokens(newuser.Id, rtoken, atoken, time);
+                return newuser.Id;
             }
             else
             {

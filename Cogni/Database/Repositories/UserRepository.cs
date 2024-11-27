@@ -24,12 +24,15 @@ namespace Cogni.Database.Repositories
             return true;
         }
 
-        public async Task<int> Create(User user)
+        public async Task<UserModel> Create(User user)
         {
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
+            _context.Entry(user).Reference(u => u.IdRoleNavigation).Load();
+            _context.Entry(user).Reference(u => u.IdMbtiTypeNavigation).Load();
+            UserModel model = Converter(user);
 
-            return user.Id;
+            return model;
         }
 
         public async Task<UserModel> Get(string email)

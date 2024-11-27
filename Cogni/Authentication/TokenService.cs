@@ -11,7 +11,7 @@ namespace Cogni.Authentication
     {
         const int RefressExpiryDays = 2;
 
-        public string GenerateAccessToken(long id, string role)
+        public string GenerateAccessToken(int id, string role)
         {
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -22,7 +22,7 @@ namespace Cogni.Authentication
                 }),
                 Issuer = AuthOptions.Issuer,
                 Audience = AuthOptions.Audience,
-                Expires = DateTime.Now.AddMinutes(AuthOptions.AccessTokenExpirationTime),
+                Expires = DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime),
                 SigningCredentials = new SigningCredentials(
                     AuthOptions.GetSymmetricSecurityKey(),
                     SecurityAlgorithms.HmacSha256)
@@ -53,7 +53,7 @@ namespace Cogni.Authentication
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthOptions.GetSymmetricSecurityKey().ToString())),
+                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
                 ValidateLifetime = true
             };
 

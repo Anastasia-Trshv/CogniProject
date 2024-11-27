@@ -19,9 +19,10 @@ namespace Cogni.Controllers
     {
         private readonly IUserService _userService;
         private readonly ITokenService _tokenService;
-        public UserController(IUserService service) 
+        public UserController(IUserService service, ITokenService tokenService) 
         {
             this._userService = service;
+            this._tokenService = tokenService;
         }
 
         

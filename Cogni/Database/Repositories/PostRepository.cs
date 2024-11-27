@@ -1,27 +1,43 @@
 ﻿using Cogni.Abstractions.Repositories;
+using Cogni.Database.Context;
+using Cogni.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cogni.Database.Repositories
 {
     public class PostRepository : IPostRepository
     {
-        public Task<Post> CreatePost(Post post)
+        private readonly CogniDbContext _context;
+        public PostRepository(CogniDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+        public async Task<Post> CreatePost(Post post)
+        {
+            await _context.Posts.AddAsync(post);
+            await _context.SaveChangesAsync();
+            return post;
         }
 
-        public Task<Post> DeletePost(int id)
+        public async Task DeletePost(int id)
         {
-            throw new NotImplementedException();
+            Post post = await _context.Posts.FindAsync(id);
+            _context.Remove(post);
+            await _context.SaveChangesAsync();
         }
 
-        public Task<List<Post>> GetAllUserPosts(int id)
+        public async Task<List<Post>> GetAllUserPosts(int id)
         {
-            throw new NotImplementedException();
+            var posts = await _context.Posts.Where(u => u.Id == id).ToListAsync();
+            return posts;
         }
 
-        public Task<Post> UpdatePost(Post post)
+        public async Task<Post> UpdatePost(PostModel post)
         {
-            throw new NotImplementedException();
+            Post up = new Post { Id = post.Id , IdUser = post.IdUser, PostBody = post.PostBody, PostImages = post.PostImages};
+            await _context.SaveChangesAsync();
+            return up;
+
         }
     }
 }

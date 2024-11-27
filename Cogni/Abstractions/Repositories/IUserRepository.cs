@@ -6,7 +6,7 @@ namespace Cogni.Abstractions.Repositories
     {
         Task<UserModel> Get(string login);//вход
         Task<UserModel> Get(int id); //получение всех данных для страницы профиля
-        Task<int> Create(User user);//создание
+        Task<UserModel> Create(User user);//создание
         Task<bool> CheckUser(string login);//проверка существования пользователя с таким логином
         Task SetMbtiType(UserModel user, int mbtiId);//установить результаты теста или изменить тип MBTY
         Task ChangeAvatar(int id,string picLink);//изменить автарарку
