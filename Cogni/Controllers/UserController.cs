@@ -49,11 +49,11 @@ namespace Cogni.Controllers
 
 
         [HttpPost]
-        public async Task<ActionResult<UserResponse>> GetUserByLogin([FromBody] LoginRequest request)
+        public async Task<ActionResult<FullUserResponse>> GetUserByLogin([FromBody] LoginRequest request)
         {
             var user = await _userService.GetUser(request.login, request.password);
             //конверация в userresponse
-            var response = new UserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
+            var response = new FullUserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
 
             return Ok(response);
         }
@@ -127,12 +127,10 @@ namespace Cogni.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<UserResponse>> GetUserById()
+        public async Task<ActionResult<UserByIdResponse>> GetUserById(int id)
         {
-            string token = Request.Headers["Authorization"];
-            int id = _tokenService.GetIdFromToken(token);
             var user = await _userService.Get(id);
-            UserResponse response = new UserResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);
+            UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType,user.LastLogin);
 
             return Ok(response);
         }

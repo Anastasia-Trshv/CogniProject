@@ -1,6 +1,6 @@
 ﻿namespace Cogni.Contracts.Responses
 {
-    public record UserResponse
+    public record UserByIdResponse
     (
         int Id,
         string Name,
@@ -8,9 +8,6 @@
         string? Image,
         string? BannerImage,
         string TypeMbti,
-        string Role,
-        DateTime? LastLogin,
-        string? AToken,
-        string? RToken
+        DateTime? LastLogin
     );
 }

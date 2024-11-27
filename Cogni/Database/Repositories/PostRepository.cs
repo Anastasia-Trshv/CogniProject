@@ -28,11 +28,14 @@ namespace Cogni.Database.Repositories
 
         public async Task<List<Post>> GetAllUserPosts(int id)
         {
-            var posts = await _context.Posts.Where(u => u.Id == id).ToListAsync();
+            var posts = await _context.Posts
+                .Include(a => a.PostImages)
+                .Where(u => u.Id == id)
+                .ToListAsync();
             return posts;
         }
 
-        public async Task<Post> UpdatePost(PostModel post)
+        public async Task<Post> UpdatePost(Post post)
         {
             Post up = new Post { Id = post.Id , IdUser = post.IdUser, PostBody = post.PostBody, PostImages = post.PostImages};
             await _context.SaveChangesAsync();
