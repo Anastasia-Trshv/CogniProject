@@ -67,10 +67,10 @@ namespace Cogni.Database.Repositories
 
         }
                
-        public async Task SetMbtiType(UserModel user, int mbtiId)
+        public async Task SetMbtiType(int userId, int mbtiId)
         {
             var u = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == user.Id);
+                .FirstOrDefaultAsync(u => u.Id == userId);
             if (u != null)
             {
                 u.IdMbtiType = mbtiId;
@@ -121,11 +121,19 @@ namespace Cogni.Database.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task ChangeName(int id, string name)
+        public async Task<bool> ChangeName(int id, string name)
         {
             var user = await _context.Users.FindAsync(id);
             user.Name = name;
             await _context.SaveChangesAsync();
+            if(user.Name == name)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public async Task ChangePassword(int id, string PasHash, byte[] salt)
@@ -136,11 +144,19 @@ namespace Cogni.Database.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task ChangeDescription(int id, string description)
+        public async Task<bool> ChangeDescription(int id, string description)
         {
             var user = await _context.Users.FindAsync(id);
             user.Description = description;
             await _context.SaveChangesAsync();
+            if (user.Description == description)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
        

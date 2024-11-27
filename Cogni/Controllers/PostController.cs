@@ -25,6 +25,7 @@ namespace Cogni.Controllers
         public async Task<ActionResult<PostResponse>> CreatePost(PostRequest post)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
             var p = await _postService.CreatePost(post);
             var list = p.PostImages.ToList();
@@ -48,6 +49,7 @@ namespace Cogni.Controllers
         public async Task<ActionResult<List<PostResponse>>> GetAllUserPost()
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
             var posts = await _postService.GetAllUserPosts(id);
             var list = new List<PostResponse>(); 

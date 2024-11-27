@@ -52,7 +52,11 @@ namespace Cogni.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Вход пользователя в систему
+        /// </summary>
+        /// <response code="200">Пользователь найден, данные для входа верны</response>
+        /// <response code="404">Неверный логин или пароль</response>
         [HttpPost]
         public async Task<ActionResult<FullUserResponse>> GetUserByLogin([FromBody] LoginRequest request)
         {
@@ -70,17 +74,20 @@ namespace Cogni.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Задает mbti тип пользователя
+        /// </summary>
+        /// <response code="200">Тип изменен</response>
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         public async Task<ActionResult> SetTestResult([FromBody] SetTestResultRequest testRequest)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
+
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
-            // todo: get user from token?
-            var user = new UserModel { Id = -1 };
-            await _userService.SetMbtiType(user, testRequest.mbti_id);
+            await _userService.SetMbtiType(id, testRequest.mbti_id);
             return Ok(testRequest.mbti_id);
         }
 
@@ -89,6 +96,7 @@ namespace Cogni.Controllers
         public async Task<ActionResult> ChangeAvatar([FromHeader] ContentType content)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeAvatar(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
             return Ok();
@@ -98,33 +106,67 @@ namespace Cogni.Controllers
         public async Task<ActionResult> ChangeBanner([FromHeader] ContentType content)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
             await _userService.ChangeBanner(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
             return Ok();
         }
+
+        /// <summary>
+        /// Изменяет описание пользователя
+        /// </summary>
+        /// <response code="200">Описание изменено</response>
+        /// <response code="500">Что-то пошло не так</response>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeDescription([FromBody] ChangeDescriptionRequest descRequest)
+        public async Task<ActionResult<bool>> ChangeDescription([FromBody] ChangeDescriptionRequest descRequest)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeDescription (id, descRequest.Description);
+            var res = await _userService.ChangeDescription (id, descRequest.Description);
+            if (res)
+            {
             return Ok();
+            }
+            else
+            {
+                return StatusCode(500);
+            }
         }
+        /// <summary>
+        /// Изменяет имя пользователя
+        /// </summary>
+        /// <response code="200">Имя изменено</response>
+        /// <response code="500">Что-то пошло не так</response>
         [HttpPut]
         [Authorize]
         public async Task<ActionResult> ChangeName([FromBody] ChangeNameRequest name)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeName(id, name.Name);
-            return Ok();
+            var res = await _userService.ChangeName(id, name.Name);
+            if (res)
+            {
+                return Ok();
+            }
+            else
+            {
+                return StatusCode(500);
+            }
         }
+        /// <summary>
+        /// Изменяет пароль пользователя
+        /// </summary>
+        /// <response code="200">Пароль изменен</response>
+        /// <response code="400">Старый пароль не совпадает</response>
         [HttpPut]
         [Authorize]
         public async Task<ActionResult> ChangePassword( [FromBody] ChangePasswordRequest pasRequest)
         {
             string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
             var result = await _userService.ChangePassword(id, pasRequest.OldPassword, pasRequest.NewPassword);
             if (result){
@@ -136,7 +178,11 @@ namespace Cogni.Controllers
             }
             
         }
-
+        /// <summary>
+        /// Возвращает общедоступные данные пользователя по id
+        /// </summary>
+        /// <response code="200">Пользователь найден</response>
+        /// <response code="404">Пользователь не найден</response>
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<UserByIdResponse>> GetUserById(int id)

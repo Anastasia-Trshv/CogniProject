@@ -33,14 +33,14 @@ namespace Cogni.Services
             await _userRepository.ChangeBanner(id, picLink);
         }
 
-        public async Task ChangeDescription(int id, string description)
+        public async Task<bool> ChangeDescription(int id, string description)
         {
-            await _userRepository.ChangeDescription(id, description);
+            return await _userRepository.ChangeDescription(id, description);
         }
 
-        public async Task ChangeName(int id, string name)
+        public async Task<bool> ChangeName(int id, string name)
         {
-            await _userRepository.ChangeName(id, name);
+             return await _userRepository.ChangeName(id, name);
         }
 
         public async Task<bool> ChangePassword(int id, string oldPassword, string newPassword)
@@ -108,8 +108,11 @@ namespace Cogni.Services
         {
             
             var user =  await _userRepository.Get(email);
-
-            if (_passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
+            if(user.Id == 0)
+            {
+                return new UserModel();
+            }
+            else if (_passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
             {
                 return user;
             }
@@ -124,9 +127,9 @@ namespace Cogni.Services
            await _userRepository.RemoveTokens(id);
         }
 
-        public async Task SetMbtiType(UserModel user, int mbtiId)
+        public async Task SetMbtiType(int userId, int mbtiId)
         {
-            await _userRepository.SetMbtiType(user, mbtiId);
+            await _userRepository.SetMbtiType(userId, mbtiId);
         }
 
         public async Task UpdateUsersAToken(int id, string atoken)
