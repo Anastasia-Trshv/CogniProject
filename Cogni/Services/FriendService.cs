@@ -25,7 +25,7 @@ namespace Cogni.Services
 
         public async Task<int> GetNumOfFriends(int userId)
         {
-            return(await _friendRepository.GetNumOfFriends(userId));
+            return await _friendRepository.GetNumOfFriends(userId);
         }
     }
 }

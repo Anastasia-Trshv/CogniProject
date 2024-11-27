@@ -53,7 +53,8 @@ namespace Cogni.Database.Repositories
 
         public async Task<int> GetNumOfFriends(int userId)
         {
-            return await _context.Friends.Where(f => f.UserId == userId || f.FriendId == userId).CountAsync();
+           var list = await _context.Friends.Where(f => f.UserId == userId || f.FriendId == userId).CountAsync();
+            return list;
         }
     }
 }

@@ -16,9 +16,16 @@ namespace Cogni.Authentication
             _tokenService = tokenService;
         }
 
+        /// <summary>
+        /// Обновляет access токен пользователя
+        /// </summary>
+        /// <remarks>Refresh-токен должен быть отправлен в заголовке "Refresh-token"</remarks>
+        /// <response code="200">Токен обновлен.</response>
+        /// <response code="401">Рефреш токен невалиден. Разлогиньте пользователяю</response>
         [HttpGet]
-        public async Task<ActionResult<string>> Refresh(int id, string refreshToken)
+        public async Task<ActionResult<string>> Refresh(int id)
         {
+            string refreshToken = Request.Headers["Refresh-token"];
             var data = await _userService.GetRTokenAndExpiryTimeAndRole(id);
             var expiryTime = data.Item2;
             var validRToken = data.Item1;

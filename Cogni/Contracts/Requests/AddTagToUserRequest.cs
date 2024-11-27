@@ -2,9 +2,8 @@
 
 namespace Cogni.Contracts.Requests
 {
-    public record TagRequest 
+    public record AddTagToUserRequest 
     (
-        int Id ,
-        string? NameTag 
+        int Id 
     );
 }

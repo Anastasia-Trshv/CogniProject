@@ -16,8 +16,9 @@ namespace Cogni.Database.Repositories
         {
             foreach (var tagItem in tag)
             {
-                await _cogniDbContext.UserTags.AddAsync(new UserTag { IdTag = tagItem.Id, IdUser = userId, IdTagNavigation = tagItem});
+                await _cogniDbContext.UserTags.AddAsync(new UserTag{ IdTag = tagItem.Id, IdUser = userId});
             }
+            await _cogniDbContext.SaveChangesAsync();
         }
 
         public async Task<List<Tag>> GetUserTags(int userId)
@@ -33,7 +34,7 @@ namespace Cogni.Database.Repositories
         {
             foreach (var tagItem in tag)
             {
-                var userTag = await _cogniDbContext.UserTags.Where(u => u.IdUser == userId && u.IdTagNavigation == tagItem).FirstOrDefaultAsync();
+                var userTag = await _cogniDbContext.UserTags.Where(u => u.IdUser == userId && u.IdTag == tagItem.Id).FirstOrDefaultAsync();
                 if (userTag != null)
                 {
                     _cogniDbContext.UserTags.Remove(userTag);

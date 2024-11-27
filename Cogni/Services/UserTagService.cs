@@ -16,12 +16,12 @@ namespace Cogni.Services
             this._usesTagRepository = usesTagRepository;
         }
 
-        public async Task AddNewTagToUser(int userId, List<TagRequest> tag)
+        public async Task AddNewTagToUser(int userId, List<AddTagToUserRequest> tag)
         {
             List<Database.Entities.Tag> tags = new List<Database.Entities.Tag>();
             foreach(var tagRequest in tag) 
             {
-                tags.Add(new Database.Entities.Tag { Id =tagRequest.Id, NameTag= tagRequest.NameTag });
+                tags.Add(new Database.Entities.Tag { Id =tagRequest.Id});
             }
             await _usesTagRepository.AddNewTagToUser(userId, tags);
         }
@@ -37,12 +37,12 @@ namespace Cogni.Services
             return newtags;
         }
 
-        public async Task RemoveTagFromUser(int userId, List<TagRequest> tag)
+        public async Task RemoveTagFromUser(int userId, List<AddTagToUserRequest> tag)
         {
             List<Database.Entities.Tag> tags = new List<Database.Entities.Tag>();
             foreach (var tagRequest in tag)
             {
-                tags.Add(new Database.Entities.Tag { Id = tagRequest.Id, NameTag = tagRequest.NameTag });
+                tags.Add(new Database.Entities.Tag { Id = tagRequest.Id });
             }
             await _usesTagRepository.RemoveTagFromUser(userId, tags);
         }

@@ -3,6 +3,7 @@ using System;
 using Cogni.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cogni.Migrations
 {
     [DbContext(typeof(CogniDbContext))]
-    partial class CogniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241127225808_UpdateFriendPKey")]
+    partial class UpdateFriendPKey
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -239,6 +242,13 @@ namespace Cogni.Migrations
                         .HasColumnType("timestamp without time zone")
                         .HasColumnName("date_added")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.HasKey("FriendId", "UserId")
                         .HasName("friends_pkey");

@@ -19,7 +19,7 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<int>> GetNumOfFriends(int id)
         {
-            return Ok(_friendService.GetNumOfFriends(id));
+            return Ok(await _friendService.GetNumOfFriends(id));
         }
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]

@@ -21,9 +21,12 @@ namespace Cogni.Controllers
             _tokenService = tokenService;
         }
 
+        /// <summary>
+        /// Связывает тэг с пользователем
+        /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
-        public async Task<ActionResult> AddNewTagToUser(List<TagRequest> tags)
+        public async Task<ActionResult> AddNewTagToUser(List<AddTagToUserRequest> tags)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
@@ -32,6 +35,9 @@ namespace Cogni.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// Возвращает все тэги пользователя
+        /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]
         public async Task<ActionResult<List<TagResponse>>> GetUserTags()
@@ -48,9 +54,12 @@ namespace Cogni.Controllers
             return Ok(result); 
         }
 
+        /// <summary>
+        /// Отвязывает тэг от пользователя
+        /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpDelete]
         [Authorize]
-        public async Task<ActionResult> RemoveTagFromUser(List<TagRequest> tags)
+        public async Task<ActionResult> RemoveTagFromUser(List<AddTagToUserRequest> tags)
         {
         string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);

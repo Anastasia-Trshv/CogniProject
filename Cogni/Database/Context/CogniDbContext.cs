@@ -180,13 +180,10 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Friend>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("friends_pkey");
+            //entity.HasKey(e => e.Id).HasName("friends_pkey");
+            entity.HasKey(e => new { e.FriendId, e.UserId }).HasName("friends_pkey");
 
             entity.ToTable("friends");
-
-            entity.Property(e => e.Id)
-            .ValueGeneratedOnAdd()
-            .HasColumnName("id");
             entity.Property(e => e.DateAdded)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
