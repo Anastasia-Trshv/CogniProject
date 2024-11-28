@@ -15,6 +15,7 @@ namespace Cogni.Services
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
         private readonly IMbtiService _mbtiService;
+        private readonly IImageService _imageService;
         public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher, IMbtiService mbtiService)
         {
             _userRepository = repo;
@@ -23,15 +24,15 @@ namespace Cogni.Services
             _mbtiService = mbtiService;
         }
 
-        public async Task ChangeAvatar(int id, string picLink)
+        public async Task ChangeAvatar(int id, IFormFile picture)
         {
-            //TODO: записать картинку на облако и вернуть ее url
+            var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeAvatar(id, picLink);
         }
 
-        public async Task ChangeBanner(int id, string picLink)
+        public async Task ChangeBanner(int id, IFormFile picture)
         {
-            //TODO: записать картинку на облако и вернуть ее url
+            var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeBanner(id, picLink);
         }
 

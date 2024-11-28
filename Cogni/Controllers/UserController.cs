@@ -89,25 +89,30 @@ namespace Cogni.Controllers
             await _userService.SetMbtiType(id, testRequest.mbtiType.ToUpper());
             return Ok();
         }
-
+        /// <summary>
+        /// Меняет текущую аватарку на новую
+        /// </summary>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeAvatar([FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeAvatar([FromBody] IFormFile picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeAvatar(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
+            await _userService.ChangeAvatar(id, picture);
             return Ok();
         }
+        /// <summary>
+        /// Меняет текущий баннер на новый
+        /// </summary>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeBanner([FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeBanner([FromHeader] IFormFile picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeBanner(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
+            await _userService.ChangeBanner(id, picture);
             return Ok();
         }
 

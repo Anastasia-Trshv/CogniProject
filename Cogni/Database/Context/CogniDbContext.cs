@@ -234,7 +234,7 @@ public partial class CogniDbContext : DbContext
             .ValueGeneratedOnAdd()
             .HasColumnName("id_mbti_question");
             entity.Property(e => e.Question)
-                .HasMaxLength(45)
+                .HasMaxLength(130)
                 .HasColumnName("question");
         });
 
