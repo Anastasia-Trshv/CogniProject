@@ -5,9 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
 
 namespace Cogni.Controllers
-{
+{ 
     [ApiController]
     [Route("[controller]/[action]")]
+    
     public class CogniController : ControllerBase//временный контроллер
     {
         private readonly CogniDbContext _context;
@@ -15,6 +16,9 @@ namespace Cogni.Controllers
         {
             _context = cogniDb;
         }
+        /// <summary>
+        /// Контроллер для тестов бэка, все методы не для фронта
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<int>> CreateRole(string roleName, int id)
         {
@@ -104,5 +108,10 @@ namespace Cogni.Controllers
         //     _context.Friends.Remove(a);
         //     await _context.SaveChangesAsync();
         //}
+        [HttpGet]
+        public async Task<List<Post>> GetAllPosts()
+        {
+            return await _context.Posts.ToListAsync();
+        }
     }
 }

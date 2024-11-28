@@ -13,9 +13,9 @@ namespace Cogni.Services
             _postRepository = postRepository;
         }
 
-        public async Task<Post> CreatePost(PostRequest post)
+        public async Task<Post> CreatePost(PostRequest post, int userid)
         {
-            var p = new Post { Id = post.Id, IdUser = post.IdUser, PostBody = post.PostBody};
+            var p = new Post { IdUser = userid, PostBody = post.PostBody};
             //TODO отправка картинки на облако и получение ссылки
             foreach (var i in post.PostImages)
             {

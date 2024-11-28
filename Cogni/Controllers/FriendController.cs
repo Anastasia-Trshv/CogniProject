@@ -15,12 +15,18 @@ namespace Cogni.Controllers
         {
             _friendService = friendService;
         }
+        /// <summary>
+        /// Получение количества друзей пользователя по id
+        /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]
         public async Task<ActionResult<int>> GetNumOfFriends(int id)
         {
             return Ok(await _friendService.GetNumOfFriends(id));
         }
+        /// <summary>
+        /// Возвращает 6 фото и 6 id пользователй для отображения на странице профиля
+        /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]
         public async Task<ActionResult<List<FriendsPreviewResponse>>> GetFriendsPreview(int id)

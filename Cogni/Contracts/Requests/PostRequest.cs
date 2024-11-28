@@ -2,9 +2,7 @@
 {
     public record PostRequest
     (
-        int Id,
         string? PostBody, 
-        int IdUser,
-        ICollection<byte[]>? PostImages
+        ICollection<string>? PostImages
         );
 }

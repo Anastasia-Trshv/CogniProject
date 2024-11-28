@@ -39,13 +39,20 @@ namespace Cogni.Database.Repositories
             {
                 var e = await _context.Users
                      .Include(u => u.Avatars)
-                    .FirstOrDefaultAsync(u => u.Id == userId);
+                    .FirstOrDefaultAsync(u => u.Id == f);
                 users.Add(e);
             }
             foreach (var f in users)
             {
-                var e = f.Avatars.FirstOrDefault(a => a.IsActive ==true);
-                list2.Add((f.Id, e.AvatarUrl));
+                if (f.Avatars.Any())
+                {
+                    var e = f.Avatars.FirstOrDefault(a => a.IsActive ==true);
+                    list2.Add((f.Id, e.AvatarUrl));
+                }
+                else
+                {
+                    list2.Add((f.Id, "https://yt3.googleusercontent.com/cBNnmASNGeUEDG3ij8pHF6592DTJWnwRPsrAGIql7p5P7hdw9VwQ_HJdZG9Pwjk806tQCMTbhw=s900-c-k-c0x00ffffff-no-rj"));
+                }
             }
             
             return list2;
