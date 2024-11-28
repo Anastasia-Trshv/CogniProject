@@ -39,16 +39,16 @@ namespace Cogni.Controllers
         /// <response code="200">Пользователь создан</response>
         /// <response code="404">Логин занят</response>
         [HttpPost]
-        public async Task<ActionResult<long>> CreateUser([FromBody] SignUpRequest request)
+        public async Task<ActionResult<FullUserResponse>> CreateUser([FromBody] SignUpRequest request)
         {
             var result = await _userService.CreateUser(request);
-            if(result == 0)
+            if(result.Id == 0)
             {
                 return BadRequest("Логин занят");
             }
             else{
-
-                return Ok(result);
+                var newUser = new FullUserResponse(result.Id, result.Name, result.Surname, result.Description, result.Image, result.BannerImage, result.MbtyType, result.RoleName, result.LastLogin, result.AToken, result.RToken);
+                return Ok(newUser);
             }
         }
 
@@ -68,7 +68,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                var response = new FullUserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
+                var response = new FullUserResponse(user.Id, user.Name, user.Surname, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
 
                 return Ok(response);
             }
@@ -148,7 +148,7 @@ namespace Cogni.Controllers
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            var res = await _userService.ChangeName(id, name.Name);
+            var res = await _userService.ChangeName(id, name.Name, name.Surname);
             if (res)
             {
                 return Ok();
@@ -196,7 +196,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.LastLogin);
+                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Surname ,user.Description, user.Image, user.BannerImage, user.MbtyType, user.LastLogin);
 
                 return Ok(response);
             }
