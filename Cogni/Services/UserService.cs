@@ -14,11 +14,13 @@ namespace Cogni.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
-        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher) 
+        private readonly IMbtiService _mbtiService;
+        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher, IMbtiService mbtiService)
         {
             _userRepository = repo;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
+            _mbtiService = mbtiService;
         }
 
         public async Task ChangeAvatar(int id, string picLink)
@@ -72,6 +74,8 @@ namespace Cogni.Services
 
                 byte[] salt;
                 string passHash = _passwordHasher.HashPassword(user.Password, out salt);
+                var typeid = await _mbtiService.GetMbtiTypeIdByName(user.MbtiType);
+
                 User userEntity = new User
                 {
                     Name = user.Name,
@@ -79,7 +83,7 @@ namespace Cogni.Services
                     PasswordHash = passHash,
                     Salt = salt,
                     IdRole = 1,
-                    IdMbtiType = user.MbtiId
+                    IdMbtiType = typeid
                 };
                 var newuser = await _userRepository.Create(userEntity);
                 var rtoken = _tokenService.GenerateRefreshToken();
@@ -127,9 +131,10 @@ namespace Cogni.Services
            await _userRepository.RemoveTokens(id);
         }
 
-        public async Task SetMbtiType(int userId, int mbtiId)
+        public async Task SetMbtiType(int userId, string mbtiType)
         {
-            await _userRepository.SetMbtiType(userId, mbtiId);
+            var typeId =await _mbtiService.GetMbtiTypeIdByName(mbtiType);
+            await _userRepository.SetMbtiType(userId, typeId);
         }
 
         public async Task UpdateUsersAToken(int id, string atoken)

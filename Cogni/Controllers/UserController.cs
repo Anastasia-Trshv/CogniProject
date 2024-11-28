@@ -58,9 +58,9 @@ namespace Cogni.Controllers
         /// <response code="200">Пользователь найден, данные для входа верны</response>
         /// <response code="404">Неверный логин или пароль</response>
         [HttpPost]
-        public async Task<ActionResult<FullUserResponse>> GetUserByLogin([FromBody] LoginRequest request)
+        public async Task<ActionResult<FullUserResponse>> GetUserByEmail([FromBody] LoginRequest request)
         {
-            var user = await _userService.GetUser(request.login, request.password);
+            var user = await _userService.GetUser(request.email, request.password);
             //конверация в userresponse
             if(user.Id == 0)
             {
@@ -87,7 +87,7 @@ namespace Cogni.Controllers
             int id = _tokenService.GetIdFromToken(token);
 
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
-            await _userService.SetMbtiType(id, testRequest.mbti_id);
+            await _userService.SetMbtiType(id, testRequest.mbtiType);
             // no need to return anything, it was just for testing
             // return Ok(testRequest.mbti_id);
             return Ok();

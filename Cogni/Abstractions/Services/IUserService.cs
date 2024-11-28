@@ -11,7 +11,7 @@ namespace Cogni.Abstractions.Services
         Task<int> CreateUser(SignUpRequest user);
         Task<UserModel> GetUser(string email, string password);
         Task<UserModel> Get(int id); //получение всех данных для страницы профиля
-        Task SetMbtiType(int userId, int mbtiId);
+        Task SetMbtiType(int userId, string mbtiType);
         Task ChangeAvatar(int id, string picLink);//изменить автарарку
         Task ChangeBanner(int id, string picLink);//изменить баннер на странице пользователя
         Task<bool> ChangeName(int id, string name);//изменить имя
