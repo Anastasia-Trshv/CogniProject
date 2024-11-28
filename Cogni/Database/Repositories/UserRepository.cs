@@ -121,12 +121,13 @@ namespace Cogni.Database.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> ChangeName(int id, string name)
+        public async Task<bool> ChangeName(int id, string name, string surname)
         {
             var user = await _context.Users.FindAsync(id);
             user.Name = name;
+            user.Surname = surname;
             await _context.SaveChangesAsync();
-            if(user.Name == name)
+            if(user.Name == name && user.Surname == surname)
             {
                 return true;
             }
@@ -198,6 +199,7 @@ namespace Cogni.Database.Repositories
             {
                 Id = user.Id,
                 Name = user.Name,
+                Surname = user.Surname,
                 Description = user.Description,
                 AToken = user.AToken,
                 RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
@@ -210,7 +212,8 @@ namespace Cogni.Database.Repositories
                 IdRole = user.IdRole,
                 IdMbtiType = user.IdMbtiType,
                 MbtyType = user.IdMbtiTypeNavigation.NameOfType,
-                RoleName = user.IdRoleNavigation.NameRole
+                RoleName = user.IdRoleNavigation.NameRole,
+                LastLogin= user.LastLogin
 
             };
         }

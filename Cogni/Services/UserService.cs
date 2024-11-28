@@ -40,9 +40,9 @@ namespace Cogni.Services
             return await _userRepository.ChangeDescription(id, description);
         }
 
-        public async Task<bool> ChangeName(int id, string name)
+        public async Task<bool> ChangeName(int id, string name, string surname)
         {
-             return await _userRepository.ChangeName(id, name);
+             return await _userRepository.ChangeName(id, name, surname);
         }
 
         public async Task<bool> ChangePassword(int id, string oldPassword, string newPassword)
@@ -67,7 +67,7 @@ namespace Cogni.Services
             return await _userRepository.CheckUser(email);
         }
 
-        public async Task<int> CreateUser(SignUpRequest user)
+        public async Task<UserModel> CreateUser(SignUpRequest user)
         {
             if (await _userRepository.CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
             {
@@ -79,22 +79,29 @@ namespace Cogni.Services
                 User userEntity = new User
                 {
                     Name = user.Name,
+                    Surname = user.Surname,
                     Email = user.Email,
                     PasswordHash = passHash,
                     Salt = salt,
                     IdRole = 1,
-                    IdMbtiType = typeid
+                    IdMbtiType = typeid,
+                    LastLogin = DateTime.Now,
                 };
                 var newuser = await _userRepository.Create(userEntity);
                 var rtoken = _tokenService.GenerateRefreshToken();
                 var atoken = _tokenService.GenerateAccessToken(newuser.Id, newuser.RoleName);
                 var time = _tokenService.GetRefreshTokenExpireTime();
                 await _userRepository.AddTokens(newuser.Id, rtoken, atoken, time);
-                return newuser.Id;
+
+                newuser.AToken = atoken;
+                newuser.RToken = rtoken;
+                newuser.RefreshTokenExpiryTime = time;
+
+                return newuser;
             }
             else
             {
-                return 0;
+                return new UserModel();
             }
         }
 
