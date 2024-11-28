@@ -1,7 +1,5 @@
 using Cogni.Abstractions.Services;
-using Cogni.Models;
 using Cogni.Abstractions.Repositories;
-using Microsoft.AspNetCore.Http;
 using SixLabors.ImageSharp;
 
 namespace Cogni.Services
@@ -9,14 +7,12 @@ namespace Cogni.Services
     public class ImageService : IImageService
     {
         private readonly IImageRepository _imageRepository;
-        private readonly ILogger<ImageService> _logger;
-        public ImageService(IImageRepository imageRepository, ILogger<ImageService> logger)
+        public ImageService(IImageRepository imageRepository)
         {
             _imageRepository = imageRepository;
-            _logger = logger;
         }
-
-        public async Task<ImageUrlModel> UploadImage(IFormFile file)
+        // Добавляет изображение на сервер и возвращает URL с ID
+        public async Task<String> UploadImage(IFormFile file)
         {
             if (!file.ContentType.StartsWith("image/jpeg") && !file.ContentType.StartsWith("image/png"))
                 throw new InvalidDataException("Изображения должны быть в формате JPG или PNG");
@@ -30,6 +26,7 @@ namespace Cogni.Services
             return imageUrl;
         }
 
+        // Удаляет изображение с сервера по ID
         public async Task DeleteImage(string id)
         {
             await _imageRepository.DeleteImage(id);
