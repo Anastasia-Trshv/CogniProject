@@ -85,11 +85,8 @@ namespace Cogni.Controllers
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
-            await _userService.SetMbtiType(id, testRequest.mbtiType);
-            // no need to return anything, it was just for testing
-            // return Ok(testRequest.mbti_id);
+            await _userService.SetMbtiType(id, testRequest.mbtiType.ToUpper());
             return Ok();
         }
 
