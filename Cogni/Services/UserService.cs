@@ -125,6 +125,13 @@ namespace Cogni.Services
             }
             else if (_passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
             {
+                var atoken = _tokenService.GenerateAccessToken(user.Id, user.RoleName);
+                var rtoken = _tokenService.GenerateRefreshToken();
+                var time = _tokenService.GetRefreshTokenExpireTime();
+                _userRepository.AddTokens(user.Id, rtoken, atoken, time);
+                user.AToken= atoken;
+                user.RefreshTokenExpiryTime= time;
+                user.RToken = rtoken;
                 return user;
             }
             else
