@@ -113,5 +113,11 @@ namespace Cogni.Controllers
         {
             return await _context.Posts.ToListAsync();
         }
+        [HttpDelete]
+        public async Task DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            _context.Users.Remove(user);
+        }
     }
 }
