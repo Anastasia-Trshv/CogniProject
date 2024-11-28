@@ -88,7 +88,9 @@ namespace Cogni.Controllers
 
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             await _userService.SetMbtiType(id, testRequest.mbti_id);
-            return Ok(testRequest.mbti_id);
+            // no need to return anything, it was just for testing
+            // return Ok(testRequest.mbti_id);
+            return Ok();
         }
 
         [HttpPut]
