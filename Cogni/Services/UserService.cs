@@ -16,24 +16,27 @@ namespace Cogni.Services
         private readonly ITokenService _tokenService;
         private readonly IMbtiService _mbtiService;
         private readonly IImageService _imageService;
-        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher, IMbtiService mbtiService)
+        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher, IMbtiService mbtiService, IImageService imageService)
         {
             _userRepository = repo;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
             _mbtiService = mbtiService;
+            _imageService = imageService;
         }
 
-        public async Task ChangeAvatar(int id, IFormFile picture)
+        public async Task<string> ChangeAvatar(int id, IFormFile picture)
         {
             var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeAvatar(id, picLink);
+            return picLink;
         }
 
-        public async Task ChangeBanner(int id, IFormFile picture)
+        public async Task<string> ChangeBanner(int id, IFormFile picture)
         {
             var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeBanner(id, picLink);
+            return picLink; 
         }
 
         public async Task<bool> ChangeDescription(int id, string description)
@@ -86,7 +89,7 @@ namespace Cogni.Services
                     Salt = salt,
                     IdRole = 1,
                     IdMbtiType = typeid,
-                    LastLogin = DateTime.Now,
+                    LastLogin = DateTime.Now
                 };
                 var newuser = await _userRepository.Create(userEntity);
                 var rtoken = _tokenService.GenerateRefreshToken();

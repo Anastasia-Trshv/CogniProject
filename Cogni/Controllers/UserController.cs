@@ -47,7 +47,7 @@ namespace Cogni.Controllers
                 return BadRequest("Логин занят");
             }
             else{
-                var newUser = new FullUserResponse(result.Id, result.Name, result.Surname, result.Description, result.Image, result.BannerImage, result.MbtyType, result.RoleName, result.LastLogin, result.AToken, result.RToken);
+                var newUser = new FullUserResponse(result.Id, result.Name, result.Surname, result.Description, result.ActiveAvatar, result.BannerImage, result.MbtyType, result.RoleName, result.LastLogin, result.AToken, result.RToken);
                 return Ok(newUser);
             }
         }
@@ -68,7 +68,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                var response = new FullUserResponse(user.Id, user.Name, user.Surname, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
+                var response = new FullUserResponse(user.Id, user.Name, user.Surname, user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
 
                 return Ok(response);
             }
@@ -92,28 +92,30 @@ namespace Cogni.Controllers
         /// <summary>
         /// Меняет текущую аватарку на новую
         /// </summary>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeAvatar([FromBody] IFormFile picture)
+        public async Task<ActionResult> ChangeAvatar([FromForm] IFormFile Picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeAvatar(id, picture);
-            return Ok();
+            var ava = await _userService.ChangeAvatar(id, Picture);
+            return Ok(ava);
         }
         /// <summary>
         /// Меняет текущий баннер на новый
         /// </summary>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeBanner([FromHeader] IFormFile picture)
+        public async Task<ActionResult> ChangeBanner([FromForm] IFormFile Picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeBanner(id, picture);
-            return Ok();
+            var ban = await _userService.ChangeBanner(id, Picture);
+            return Ok(ban);
         }
 
         /// <summary>
@@ -198,7 +200,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Surname ,user.Description, user.Image, user.BannerImage, user.MbtyType, user.LastLogin);
+                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Surname ,user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.LastLogin);
 
                 return Ok(response);
             }

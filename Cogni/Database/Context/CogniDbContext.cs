@@ -155,9 +155,6 @@ public partial class CogniDbContext : DbContext
                 .HasColumnName("email");
             entity.Property(e => e.IdMbtiType).HasColumnName("id_mbti_type");
             entity.Property(e => e.IdRole).HasColumnName("id_role");
-            entity.Property(e => e.Image)
-                .HasMaxLength(45)
-                .HasColumnName("image");
             entity.Property(e => e.LastLogin)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

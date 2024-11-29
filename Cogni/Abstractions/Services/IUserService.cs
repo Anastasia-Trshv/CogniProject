@@ -2,6 +2,7 @@
 using Cogni.Database.Entities;
 using Cogni.Contracts.Requests;
 using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace Cogni.Abstractions.Services
 {
@@ -12,8 +13,8 @@ namespace Cogni.Abstractions.Services
         Task<UserModel> GetUser(string email, string password);
         Task<UserModel> Get(int id); //получение всех данных для страницы профиля
         Task SetMbtiType(int userId, string mbtiType);
-        Task ChangeAvatar(int id, IFormFile picture);//изменить автарарку
-        Task ChangeBanner(int id, IFormFile picture);//изменить баннер на странице пользователя
+        Task<string> ChangeAvatar(int id, IFormFile picture);//изменить автарарку
+        Task<string> ChangeBanner(int id, IFormFile picture);//изменить баннер на странице пользователя
         Task<bool> ChangeName(int id, string name, string surname);//изменить имя
         Task<bool> ChangePassword(int id, string oldPassword, string newPassword);//изменить пароль
         Task<bool> ChangeDescription(int id, string description);//изменить описание

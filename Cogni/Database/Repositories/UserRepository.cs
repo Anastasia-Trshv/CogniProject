@@ -26,12 +26,15 @@ namespace Cogni.Database.Repositories
 
         public async Task<UserModel> Create(User user)
         {
+            //var placeholder = "https://www.mirgovorit.ru/static/users/default_profile_image.9acfe78b8e1c.png";
+
             await _context.Users.AddAsync(user);
+            //await _context.Avatars.AddAsync(new Avatar {UserId = user.Id, AvatarUrl = placeholder, IsActive=true, DateAdded=DateTime.Now});
             await _context.SaveChangesAsync();
             _context.Entry(user).Reference(u => u.IdRoleNavigation).Load();
             _context.Entry(user).Reference(u => u.IdMbtiTypeNavigation).Load();
             UserModel model = Converter(user);
-
+            //model.ActiveAvatar = placeholder;
             return model;
         }
 
@@ -53,11 +56,11 @@ namespace Cogni.Database.Repositories
                 var pic  = user.Avatars.FirstOrDefault(r => r.IsActive == true);
                 if (pic != null)
                 { 
-                    newuser.Image = pic.AvatarUrl; 
+                    newuser.ActiveAvatar = pic.AvatarUrl; 
                 }
                 else 
                 { 
-                    newuser.Image = "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg"; 
+                    newuser.ActiveAvatar = "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg"; 
                 }
                
                 newuser.RoleName = user.IdRoleNavigation.NameRole;
@@ -101,7 +104,10 @@ namespace Cogni.Database.Repositories
                 .FirstOrDefaultAsync(u => u.Id== id);
 
             var avatar = user.Avatars.FirstOrDefault(r => r.IsActive == true);
-            avatar.IsActive = false;
+            if (avatar != null)
+            {
+                avatar.IsActive = false;
+            }
 
             user.Avatars.Add(new Avatar 
             { 
@@ -207,7 +213,6 @@ namespace Cogni.Database.Repositories
                 Salt = user.Salt,
                 PasswordHash = user.PasswordHash,
                 Email = user.Email,
-                Image = user.Image,
                 BannerImage = user.BannerImage,
                 IdRole = user.IdRole,
                 IdMbtiType = user.IdMbtiType,

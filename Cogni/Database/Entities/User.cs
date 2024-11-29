@@ -27,8 +27,6 @@ public partial class User
 
     public DateTime RefreshTokenExpiryTime { get; set; }
 
-    public string? Image { get; set; }
-
     public string? BannerImage { get; set; }    
 
     public int IdRole { get; set; }
