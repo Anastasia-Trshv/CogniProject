@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(opt =>
                     Id = "Bearer"
                 }
             },
-            new string[] { "api" } // Указывает, что схема безопасности применяется к операциям с областью "api"
+            new string[] { "api" } // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "api"
         }
     });
 });
@@ -84,8 +84,12 @@ builder.Services.AddAuthentication(x =>
 
 builder.Services.AddCors(option => option.AddPolicy(
     name: "Default",
-    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
-    ));
+    policy  =>
+    {
+        policy.WithOrigins("http://localhost:3000");
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+    }));
 
 var app = builder.Build();
 

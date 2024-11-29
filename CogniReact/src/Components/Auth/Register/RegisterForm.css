@@ -1,0 +1,233 @@
+@keyframes tilt-shaking {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg); }
+    50% { transform: rotate(0eg); }
+    75% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+.login__wrapper {
+    background: linear-gradient(90deg, rgba(9,42,49,1) 0%, rgba(76,105,95,1) 100%);
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.login__blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    filter: blur(20px);
+}
+
+.login__ball {
+    border-radius: 100%;
+    aspect-ratio: 1/1;
+    position: absolute;
+    z-index: 0;
+}
+
+.login__ball:nth-child(1) {
+    background: linear-gradient(120deg, rgba(17,41,127,1) 0%, rgba(93,186,215,1) 100%);
+    width: 400px;
+    left: -120px;
+    top: 60px;
+}
+
+.login__ball:nth-child(2) {
+    background: linear-gradient(220deg, rgba(192,70,70,1) 0%, rgba(215,188,93,1) 100%);
+    width: 600px;
+    right: -50px;
+    top: -250px;
+}
+
+.login__ball:nth-child(3) {
+    background: linear-gradient(50deg, rgba(237,69,230,1) 0%, rgba(136,30,243,1) 100%);
+    width: 240px;
+    left: calc(50% + 100px);
+    bottom: calc(50% - 240px);
+}
+
+.login__ball:nth-child(4) {
+    background: linear-gradient(323deg, rgba(176,215,93,1) 0%, rgba(63,125,133,1) 100%);
+    width: 180px;
+    left: calc(50% - 500px);
+    bottom: 90px;
+}
+
+
+.loginform {
+    width: 400px;
+    padding: 24px 32px;
+    background: #16171B;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 20px;
+    position: relative;
+    z-index: 2;
+    text-align: center;
+}
+
+.loginform:has(.loginform__error) {
+    animation: tilt-shaking 0.3s;
+}
+
+.loginform__header {
+    font-family: Evolventa;
+    font-weight: 800;
+    font-size: 21px;
+    color: white;
+    margin-bottom: 23px;
+    text-align: center;
+}
+
+.loginform__input {
+    font-family: Montserrat;
+    padding: 20px 50px 20px 20px;
+    margin-bottom: 23px;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.loginform__button {
+    padding: 18px;
+    width: 100%;
+    border-radius: 20px;
+    color: white;
+    background: linear-gradient(90deg, rgba(28,92,128,1) 0%, rgba(113,212,104,1) 100%);
+    font-size: 19px;
+    font-family: Montserrat;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.loginform__button:hover {
+    cursor: pointer;
+}
+
+.loginform__link {
+    color: white;
+    font-family: Montserrat;
+    font-weight: bold;
+    margin-bottom: 16px;
+    font-size: 17px;
+}
+
+.info {
+    position: absolute;
+    bottom: 40px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.info__logo {
+    margin-bottom: 10px;
+}
+
+.info__logoText {
+    font-family: Catamaran;
+    color: white;
+    font-size: 23px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+
+.info__link {
+    color: #D8E0F4;
+    font-family: Montserrat;
+    font-size: 15px;
+}
+
+.loginform__radio {
+    margin-right: 8px;
+}
+
+.loginform__label {
+    display: flex;
+    color: white;
+    font-size: 12px;
+    font-family: Montserrat;
+    line-height: 13px;
+    margin-bottom: 14px;
+    text-align: left;
+}
+
+.loginform__agree {
+    color: #597FE0;
+}
+
+.loginform__desc {
+    color: #D8E0F4;
+    font-family: Montserrat;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.color-green {
+    color: #59E0C0;
+}
+
+.loginform__button-other {
+    padding: 18px;
+    width: 100%;
+    border-radius: 20px;
+    color: white;
+    background: linear-gradient(90deg, rgba(99,255,218,1) 0%, rgba(140,75,205,1) 100%);
+    font-size: 19px;
+    font-family: Montserrat;
+    font-weight: bold;
+    margin-bottom: 40px;
+}
+
+.loginform__text {
+    font-family: Evolventa;
+    font-size: 20px;
+    margin-bottom: 23px;
+    color: white;
+}
+
+.loginform__button-other:hover {
+    cursor: pointer;
+}
+
+.loginform__error {
+    position: absolute;
+    margin-left: 10px;
+    text-align: left;
+}
+
+.loginform__error svg {
+    position: absolute;
+    margin-left: -45px;
+    margin-top: 17px;
+    fill: #c04242;
+    width: 25px;
+}
+
+.loginform__error p {
+    background: #c04242;
+    padding: 10px 15px;
+    border-radius: 15px;
+    opacity: 0;
+    transition: 0.3s;
+    color: white;
+    font-size: 14px;
+    height: 55px;
+    line-height: 1.2em;
+    width: 400px;
+}
+
+.loginform__error svg:hover ~ p{
+    opacity: 1;
+}
