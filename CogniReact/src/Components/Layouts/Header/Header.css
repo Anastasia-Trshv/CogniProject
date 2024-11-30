@@ -1,0 +1,55 @@
+.header {
+    padding-top: 14px;
+    width: 100%;
+    height: 90px;
+    background: #092A31;
+    color: white;
+}
+
+.header__wrapper {
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.header__nav {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+.header__logo-wrapper {
+    display: flex;
+    justify-content: right;
+    margin-right: 35px;
+    align-items: center;
+    width: 180px;
+
+}
+
+.header__logo {
+    margin-right: 8px;
+}
+
+.header__title {
+    font-family: Catamaran;
+    font-size: 23px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.header__about {
+    font-family: Montserrat;
+    font-size: 15px;
+    color: #D8E0F4;
+}
+
+.header__search {
+    width: 500px;
+    height: 50px;
+    border-radius: 20px;
+    background: #16171B;
+    padding: 20px;
+    color: white;
+    font-family: Montserrat;
+}

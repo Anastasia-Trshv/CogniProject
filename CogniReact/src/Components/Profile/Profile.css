@@ -1,0 +1,148 @@
+.profile__wrapper {
+    max-width: 800px;
+    width: 100%;
+}
+
+.profile__main {
+    max-width: 500px;
+    width: 100%;
+}
+
+.profile__bg {
+    width: 100%;
+    height: 120px;
+    background: #797979;
+    border-radius: 20px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: -2;
+}
+
+.profile__bg::after {
+    content: "";
+    display: block;
+    width: 130px;
+    height: 130px;
+    background: rgba(26,57,60,1);
+    position: absolute;
+    border-radius: 100%;
+    z-index: -1;
+    margin-top: 65px;
+    margin-left: 24px;
+}
+
+.human {
+    width: 100%;
+    height: 120px;
+    background: #16171B;
+    border-radius: 20px;
+    padding: 20px 30px;
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.human__left {
+    margin-left: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.human__right {
+    margin-left: 40px;
+    color: white;
+    font-family: Montserrat;
+}
+
+.human__avatar {
+    position: absolute;
+    margin-top: -80px;
+    display: block;
+    width: 120px;
+    height: 120px;
+    background: #E85DA0;
+    border-radius: 100%;
+}
+
+.human__mbti {
+    margin-top: 60px;
+    display: block;
+    color: #E85DA0;
+    font-family: Montserrat;
+    font-weight: 600;
+    font-size: 23px;
+}
+
+.human__name {
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 23px;
+}
+
+.human__description {
+    color: #757C94;
+    font-size: 16px;
+    width: 100%;
+    line-height: 1.2em;
+}
+
+.hobbies {
+    width: 100%;
+    height: auto;
+    background: #16171b;
+    border-radius: 20px;
+    padding: 10px 20px;
+    color: white;
+    margin-bottom: 10px;
+}
+
+.hobbies__heading {
+    font-size: 19px;
+    font-family: Montserrat;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.hobbies__list {
+    display: flex;
+    font-size: 17px;
+    font-family: Montserrat;
+    flex-wrap: wrap;
+}
+
+.hobbies__item {
+    padding: 5px 15px;
+    background: linear-gradient(180deg, rgba(79,157,110,1) 0%, rgba(54,121,101,1) 100%);
+    border-radius: 10px;
+    margin-right: 10px;
+    margin-bottom: 5px;
+}
+
+.addpost {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px 0 20px;
+    font-family: Montserrat;
+    background: #16171b;
+    border-radius: 20px;
+    height: 42px;
+}
+
+.addpost__heading {
+    font-size: 19px;
+    font-weight: 600;
+    color: white;
+}
+
+.addpost__button {
+    font-size: 17px;
+    color: #E4E5F1;
+    background: #757C94;
+    border-radius: 20px;
+    padding: 5px 20px;
+    height: 32px;
+    cursor: pointer;
+    font-weight: 600;
+}

@@ -65,5 +65,5 @@ const validatePassword = (password) => {
 
 //Проверка повтора пароля
 const validatePasswordRepeat = (password, passwordRepeat) => {
-    return password == passwordRepeat;
+    return password == passwordRepeat && !!passwordRepeat.length;
 };
