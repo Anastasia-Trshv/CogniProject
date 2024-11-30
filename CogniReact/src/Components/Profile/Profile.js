@@ -31,7 +31,7 @@ function Profile() {
           <h2 className='addpost__heading'>Публикации</h2>
           <button className='addpost__button'>+ новая публикация</button>
         </section>
-        {/* <section className='profile__posts posts'>
+        <section className='profile__posts posts'>
           <div className='posts__author'>
             <img className='posts__avatar'></img>
             <div className='posts__info'>
@@ -43,7 +43,7 @@ function Profile() {
               <img></img>
             </div>
           </div>
-        </section> */}
+        </section>
       </div>
       <div className="profile__addons addons">
         <section className='addons__friends'></section>
