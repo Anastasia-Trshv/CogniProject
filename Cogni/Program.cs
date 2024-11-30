@@ -62,6 +62,10 @@ builder.Services.AddTransient<IPostRepository, PostRepository>();
 builder.Services.AddTransient<IPostService, PostService>();
 builder.Services.AddTransient<IFriendRepository, FriendRepository>();
 builder.Services.AddTransient<IFriendService, FriendService>();
+builder.Services.AddTransient<IImageService, ImageService>();
+builder.Services.AddTransient<IImageRepository, ImageRepository>();
+builder.Services.AddTransient<IMbtiRepository, MbtiRepository>();
+builder.Services.AddTransient<IMbtiService, MbtiService>(); 
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

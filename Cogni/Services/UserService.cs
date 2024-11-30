@@ -14,23 +14,29 @@ namespace Cogni.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly ITokenService _tokenService;
-        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher) 
+        private readonly IMbtiService _mbtiService;
+        private readonly IImageService _imageService;
+        public UserService(IUserRepository repo, ITokenService tokenService, IPasswordHasher passwordHasher, IMbtiService mbtiService, IImageService imageService)
         {
             _userRepository = repo;
             _tokenService = tokenService;
             _passwordHasher = passwordHasher;
+            _mbtiService = mbtiService;
+            _imageService = imageService;
         }
 
-        public async Task ChangeAvatar(int id, string picLink)
+        public async Task<string> ChangeAvatar(int id, IFormFile picture)
         {
-            //TODO: записать картинку на облако и вернуть ее url
+            var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeAvatar(id, picLink);
+            return picLink;
         }
 
-        public async Task ChangeBanner(int id, string picLink)
+        public async Task<string> ChangeBanner(int id, IFormFile picture)
         {
-            //TODO: записать картинку на облако и вернуть ее url
+            var picLink = await _imageService.UploadImage(picture);
             await _userRepository.ChangeBanner(id, picLink);
+            return picLink; 
         }
 
         public async Task<bool> ChangeDescription(int id, string description)
@@ -38,9 +44,9 @@ namespace Cogni.Services
             return await _userRepository.ChangeDescription(id, description);
         }
 
-        public async Task<bool> ChangeName(int id, string name)
+        public async Task<bool> ChangeName(int id, string name, string surname)
         {
-             return await _userRepository.ChangeName(id, name);
+             return await _userRepository.ChangeName(id, name, surname);
         }
 
         public async Task<bool> ChangePassword(int id, string oldPassword, string newPassword)
@@ -65,32 +71,41 @@ namespace Cogni.Services
             return await _userRepository.CheckUser(email);
         }
 
-        public async Task<int> CreateUser(SignUpRequest user)
+        public async Task<UserModel> CreateUser(SignUpRequest user)
         {
             if (await _userRepository.CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
             {
 
                 byte[] salt;
                 string passHash = _passwordHasher.HashPassword(user.Password, out salt);
+                var typeid = await _mbtiService.GetMbtiTypeIdByName(user.MbtiType);
+
                 User userEntity = new User
                 {
                     Name = user.Name,
+                    Surname = user.Surname,
                     Email = user.Email,
                     PasswordHash = passHash,
                     Salt = salt,
                     IdRole = 1,
-                    IdMbtiType = user.MbtiId
+                    IdMbtiType = typeid,
+                    LastLogin = DateTime.Now
                 };
                 var newuser = await _userRepository.Create(userEntity);
                 var rtoken = _tokenService.GenerateRefreshToken();
                 var atoken = _tokenService.GenerateAccessToken(newuser.Id, newuser.RoleName);
                 var time = _tokenService.GetRefreshTokenExpireTime();
                 await _userRepository.AddTokens(newuser.Id, rtoken, atoken, time);
-                return newuser.Id;
+
+                newuser.AToken = atoken;
+                newuser.RToken = rtoken;
+                newuser.RefreshTokenExpiryTime = time;
+
+                return newuser;
             }
             else
             {
-                return 0;
+                return new UserModel();
             }
         }
 
@@ -114,6 +129,13 @@ namespace Cogni.Services
             }
             else if (_passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
             {
+                var atoken = _tokenService.GenerateAccessToken(user.Id, user.RoleName);
+                var rtoken = _tokenService.GenerateRefreshToken();
+                var time = _tokenService.GetRefreshTokenExpireTime();
+                _userRepository.AddTokens(user.Id, rtoken, atoken, time);
+                user.AToken= atoken;
+                user.RefreshTokenExpiryTime= time;
+                user.RToken = rtoken;
                 return user;
             }
             else
@@ -127,9 +149,10 @@ namespace Cogni.Services
            await _userRepository.RemoveTokens(id);
         }
 
-        public async Task SetMbtiType(int userId, int mbtiId)
+        public async Task SetMbtiType(int userId, string mbtiType)
         {
-            await _userRepository.SetMbtiType(userId, mbtiId);
+            var typeId =await _mbtiService.GetMbtiTypeIdByName(mbtiType);
+            await _userRepository.SetMbtiType(userId, typeId);
         }
 
         public async Task UpdateUsersAToken(int id, string atoken)

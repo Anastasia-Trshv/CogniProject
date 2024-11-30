@@ -3,6 +3,7 @@ using System;
 using Cogni.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Cogni.Migrations
 {
     [DbContext(typeof(CogniDbContext))]
-    partial class CogniDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241128212014_AddSurname")]
+    partial class AddSurname
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,8 +284,8 @@ namespace Cogni.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Question")
-                        .HasMaxLength(130)
-                        .HasColumnType("character varying(130)")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
                         .HasColumnName("question");
 
                     b.HasKey("Id")
@@ -515,6 +518,11 @@ namespace Cogni.Migrations
                     b.Property<int>("IdRole")
                         .HasColumnType("integer")
                         .HasColumnName("id_role");
+
+                    b.Property<string>("Image")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("image");
 
                     b.Property<DateTime?>("LastLogin")
                         .ValueGeneratedOnAdd()

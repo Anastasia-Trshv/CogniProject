@@ -11,7 +11,7 @@ namespace Cogni.Abstractions.Repositories
         Task SetMbtiType(int userid, int mbtiId);//установить результаты теста или изменить тип MBTY
         Task ChangeAvatar(int id,string picLink);//изменить автарарку
         Task ChangeBanner(int id, string picLink);//изменить баннер на странице пользователя
-        Task<bool> ChangeName(int id, string name);//изменить имя
+        Task<bool> ChangeName(int id, string name, string surname);//изменить имя
         Task ChangePassword(int id, string PasHash, byte[] salt);//изменить пароль
         Task<bool> ChangeDescription(int id, string description);//изменить описание
         Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id);//возвращает данные для рефреша access токена

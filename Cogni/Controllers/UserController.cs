@@ -39,16 +39,16 @@ namespace Cogni.Controllers
         /// <response code="200">Пользователь создан</response>
         /// <response code="404">Логин занят</response>
         [HttpPost]
-        public async Task<ActionResult<long>> CreateUser([FromBody] SignUpRequest request)
+        public async Task<ActionResult<FullUserResponse>> CreateUser([FromBody] SignUpRequest request)
         {
             var result = await _userService.CreateUser(request);
-            if(result == 0)
+            if(result.Id == 0)
             {
                 return BadRequest("Логин занят");
             }
             else{
-
-                return Ok(result);
+                var newUser = new FullUserResponse(result.Id, result.Name, result.Surname, result.Description, result.ActiveAvatar, result.BannerImage, result.MbtyType, result.RoleName, result.LastLogin, result.AToken, result.RToken);
+                return Ok(newUser);
             }
         }
 
@@ -58,9 +58,9 @@ namespace Cogni.Controllers
         /// <response code="200">Пользователь найден, данные для входа верны</response>
         /// <response code="404">Неверный логин или пароль</response>
         [HttpPost]
-        public async Task<ActionResult<FullUserResponse>> GetUserByLogin([FromBody] LoginRequest request)
+        public async Task<ActionResult<FullUserResponse>> GetUserByEmail([FromBody] LoginRequest request)
         {
-            var user = await _userService.GetUser(request.login, request.password);
+            var user = await _userService.GetUser(request.email, request.password);
             //конверация в userresponse
             if(user.Id == 0)
             {
@@ -68,7 +68,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                var response = new FullUserResponse(user.Id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
+                var response = new FullUserResponse(user.Id, user.Name, user.Surname, user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
 
                 return Ok(response);
             }
@@ -85,31 +85,37 @@ namespace Cogni.Controllers
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
-            await _userService.SetMbtiType(id, testRequest.mbti_id);
-            return Ok(testRequest.mbti_id);
+            await _userService.SetMbtiType(id, testRequest.mbtiType.ToUpper());
+            return Ok();
         }
-
+        /// <summary>
+        /// Меняет текущую аватарку на новую
+        /// </summary>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeAvatar([FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeAvatar([FromForm] IFormFile Picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeAvatar(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
-            return Ok();
+            var ava = await _userService.ChangeAvatar(id, Picture);
+            return Ok(ava);
         }
+        /// <summary>
+        /// Меняет текущий баннер на новый
+        /// </summary>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeBanner([FromHeader] ContentType content)
+        public async Task<ActionResult> ChangeBanner([FromForm] IFormFile Picture)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            await _userService.ChangeBanner(id, "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg");
-            return Ok();
+            var ban = await _userService.ChangeBanner(id, Picture);
+            return Ok(ban);
         }
 
         /// <summary>
@@ -146,7 +152,7 @@ namespace Cogni.Controllers
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
-            var res = await _userService.ChangeName(id, name.Name);
+            var res = await _userService.ChangeName(id, name.Name, name.Surname);
             if (res)
             {
                 return Ok();
@@ -194,7 +200,7 @@ namespace Cogni.Controllers
             }
             else
             {
-                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Description, user.Image, user.BannerImage, user.MbtyType, user.LastLogin);
+                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Surname ,user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.LastLogin);
 
                 return Ok(response);
             }

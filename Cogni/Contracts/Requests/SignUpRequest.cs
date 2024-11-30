@@ -5,8 +5,9 @@ namespace Cogni.Contracts.Requests
     public record SignUpRequest
     (
         string Name,
+        string Surname,
         string Email,
         string Password,
-        int MbtiId
+        string MbtiType
     );
 }

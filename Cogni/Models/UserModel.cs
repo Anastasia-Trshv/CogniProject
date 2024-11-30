@@ -6,6 +6,8 @@
 
         public string? Name { get; set; }
 
+        public string? Surname { get; set; }
+
         public string? Description { get; set; }
 
         public string? Email { get; set; }
@@ -20,7 +22,7 @@
 
         public DateTime? RefreshTokenExpiryTime { get; set; }
 
-        public string? Image { get; set; }
+        public string? ActiveAvatar { get; set; }
 
         public string? BannerImage { get; set; }
 
@@ -40,7 +42,7 @@
             Name = name;
             Description = description;
             Email = email;
-            Image = image;
+            ActiveAvatar = image;
             IdRole = idRole;
             IdMbtiType = idMbtiType;
             LastLogin = lastLogin;
