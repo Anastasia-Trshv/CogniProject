@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as LogoSvg } from './img/logo.svg';
 import { ReactComponent as InfoIcon } from './img/info-icon.svg';
+import { isFormValid } from "../../../services/auth.js";
+import {observer} from "mobx-react-lite";
+import {Context} from "../../../index";
 import './RegisterForm.css';
-import { createUser, isFormValid } from "../../../services/auth.js";
+
 
 function RegisterForm() {
+
+    const navigate = useNavigate();
+
+    const {store} = useContext(Context);
+
     //2 шага регистрации
     const [formStep, setFormStep] = React.useState(0);
 
@@ -41,7 +49,10 @@ function RegisterForm() {
 
     //Создание пользователя
     const onCreate = async (user) => {
-		await createUser(user);
+        var response = await store.register(user);
+        if(response) {
+        navigate('/profile');
+        }
 	};
 
     //При отправке данных вызывается onCreate
@@ -55,6 +66,7 @@ function RegisterForm() {
         surname: '',
         email: '',
         password: '',
+        mbtiType: 'INFP',
     });
 
     const [passwordRepeat, setPasswordRepeat] = React.useState('');
@@ -75,7 +87,7 @@ function RegisterForm() {
             <div className='login__ball'></div>
         </div>
         
-        <form onSubmit={onSubmit} action="" className='login__form loginform'>
+        <form onSubmit={onSubmit} className='login__form loginform'>
             {formStep === 0 &&  (<section>
                 <h1 className='loginform__header'>Регистрация</h1>
                 <input 
@@ -118,7 +130,7 @@ function RegisterForm() {
                 <h1 className='loginform__header'>Введите свой тип <br/> личности</h1>
                 <input
                 value={user?.mbtiId}
-                onChange={(e) => setUser({ ...user, mbtiId: 1 })}
+                onChange={(e) => setUser({ ...user, mbtiType: "INFP" })}
                 type="text" placeholder='Ваш MBTI' className='loginform__input'/>
 
                 <button type="submit" className='loginform__button'>Зарегистрироваться</button>
@@ -137,4 +149,4 @@ function RegisterForm() {
   );
 };
 
-export default RegisterForm;
+export default observer(RegisterForm);

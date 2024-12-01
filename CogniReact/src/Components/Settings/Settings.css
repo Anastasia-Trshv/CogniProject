@@ -1,0 +1,60 @@
+.human--settings {
+    height: 150px;
+}
+
+.human__avatar--settings {
+    margin-left: 65px;
+}
+
+.human__right--settings {
+    margin-left: 100px;
+}
+
+.human__right--settings .human__name {
+    background: #757C94;
+    padding: 10px;
+    border-radius: 15px;
+    width: 390px;
+}
+
+.human__right--settings .human__name:after {
+    content: 'Изменить';
+    position: absolute;
+    color: #81F0A1;
+    font-size: 15px;
+    margin-top: 4px;
+    margin-left: 20px;
+    cursor: pointer;
+}
+
+.human--settings .human__description {
+    background: #757C94;
+    display: block;
+    margin-left: -150px;
+    width: 540px;
+    height: 60px;
+    border-radius: 20px;
+}
+
+.human--settings .human__description:after {
+    content: 'Изменить';
+    position: absolute;
+    color: #81F0A1;
+    font-size: 15px;
+    margin-top: 30px;
+    margin-left: 450px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.settings__mbti {
+    width: 560px;
+    height: 500px;
+    background: #16171B;
+    border-radius: 20px;
+    color: white;
+    font-family: Montserrat;
+    font-weight: 600;
+    font-size: 23px;
+    padding: 20px;
+}

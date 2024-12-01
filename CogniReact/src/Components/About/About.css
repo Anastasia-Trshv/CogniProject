@@ -1,0 +1,135 @@
+.about__wrapper {
+    max-width: 870px;
+    width: 100%;
+}
+
+.about__wrapper section {
+    margin-bottom: 10px;
+}
+
+.about__banner {
+    width: 200vh;
+    background: #16171B;
+    height: 220px;
+    border-radius: 20px;
+}
+
+.banner__wrapper {
+    width: 1030px;
+    position: relative;
+}
+
+.banner__wrapper svg {
+    position: absolute;
+}
+
+.banner__wrapper svg:nth-child(1) {
+    top: 17px;
+    left: 41px;
+    width: 36px;
+}
+
+.banner__wrapper svg:nth-child(2) {
+    top: 50px;
+    left: 70px;
+}
+
+.banner__wrapper svg:nth-child(3) {
+    top: 170px;
+    left: 210px;
+    width: 25px;
+}
+
+.banner__wrapper svg:nth-child(4) {
+    top: 30px;
+    left: 250px;
+}
+
+.banner__wrapper svg:nth-child(5) {
+    top: 86px;
+    left: 250px;
+}
+
+.banner__wrapper svg:nth-child(6) {
+    top: 120px;
+    left: 317px;
+}
+
+.banner__wrapper svg:nth-child(7) {
+    top: 30px;
+    left: 681px;
+}
+
+.about__banner--alt {
+    height: 136px;
+}
+
+.banner__wrapper--alt svg:nth-child(1) {
+    top: 40px;
+    left: 40px;
+    width: 50px;
+}
+
+.banner__wrapper--alt svg:nth-child(2) {
+    top: 50px;
+    left: 120px;
+}
+
+.banner__wrapper--alt svg:nth-child(3) {
+    top: 96px;
+    left: 120px;
+    width: 460px;
+}
+
+.banner__wrapper--alt svg:nth-child(4) {
+    top: 53px;
+    left: 620px;
+}
+
+.about__leaders {
+    width: 940px;
+}
+
+.leaders__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.leaders__item {
+    display: grid;
+    grid-template-columns: repeat(2, 230px);
+    grid-template-rows: repeat(2, 115px);
+    grid-template-areas:
+    "img name"
+    "img role";
+    width: 460px;
+    height: 230px;
+    background: #16171B;
+    border-radius: 15px;
+}
+
+.leaders__img {
+    grid-area: img;
+    background: #757C94;
+    border-radius: 15px;
+}
+
+.leaders__name {
+    grid-area: name;
+    margin: 10px;
+    border: 1px solid #ba8380;
+    border-radius: 20px;
+}
+
+.leaders__role {
+    grid-area: role;
+}
+
+.about__whatIs p:nth-child(1){
+    margin-bottom: 10px;
+}
+
+.about__whatIs p:nth-child(2){
+    margin-bottom: 10px;
+}

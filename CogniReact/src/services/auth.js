@@ -1,12 +1,26 @@
 import axios from "axios"
+import { API_URL } from "../http";
+
+const api = axios.create({
+    baseURL: API_URL,
+    withCredentials: true,
+});
 
 export const createUser = async (user) => {
     try {
-        var response = await axios.post("https://localhost:7055/User/CreateUser", user);
-
-        return response.status;
+        let response = await api.post("/User/CreateUser", user);
+        return response;
     } catch(e) {
-        console.error(e);
+        console.log(e);
+    }
+}
+
+export const loginUser = async (user) => {
+    try {
+        let response = await api.post("/User/GetUserByEmail", user);
+        return response;
+    } catch(e) {
+        console.log(e);
     }
 }
 

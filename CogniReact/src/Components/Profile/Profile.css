@@ -4,7 +4,7 @@
 }
 
 .profile__main {
-    max-width: 500px;
+    max-width: 560px;
     width: 100%;
 }
 
@@ -42,7 +42,7 @@
 }
 
 .human__left {
-    margin-left: 30px;
+    margin-left: 27px;
     display: flex;
     flex-direction: column;
     align-items: center;

@@ -17,4 +17,9 @@
     margin-bottom: 10px;
     text-align: center;
     margin-right: 40px;
+    cursor: pointer;
+}
+
+.navigation__link--red {
+    background: #c04242;
 }

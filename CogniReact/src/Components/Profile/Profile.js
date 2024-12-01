@@ -1,7 +1,47 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './Profile.css';
+import { Context } from '../..';
 
 function Profile() {
+
+
+  const {store} = useContext(Context);
+
+  const [userName, setUserName] = useState(null);
+  const [userSurname, setUserSurname] = useState(null);
+  const [userDescription, setUserDescription] = useState(null);
+  const [userImage, setUserImage] = useState(null);
+  const [userTypeMBTI, setUserTypeMBTI] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      setIsLoading(true);
+      const userId = localStorage.userId; 
+      
+
+      try {
+        const userInfo = await store.userInfo(userId);
+        setUserName(userInfo.name);
+        setUserSurname(userInfo.surname);
+        setUserDescription(userInfo.description);
+        setUserImage(userInfo.image);
+        setUserTypeMBTI(userInfo.typeMbti);
+      } catch (error) {
+          console.error("Failed to fetch user data:", error);
+      } finally {
+          setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+    
+  }, [])
+
+  if (isLoading) {
+    return <></>;
+}
 
   return (
     <div className='profile__wrapper'>
@@ -9,12 +49,12 @@ function Profile() {
         <section className="profile__bg"></section>
         <section className="profile__human human">
           <div className="human__left">
-            <span className="human__avatar"></span>
-            <span className="human__mbti">INFP</span>
+            <span src={userImage} className="human__avatar"></span>
+            <span className="human__mbti">{userTypeMBTI}</span>
           </div>
           <div className="human__right">
-            <h1 className='human__name'>Катя Батурина</h1>
-            <p className='human__description'>Toss your dirty shoes in my washing machine heart baby bang it up inside</p>
+            <h1 className='human__name'>{userName + " " + userSurname }</h1>
+            <p className='human__description'>{userDescription}</p>
           </div>
         </section>
         <section className='profile__hobbies hobbies'>
@@ -35,8 +75,8 @@ function Profile() {
           <div className='posts__author'>
             <img className='posts__avatar'></img>
             <div className='posts__info'>
-              <p className='posts__name'>Катя батурина</p>
-              <span className='posts__time'>3 минуты назад</span>
+              <p className='posts__name'></p>
+              <span className='posts__time'></span>
             </div>
             <div className='posts__post post'>
               <p className='post__description'></p>
