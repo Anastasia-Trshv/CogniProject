@@ -1,5 +1,6 @@
 import axios from "axios"
-import { API_URL } from "../http";
+
+const API_URL = "https://localhost:7055";
 
 const api = axios.create({
     baseURL: API_URL,
@@ -51,6 +52,16 @@ export const isFormValid = (user, passwordRepeat) => {
     return reply;
 };
 
+export const isFormMbtiValid = (user) => {
+    var reply = {status: true, mbti: false};
+    if (!validateMBTI(user?.mbtiType)) {
+        reply.mbti = true;
+        reply.status = false;
+    }
+    return reply;
+};
+
+
 
 //Валидация имени
 const validateName = (name) => {
@@ -80,4 +91,10 @@ const validatePassword = (password) => {
 //Проверка повтора пароля
 const validatePasswordRepeat = (password, passwordRepeat) => {
     return password == passwordRepeat && !!passwordRepeat.length;
+};
+
+//Проверка mbti
+const validateMBTI = (mbti) => {
+    var re = /^[A-Z]+$/;
+    return re.test(mbti) && mbti.length == 4 ;
 };

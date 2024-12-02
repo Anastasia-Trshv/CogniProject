@@ -7,6 +7,7 @@ import Settings from "./Components/Settings/Settings";
 import About from "./Components/About/About";
 import { BrowserRouter, Route, Routes, Item } from 'react-router-dom';
 import './App.css';
+import Test from "./Components/Test/Test";
 function App() {
 
   return (
@@ -17,9 +18,10 @@ function App() {
           <Route path="register" element={<RegisterForm />}/>
           <Route path="/" element={<Home />}>
             <Route path="profile" element={<Profile />}/>
-            <Route path="settings" element={<Settings />}/>
+            {/* <Route path="settings" element={<Settings />}/> */}
             <Route path="about" element={<About />}/>
           </Route>
+          <Route path="test" element={<Test />}/>
         </Routes>
       </BrowserRouter>
     </>

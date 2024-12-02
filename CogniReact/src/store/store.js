@@ -1,5 +1,5 @@
 import { createUser, loginUser } from "../services/auth.js";
-import { getUserById } from "../services/userProfile.js";
+import { getUserById, getUserPosts } from "../services/userProfile.js";
 
 export default class Store {
 
@@ -23,7 +23,7 @@ export default class Store {
             localStorage.setItem('userId', response.data.id);
             return true;
         } catch (e) {
-            console.log(e);
+            console.log(e.response.data);
         }
     }
 
@@ -36,6 +36,15 @@ export default class Store {
     async userInfo(userId) {
         try {
             const response = await getUserById(userId);
+            return response.data;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    async getPosts(userId) {
+        try {
+            const response = await getUserPosts(userId);
             return response.data;
         } catch (e) {
             console.log(e);

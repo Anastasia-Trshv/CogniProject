@@ -22,7 +22,6 @@ function Settings() {
 
       try {
         const userInfo = await store.userInfo(userId);
-        console.log(userInfo);
         setUserName(userInfo.name);
         setUserSurname(userInfo.surname);
         setUserDescription(userInfo.description);

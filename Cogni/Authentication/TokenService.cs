@@ -22,7 +22,7 @@ namespace Cogni.Authentication
                 }),
                 Issuer = AuthOptions.Issuer,
                 Audience = AuthOptions.Audience,
-                Expires = DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime),
+                Expires = DateTime.Now.AddMinutes(AuthOptions.AccessTokenExpirationTime),
                 SigningCredentials = new SigningCredentials(
                     AuthOptions.GetSymmetricSecurityKey(),
                     SecurityAlgorithms.HmacSha256)

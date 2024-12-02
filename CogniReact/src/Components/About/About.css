@@ -12,6 +12,7 @@
     background: #16171B;
     height: 220px;
     border-radius: 20px;
+    margin-bottom: 30px;
 }
 
 .banner__wrapper {
@@ -90,6 +91,14 @@
     width: 940px;
 }
 
+.about__whatIs p:nth-child(1){
+    margin-bottom: 10px;
+}
+
+.about__whatIs p:nth-child(2){
+    margin-bottom: 10px;
+}
+
 .leaders__list {
     display: flex;
     flex-wrap: wrap;
@@ -105,31 +114,133 @@
     "img role";
     width: 460px;
     height: 230px;
-    background: #16171B;
-    border-radius: 15px;
+    background: #000;
+    border-radius: 20px;
+    position: relative;
 }
 
 .leaders__img {
     grid-area: img;
-    background: #757C94;
     border-radius: 15px;
+}
+
+.leaders__item svg {
+    position: absolute;
+    right: 10px;
+    top: 10px;
 }
 
 .leaders__name {
     grid-area: name;
     margin: 10px;
-    border: 1px solid #ba8380;
+    border: 1px solid linear-gradient(180deg, rgba(255,127,188,1) 0%, rgba(255,245,150,1) 100%);;
     border-radius: 20px;
+    padding: 10px;
+    font-size: 19px;
+    color: white;
+    font-family: Montserrat;
+    font-weight: 600;
+    width: min-content;
+    line-height: 23px;
 }
 
 .leaders__role {
     grid-area: role;
+    font-size: 24px;
+    font-family: Play;
+    font-weight: 600;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    line-height: 30px;
 }
 
-.about__whatIs p:nth-child(1){
+.team__banner {
+    width: 900px;
+    height: 90px;
+    background: #000;
+    border-radius: 20px;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.team__banner svg stop {
+    stop-color: yellow;
+}
+
+.team__title {
+    font-family: Play;
+    color: #81F0A1;
+    font-size: 48px;
+    font-weight: 600;
+    margin-right: 40px;
+}
+
+.team__list {
+    display: flex;
+    gap: 20px;
+}
+
+.team__item {
+    background: #000;
+    width: min-content;
+    height: 310px;
+    border-radius: 20px;
+    position: relative;
+}
+
+.team__item svg {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.team__name {
+    width: min-content;
+    padding: 0px 25px;
+    color: white;
+    font-size: 19px;
+    font-family: Play;
+    font-weight: 600;
+    line-height: 22px;
+}
+
+.about__description-p,
+.about__whatIs-p,
+.about__COGNI-p {
+    background: rgba(22, 23, 27, 0.9);
+    color: white;
+    font-family: Montserrat;
+    padding: 30px;
+    border-radius: 20px;
+    font-size: 17px;
     margin-bottom: 10px;
 }
 
-.about__whatIs p:nth-child(2){
-    margin-bottom: 10px;
+.about__whatIs p:nth-last-child(1),
+.about__COGNI p:nth-last-child(1) {
+    background: rgba(22, 23, 27, 1);
+    font-family: Montserrat;
+    font-size: 17px;
+    color: white;
+    padding: 20px;
+    border-radius: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.about__whatIs p:nth-last-child(1) a,
+.about__COGNI p:nth-last-child(1) a {
+    border-radius: 20px;
+    padding: 5px 20px;
+    background: #FF7FBC;
+}
+
+.whatIs__heading,
+.COGNI__heading {
+    font-size: 23px;
+    font-weight: 600;
+    color: #81F0A1;
 }

@@ -18,7 +18,6 @@ function LoginForm() {
 
   const login = async (user) => {
     var response = await store.login(user);
-    console.log(response);
     if(response) {
       navigate('/profile');
     }

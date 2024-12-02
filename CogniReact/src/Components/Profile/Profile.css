@@ -42,7 +42,7 @@
 }
 
 .human__left {
-    margin-left: 27px;
+    margin-left: 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -68,6 +68,8 @@
     margin-top: 60px;
     display: block;
     color: #E85DA0;
+    width: 110px;
+    text-align: center;
     font-family: Montserrat;
     font-weight: 600;
     font-size: 23px;

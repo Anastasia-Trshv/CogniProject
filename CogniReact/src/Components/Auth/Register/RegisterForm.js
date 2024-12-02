@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ReactComponent as LogoSvg } from './img/logo.svg';
 import { ReactComponent as InfoIcon } from './img/info-icon.svg';
-import { isFormValid } from "../../../services/auth.js";
+import { isFormValid, isFormMbtiValid } from "../../../services/auth.js";
 import {observer} from "mobx-react-lite";
 import {Context} from "../../../index";
 import './RegisterForm.css';
@@ -51,14 +51,33 @@ function RegisterForm() {
     const onCreate = async (user) => {
         var response = await store.register(user);
         if(response) {
-        navigate('/profile');
+         navigate('/profile');
         }
 	};
 
     //При отправке данных вызывается onCreate
     const onSubmit = (e) => {
+        console.log(12345);
         e.preventDefault();
-        onCreate(user);
+        let validStatus = isFormMbtiValid(user);
+        setValidMBTI(false);
+        if (validStatus.status) {
+            console.log(user);
+            onCreate(user);
+        } else {
+            if(validStatus.mbti) {
+                setValidMBTI(true);
+            }
+        }
+    }
+
+    const onTest = (e) => {
+        localStorage.setItem('name', user.name);
+        localStorage.setItem('surname', user.surname);
+        localStorage.setItem('email', user.email);
+        localStorage.setItem('password', user.password);
+        localStorage.setItem('mbtiType', user.mbtiType);
+        navigate('/test');
     }
 
     const [user, setUser] = React.useState({
@@ -66,7 +85,7 @@ function RegisterForm() {
         surname: '',
         email: '',
         password: '',
-        mbtiType: 'INFP',
+        mbtiType: '',
     });
 
     const [passwordRepeat, setPasswordRepeat] = React.useState('');
@@ -76,6 +95,7 @@ function RegisterForm() {
     const [validEmail, setValidEmail] = React.useState(false);
     const [validPassword, setValidPassword] = React.useState(false);
     const [validPasswordRepeat, setValidPasswordRepeat] = React.useState(false);
+    const [validMBTI, setValidMBTI] = React.useState(false);
 
 
   return (
@@ -130,12 +150,13 @@ function RegisterForm() {
                 <h1 className='loginform__header'>Введите свой тип <br/> личности</h1>
                 <input
                 value={user?.mbtiId}
-                onChange={(e) => setUser({ ...user, mbtiType: "INFP" })}
+                onChange={(e) => setUser({ ...user, mbtiType: e.target.value })}
                 type="text" placeholder='Ваш MBTI' className='loginform__input'/>
+                {(validMBTI) && <span className='loginform__error'><InfoIcon></InfoIcon><p>MBTI введен не верно</p></span>}
 
                 <button type="submit" className='loginform__button'>Зарегистрироваться</button>
                 <p className='loginform__text'>или</p>
-                <button className='loginform__button-other'>Пройти тест <br/> и узнать свой тип</button>
+                <button onClick={onTest} type="button" className='loginform__button-other'>Пройти тест <br/> и узнать свой тип</button>
             </section>
             )}
         </form>

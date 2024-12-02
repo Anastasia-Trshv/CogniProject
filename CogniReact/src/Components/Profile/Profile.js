@@ -35,7 +35,22 @@ function Profile() {
       }
     };
 
+    const fetchUserPosts = async () => {
+      setIsLoading(true);
+      const userId = localStorage.userId; 
+
+      try {
+        const userPosts = await store.getPosts(userId);
+        console.log(userPosts);
+      } catch (error) {
+          console.error("Failed to fetch user posts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchUserData();
+    fetchUserPosts();
     
   }, [])
 
@@ -72,17 +87,21 @@ function Profile() {
           <button className='addpost__button'>+ новая публикация</button>
         </section>
         <section className='profile__posts posts'>
-          <div className='posts__author'>
-            <img className='posts__avatar'></img>
-            <div className='posts__info'>
-              <p className='posts__name'></p>
-              <span className='posts__time'></span>
-            </div>
-            <div className='posts__post post'>
-              <p className='post__description'></p>
-              <img></img>
-            </div>
-          </div>
+          <ul>
+            <li>
+              <div className='posts__author'>
+                <img className='posts__avatar'></img>
+                <div className='posts__info'>
+                  <p className='posts__name'></p>
+                  <span className='posts__time'></span>
+                </div>
+              </div>
+              <div className='posts__post post'>
+                  <p className='post__description'></p>
+                  <img></img>
+              </div>
+            </li>
+          </ul>
         </section>
       </div>
       <div className="profile__addons addons">
