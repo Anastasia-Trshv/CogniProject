@@ -65,6 +65,7 @@ namespace Cogni.Database.Repositories
                
                 newuser.RoleName = user.IdRoleNavigation.NameRole;
                 newuser.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
+                
                 return newuser;
             }
 
@@ -90,10 +91,12 @@ namespace Cogni.Database.Repositories
             var user = await _context.Users
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
+                .Include(u=> u.Avatars)
                 .FirstOrDefaultAsync(u => u.Id == id);
             var userModel = Converter(user);
             userModel.RoleName = user.IdRoleNavigation.NameRole;
             userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
+            userModel.ActiveAvatar= user.Avatars.FirstOrDefault(i => i.IsActive==true).AvatarUrl;
             return userModel;
         }
 

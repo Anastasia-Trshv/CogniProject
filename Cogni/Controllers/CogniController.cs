@@ -149,16 +149,12 @@ namespace Cogni.Controllers
             return Ok();
         }
         [HttpPost]
-        public async Task<ActionResult> AddFriend()
+        public async Task<ActionResult> AddFriend(int id1, int id2)
         {
-            await _context.AddRangeAsync(new Friend[]
-            {
-                new Friend{FriendId=1, UserId = 2, DateAdded=DateTime.Now},
-                new Friend{FriendId=2, UserId = 3, DateAdded=DateTime.Now},
-                new Friend{FriendId=3, UserId = 4, DateAdded=DateTime.Now},
-                new Friend{FriendId=3, UserId = 9, DateAdded=DateTime.Now},
-                new Friend{FriendId=3, UserId = 5, DateAdded=DateTime.Now},
-            });
+            await _context.AddAsync(
+            
+                new Friend{FriendId=id1, UserId = id2, DateAdded=DateTime.Now}
+            );
             await _context.SaveChangesAsync();
             return Ok();
         }

@@ -9,7 +9,7 @@ namespace Cogni.Authentication
 {
     public class TokenService : ITokenService
     {
-        const int RefressExpiryDays = 2;
+        const int RefreshExpiryDays = 2;
 
         public string GenerateAccessToken(int id, string role)
         {
@@ -68,7 +68,7 @@ namespace Cogni.Authentication
 
         public DateTime GetRefreshTokenExpireTime()
         {
-            return DateTime.UtcNow.AddDays(RefressExpiryDays);
+            return DateTime.UtcNow.AddDays(RefreshExpiryDays);
         }
 
         public int GetIdFromToken(string token)
