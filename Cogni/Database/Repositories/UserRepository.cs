@@ -96,7 +96,8 @@ namespace Cogni.Database.Repositories
             var userModel = Converter(user);
             userModel.RoleName = user.IdRoleNavigation.NameRole;
             userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
-            userModel.ActiveAvatar= user.Avatars.FirstOrDefault(i => i.IsActive==true).AvatarUrl;
+            Task task = Task.Factory.StartNew(()=>  userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
+            task.Wait();
             return userModel;
         }
 
