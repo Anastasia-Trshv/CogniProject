@@ -12,6 +12,16 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(option => option.AddPolicy(
+    name: "Default",
+    policy =>
+    {
+        policy.WithOrigins("http://localhost:3000");
+        policy.AllowAnyHeader();
+        policy.AllowAnyMethod();
+        policy.AllowCredentials();
+    }));
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -65,7 +75,7 @@ builder.Services.AddTransient<IFriendService, FriendService>();
 builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IImageRepository, ImageRepository>();
 builder.Services.AddTransient<IMbtiRepository, MbtiRepository>();
-builder.Services.AddTransient<IMbtiService, MbtiService>(); 
+builder.Services.AddTransient<IMbtiService, MbtiService>();
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -86,11 +96,6 @@ builder.Services.AddAuthentication(x =>
         };
     });
 
-builder.Services.AddCors(option => option.AddPolicy(
-    name: "Default",
-    builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()
-    ));
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -100,12 +105,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("Default");
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
 
-app.UseCors("Default");
+app.MapControllers();
 
 app.Run();
