@@ -3,6 +3,6 @@
     public record PostRequest
     (
         string? PostBody, 
-        ICollection<string>? PostImages
+        ICollection<IFormFile>? PostImages
         );
 }

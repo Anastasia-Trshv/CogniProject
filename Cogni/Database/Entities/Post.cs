@@ -11,6 +11,8 @@ public partial class Post
 
     public int IdUser { get; set; }
 
+    public DateTime CreatedAt { get; set; }
+
     public virtual User IdUserNavigation { get; set; } = null!;
 
     public virtual ICollection<PostImage> PostImages { get; set; } = new List<PostImage>();

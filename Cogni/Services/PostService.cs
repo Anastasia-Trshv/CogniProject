@@ -8,18 +8,22 @@ namespace Cogni.Services
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
-        public PostService(IPostRepository postRepository)
+        private readonly IImageService _imageService;
+        public PostService(IPostRepository postRepository, IImageService imageService)
         {
             _postRepository = postRepository;
+            _imageService = imageService;   
         }
 
         public async Task<Post> CreatePost(PostRequest post, int userid)
         {
             var p = new Post { IdUser = userid, PostBody = post.PostBody};
+            p.CreatedAt = DateTime.Now;
+
             //TODO отправка картинки на облако и получение ссылки
             foreach (var i in post.PostImages)
             {
-                p.PostImages.Add(new PostImage { ImageUrl = "https://cache3.youla.io/files/images/780_780/5f/09/5f09f7160d4c733205084f38.jpg" });
+                p.PostImages.Add(new PostImage { ImageUrl = await _imageService.UploadImage(i) }) ;
             }
                
            return await _postRepository.CreatePost(p);

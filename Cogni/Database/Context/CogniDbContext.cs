@@ -259,7 +259,7 @@ public partial class CogniDbContext : DbContext
                     new MbtiType{Id = 7, NameOfType ="INFP"},
                     new MbtiType{Id = 8, NameOfType ="INTP"},
                     new MbtiType{Id = 9, NameOfType ="ISFP"},
-                    new MbtiType{Id = 10, NameOfType ="ISFG"},
+                    new MbtiType{Id = 10, NameOfType ="ISFJ"},
                     new MbtiType{Id = 11, NameOfType ="ESFP"},
                     new MbtiType{Id = 12, NameOfType ="ESFJ"},
                     new MbtiType{Id = 13, NameOfType ="ISTJ"},

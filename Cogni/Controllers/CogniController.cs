@@ -183,5 +183,12 @@ namespace Cogni.Controllers
 
             await _context.SaveChangesAsync();
         }
+        [HttpPut]
+        public async Task ChangeMbtiName(int id, string name)
+        {
+            var type =await _context.MbtiTypes.FindAsync(id);
+            type.NameOfType= name;
+            await _context.SaveChangesAsync();
+        }
     }
 }
