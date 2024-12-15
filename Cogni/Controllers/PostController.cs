@@ -22,20 +22,22 @@ namespace Cogni.Controllers
         /// <summary>
         /// Создание поста на стене пользователя
         /// </summary>
+        /// <remarks>Нужно в теле сообщения отправить файл/файлы (Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
-        public async Task<ActionResult<PostResponse>> CreatePost(PostRequest post)
+        public async Task<ActionResult<PostResponse>> CreatePost([FromForm]PostRequest post)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
 
+            
             var p = await _postService.CreatePost(post, id);
 
             var list = p.PostImages.ToList();
             List<string> urls = new List<string>();
             foreach ( var image in list )
-            {////ДОБАВИТЬ ЛОГИКУ ДОБАВЛЕНИЯ В ОБЛАКО
+            {
                 urls.Add(image.ImageUrl);
             }
             return Ok(new PostResponse(p.Id, p.PostBody, p.IdUser, urls));

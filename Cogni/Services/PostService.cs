@@ -18,16 +18,17 @@ namespace Cogni.Services
         public async Task<Post> CreatePost(PostRequest post, int userid)
         {
             var p = new Post { IdUser = userid, PostBody = post.PostBody};
-            p.CreatedAt = DateTime.Now;
+            p.CreatedAt = DateTime.UtcNow;
 
             //TODO отправка картинки на облако и получение ссылки
-            foreach (var i in post.PostImages)
+            if(post.Files!= null) 
             {
-                p.PostImages.Add(new PostImage { ImageUrl = await _imageService.UploadImage(i) }) ;
-            }
-               
+                foreach (var i in post.Files)
+                {
+                    p.PostImages.Add(new PostImage { ImageUrl = await _imageService.UploadImage(i) });
+                }
+            } 
            return await _postRepository.CreatePost(p);
-
         }
 
         public async Task DeletePost(int id)
