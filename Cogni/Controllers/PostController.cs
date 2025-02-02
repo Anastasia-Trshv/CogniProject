@@ -25,18 +25,18 @@ namespace Cogni.Controllers
         /// <remarks>Нужно в теле сообщения отправить файл/файлы (Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
-        public async Task<ActionResult<PostResponse>> CreatePost([FromForm]PostRequest post)
+        public async Task<ActionResult<PostResponse>> CreatePost([FromForm] PostRequest post)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
             int id = _tokenService.GetIdFromToken(token);
 
-            
+
             var p = await _postService.CreatePost(post, id);
 
             var list = p.PostImages.ToList();
             List<string> urls = new List<string>();
-            foreach ( var image in list )
+            foreach (var image in list)
             {
                 urls.Add(image.ImageUrl);
             }
@@ -59,15 +59,17 @@ namespace Cogni.Controllers
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
         public async Task<ActionResult<List<PostResponse>>> GetAllUserPost(int id)
-        { 
+        {
             var posts = await _postService.GetAllUserPosts(id);
-            var list = new List<PostResponse>(); 
-            foreach ( var post in posts ) 
+            var list = new List<PostResponse>();
+            foreach (var post in posts)
             {
-                 var urls = post.PostImages.Select(u => u.ImageUrl).ToList();
+                var urls = post.PostImages.Select(u => u.ImageUrl).ToList();
                 list.Add(new PostResponse(post.Id, post.PostBody, post.IdUser, urls));
             }
             return Ok(list);
         }
-    }
+
+        
+    } 
 }

@@ -5,7 +5,7 @@ namespace Cogni.Authentication
 {
     public static class AuthOptions
     {
-        public const int AccessTokenExpirationTime = 30;
+        public const int AccessTokenExpirationTime = 1;
         public const int RefreshTokenExpirationTime = 2;
         public const string Issuer = "MyAuthServer";//TODO чекнуть что следует сюда вписывать
         public const string Audience = "MyAuthClient";
