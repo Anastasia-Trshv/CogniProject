@@ -1,4 +1,5 @@
 ﻿using Cogni.Authentication.Abstractions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,6 +10,16 @@ namespace Cogni.Authentication
 {
     public class TokenService : ITokenService
     {
+        private readonly string issuer;
+        private readonly string audience;
+        private readonly string key;
+        public TokenService(IConfiguration config)
+        {
+            issuer = config["Token:Issuer"];
+            audience = config["Token:Audience"];
+            key = config["Token:Key"];
+        }
+
         const int RefreshExpiryDays = 2;
 
         public string GenerateAccessToken(int id, string role)
@@ -20,11 +31,11 @@ namespace Cogni.Authentication
                     new Claim(ClaimTypes.NameIdentifier, id.ToString()),
                     new Claim(ClaimTypes.Role,role)
                 }),
-                Issuer = AuthOptions.Issuer,
-                Audience = AuthOptions.Audience,
+                Issuer = issuer,
+                Audience = audience,
                 Expires = DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime),
                 SigningCredentials = new SigningCredentials(
-                    AuthOptions.GetSymmetricSecurityKey(),
+                    AuthOptions.GetSymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256)
             };
 
@@ -48,12 +59,12 @@ namespace Cogni.Authentication
         {
             var parameters = new TokenValidationParameters
             {
-                ValidIssuer = AuthOptions.Issuer,
-                ValidAudience = AuthOptions.Audience,
+                ValidIssuer = issuer,
+                ValidAudience = audience,
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthOptions.GetSymmetricSecurityKey(key).ToString())),
                 ValidateLifetime = true
             };
 
