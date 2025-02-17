@@ -1,14 +1,11 @@
 ﻿using Cogni.Abstractions.Repositories;
 using Cogni.Database.Context;
-using Cogni.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Cogni.Database.Repositories
 {
     public class FriendRepository : IFriendRepository
     {
-        // todo: put it somewhere else
-        private readonly string placeholderImage = "https://yt3.googleusercontent.com/cBNnmASNGeUEDG3ij8pHF6592DTJWnwRPsrAGIql7p5P7hdw9VwQ_HJdZG9Pwjk806tQCMTbhw=s900-c-k-c0x00ffffff-no-rj";
         private readonly CogniDbContext _context;
         public FriendRepository(CogniDbContext context)
         {
@@ -19,7 +16,7 @@ namespace Cogni.Database.Repositories
             var friends = await _context.Users
                 .Where(u => _context.Friends.Any(f => f.UserId == userId && f.FriendId == u.Id) && 
                             _context.Friends.Any(f => f.UserId == u.Id && f.FriendId == userId))
-                .Select(u => new
+                .Select(u => new FriendDto
                 {
                     Id = u.Id,
                     Name = u.Name,
@@ -29,14 +26,7 @@ namespace Cogni.Database.Repositories
                 })
                 .ToListAsync();
 
-            return friends.Select(f => new FriendDto
-            {
-                Id = f.Id,
-                Name = f.Name,
-                Surname = f.Surname,
-                PicUrl = f.PicUrl ?? placeholderImage,
-                Mbti = f.Mbti
-            }).ToList();
+            return friends;
         }
 
         public async Task Subscribe(int userId, int friendId)
@@ -54,24 +44,29 @@ namespace Cogni.Database.Repositories
         {
             var friend = await _context.Friends
                 .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
+            if (friend == null)
+            {
+                // todo: maybe we should throw an exception here
+                return;
+            }
             _context.Friends.Remove(friend);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<(int id, string picUrl)>> GetFriendsPreview(int userId)
+        public async Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId)
         {
             var friends = await _context.Users
             .Where(u => _context.Friends.Any(f => f.UserId == userId && f.FriendId == u.Id) && 
                         _context.Friends.Any(f => f.UserId == u.Id && f.FriendId == userId))
             .Select(u => new
             {
-                Id = u.Id,
-                PicUrl = u.Avatars.Where(a => a.IsActive ?? false).Select(a => a.AvatarUrl).FirstOrDefault()
+                id = u.Id,
+                picUrl = u.Avatars.Where(a => a.IsActive ?? false).Select(a => a.AvatarUrl).FirstOrDefault()
             })
             .Take(6)
             .ToListAsync();
 
-            return friends.Select(f => (f.Id, f.PicUrl ?? placeholderImage)).ToList();
+            return friends.Select(f => (f.id, f.picUrl)).ToList();
         }
 
         public async Task<int> GetNumOfFriends(int userId)
