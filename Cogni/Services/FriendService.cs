@@ -11,21 +11,31 @@ namespace Cogni.Services
             _friendRepository = friendRepository;
         }
 
-        public async Task<List<Friend>> GetAllUserFriends(int userId)
+        public async Task<List<FriendDto>> GetUserFriends(int userId)
         {
-           var list = await _friendRepository.GetAllUserFriends(userId);
+            var list = await _friendRepository.GetUserFriends(userId);
             return list;
         }
 
         public async Task<List<(int id, string picUrl)>> GetFriendsPreview(int userId)
         {
-           var list = await _friendRepository.GetFriendsPreview(userId);
+            var list = await _friendRepository.GetFriendsPreview(userId);
             return list;
         }
 
         public async Task<int> GetNumOfFriends(int userId)
         {
             return await _friendRepository.GetNumOfFriends(userId);
+        }
+
+        public async Task Subscribe(int userId, int friendId)
+        {
+            await _friendRepository.Subscribe(userId, friendId);
+        }
+
+        public async Task Unsubscribe(int userId, int friendId)
+        {
+            await _friendRepository.Unsubscribe(userId, friendId);
         }
     }
 }

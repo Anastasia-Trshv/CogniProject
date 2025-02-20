@@ -21,7 +21,7 @@ namespace Cogni.Authentication
         /// </summary>
         /// <remarks>Refresh-токен должен быть отправлен в заголовке "Refresh-token"</remarks>
         /// <response code="200">Токен обновлен.</response>
-        /// <response code="401">Рефреш токен невалиден. Разлогиньте пользователяю</response>
+        /// <response code="401">Рефреш токен невалиден. Разлогиньте пользователя.</response>
         [HttpGet]
         public async Task<ActionResult<string>> Refresh(int id)
         {
