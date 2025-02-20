@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DocumentationFile>..\Cogni\Cogni\bin\Debug\net8.0\CogniApi.xml</DocumentationFile>
+    <UserSecretsId>f0bf3748-2612-4e79-8f6e-055ae06de36e</UserSecretsId>
 
   </PropertyGroup>
 
