@@ -17,7 +17,7 @@ namespace Cogni.Services
             return list;
         }
 
-        public async Task<List<(int id, string picUrl)>> GetFriendsPreview(int userId)
+        public async Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId)
         {
             var list = await _friendRepository.GetFriendsPreview(userId);
             return list;
