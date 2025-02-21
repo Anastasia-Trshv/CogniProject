@@ -73,6 +73,11 @@ public partial class CogniDbContext : DbContext
                 .HasForeignKey(d => d.IdUser)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("article_id_user_fkey");
+
+            entity.HasMany(a => a.ArticleImages)
+            .WithOne()
+            .HasForeignKey(ai => ai.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<ArticleImage>(entity =>
@@ -96,13 +101,12 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Avatar>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("avatars_pkey");
+        entity.HasKey(e => e.Id).HasName("avatars_pkey");
 
-            entity.ToTable("avatars");
-
+        entity.ToTable("avatars");
             entity.Property(e => e.Id)
-            .ValueGeneratedOnAdd()
-            .HasColumnName("id");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
             entity.Property(e => e.AvatarUrl)
                 .HasMaxLength(255)
                 .HasColumnName("avatar_url");
@@ -199,14 +203,13 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Like>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("likes");
-
+        entity
+            .HasNoKey()
+            .ToTable("likes");
             entity.Property(e => e.LikedAt)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("liked_at");
+                            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                            .HasColumnType("timestamp without time zone")
+                            .HasColumnName("liked_at");
             entity.Property(e => e.PostId).HasColumnName("post_id");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
@@ -297,13 +300,12 @@ public partial class CogniDbContext : DbContext
 
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("post_pkey");
+        entity.HasKey(e => e.Id).HasName("post_pkey");
 
-            entity.ToTable("post");
-
+        entity.ToTable("post");
             entity.Property(e => e.Id)
-            .ValueGeneratedOnAdd()
-            .HasColumnName("id_post");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id_post");
             entity.Property(e => e.IdUser).HasColumnName("id_user");
             entity.Property(e => e.PostBody)
                 .HasMaxLength(1024)

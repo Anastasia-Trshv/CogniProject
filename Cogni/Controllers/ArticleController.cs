@@ -1,33 +1,45 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Cogni.Contracts;
 using Cogni.Services;
+using Cogni.Contracts.Responses;
 using Cogni.Database.Entities;
 using Cogni.Abstractions.Services;
 using Cogni.Contracts.Requests;
+using Cogni.Authentication.Abstractions;
+using System.Web.Http;
 
 namespace Cogni.Controllers
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    public class ArticlesController : ControllerBase
+    public class ArticleController : ControllerBase
     {
         private readonly IArticleService _articleService;
+        private readonly ITokenService _tokenService;
 
-        public ArticlesController(IArticleService articleService)
+        public ArticleController(IArticleService articleService, ITokenService tokenService)
         {
             _articleService = articleService;
+            _tokenService = tokenService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllArticles()
+        /// <summary>
+        /// Получение всех заголовков статей
+        /// </summary>
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        public async Task<ActionResult<List<ArticlesResponse>>> GetAllArticleIdsAndNamesAsync()
         {
-            var articles = await _articleService.GetAll();
+            var articles = await _articleService.GetAllAsync();
+
             var articlesResponse = articles.Select(a => new ArticlesResponse(a.Id, a.ArticleName)).ToList();
             return Ok(articlesResponse);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetArticleById(int id)
+        /// <summary>
+        /// Получение всех данных статьи
+        /// </summary>
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        public async Task<ActionResult<ArticleResponse>> GetArticleById(int id)
         {
             var article = await _articleService.GetArticleByIdAsync(id);
             if (article == null)
@@ -35,39 +47,68 @@ namespace Cogni.Controllers
                 return NotFound();
             }
 
-            var imageUrls = article.ArticleImages.Select(i => i.ImageUrl).ToList();
-
-            var articleResponse = new ArticleResponse(article.Id, article.ArticleName, article.ArticleBody, imageUrls, article.IdUser);
+            var urls = article.ArticleImages?.Select(i => i.ImageUrl).ToList() ?? new List<string>();
+            var articleResponse = new ArticleResponse(article.Id, article.ArticleName, article.ArticleBody, urls, article.IdUser);
 
             return Ok(articleResponse);
+    
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateArticle([FromBody] CreateArticleRequest request)
+        /// <summary>
+        /// Создание статьи
+        /// </summary>
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Authorize]
+        public async Task<ActionResult<ArticleResponse>> CreateArticle([FromForm] CreateArticleRequest request)
         {
             if (string.IsNullOrEmpty(request.ArticleName) || string.IsNullOrEmpty(request.ArticleBody))
             {
                 return BadRequest("Название статьи и текст не могут быть пустыми.");
             }
 
-            await _articleService.CreateArticle(request.ArticleName, request.ArticleBody, request.ImageUrls, request.UserId);
-            return CreatedAtAction(nameof(GetArticleById), new { id = request.IdArticle }, request);
-        }
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            int userId = _tokenService.GetIdFromToken(token);
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateArticle(int id, ArticleUpdateRequest request)
+            var createdArticle = await _articleService.CreateArticleAsync(request, userId);
+
+            var imageUrls = createdArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
+            var articleResponse = new ArticleResponse(createdArticle.Id, createdArticle.ArticleName, createdArticle.ArticleBody, imageUrls, createdArticle.IdUser);
+
+            return CreatedAtAction(nameof(GetArticleById), new { id = createdArticle.Id }, articleResponse);
+        }
+    
+
+
+        /// <summary>
+        /// Изменение статьи
+        /// </summary>
+        [Microsoft.AspNetCore.Mvc.HttpPut]
+        [Authorize]
+        public async Task<ActionResult<ArticleResponse>> UpdateArticle([FromForm] ArticleUpdateRequest request)
         {
-            if (id != request.IdArticle)
+            if (request.IdArticle <= 0)
             {
-                return BadRequest("Несовпадение Id в пути и в теле запроса.");
+                return BadRequest("Некорректный ID статьи.");
             }
 
-            await _articleService.Update(request.IdArticle, request.ArticleName, request.ArticleBody, request.ImageUrls);
-            return NoContent();
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            int userId = _tokenService.GetIdFromToken(token);
+
+            var updatedArticle = await _articleService.UpdateArticleAsync(request.IdArticle, request.ArticleName, request.ArticleBody, request.Files, userId);
+
+            var imageUrls = updatedArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
+            var articleResponse = new ArticleResponse(updatedArticle.Id, updatedArticle.ArticleName, updatedArticle.ArticleBody, imageUrls, updatedArticle.IdUser);
+
+            return Ok(articleResponse);
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteArticle(int id)
+
+    /// <summary>
+    /// Удаление статьи
+    /// </summary>
+    [Microsoft.AspNetCore.Mvc.HttpDelete]
+    [Authorize]
+    public async Task<ActionResult> DeleteArticle(int id)
         {
             await _articleService.DeleteArticleAsync(id);
             return NoContent();

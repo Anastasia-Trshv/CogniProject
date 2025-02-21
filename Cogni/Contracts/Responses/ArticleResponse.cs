@@ -5,12 +5,8 @@
         int IdArticle,
         string ArticleName,
         string ArticleBody,
-        List<string> ImageUrls,
+        List<string>? ImageUrls,
         int IdUser
     );
-    public record ArticlesResponse
-    (
-        int IdArticle,
-        string ArticleName
-    );
+   
 }

@@ -6,6 +6,7 @@
         string ArticleName,
         string ArticleBody,
         List<string> ImageUrls,
-        int IdUser
+        int IdUser,
+        IFormFileCollection? Files
     );
 }

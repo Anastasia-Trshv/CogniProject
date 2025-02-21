@@ -71,16 +71,19 @@ namespace Cogni.Database.Repositories
         }
 
         public async Task Delete(int id)
-        {
+        { 
             var article = await _context.Articles.FindAsync(id);
             if (article != null)
             {
                 _context.Articles.Remove(article);
+
+
                 await _context.SaveChangesAsync();
             }
         }
 
-        public async Task Create(string articleName, string articleBody, List<string> imageUrls, int userId)
+
+        public async Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId)
         {
             var article = new Article
             {
@@ -96,6 +99,8 @@ namespace Cogni.Database.Repositories
 
             _context.Articles.Add(article);
             await _context.SaveChangesAsync();
+
+            return article;
         }
     }
 }

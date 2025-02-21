@@ -1,15 +1,16 @@
-﻿using Cogni.Database.Entities;
+﻿using Cogni.Contracts.Requests;
+using Cogni.Database.Entities;
 using Cogni.Models;
 
-namespace Cogni.Abstractions.Services
+public interface IArticleService
 {
-    public interface IArticleService
-    {
-        Task<List<ArticleModel>> GetAll();
-        Task<ArticleModel> GetArticleByIdAsync(int id);
-        Task CreateArticle(string articleName, string articleBody, List<string> imageUrls, int userId);
-        Task Update(int id, string ArticleName, string articleBody, List<string> imageUrls);
-        Task DeleteArticleAsync(int id);
-    }
+    Task<List<ArticleModel>> GetAllAsync();
+    Task<ArticleModel> GetArticleByIdAsync(int id);
+    Task<Article> CreateArticleAsync(CreateArticleRequest request, int userId);
+
+    Task<ArticleModel> UpdateArticleAsync(int id, string articleName, string articleBody, IFormFileCollection files, int userId);
+
+    Task DeleteArticleAsync(int id);
 }
+
 
