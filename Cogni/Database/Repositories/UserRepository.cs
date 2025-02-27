@@ -93,11 +93,22 @@ namespace Cogni.Database.Repositories
                 .Include(u => u.IdRoleNavigation)
                 .Include(u=> u.Avatars)
                 .FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return new UserModel { Id =0};
+            }
             var userModel = Converter(user);
             userModel.RoleName = user.IdRoleNavigation.NameRole;
             userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
-            Task task = Task.Factory.StartNew(()=>  userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
-            task.Wait();
+            if (user.Avatars.Count != 0)
+            {
+                Task task = Task.Factory.StartNew(() => userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
+                task.Wait();
+            }
+            else
+            {
+                userModel.ActiveAvatar = null;
+            }
             return userModel;
         }
 
