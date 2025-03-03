@@ -1,105 +1,92 @@
+using System;
+using System.IO;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
-using Cogni.Abstractions.Services;
+using SixLabors.ImageSharp.Processing;
 
 namespace Cogni.Services
 {
-    public interface IImageProcessingService
+    public class ImageConverterService
     {
-        Task<MemoryStream> ProcessImage(IFormFile file, ImageFormat outputFormat = ImageFormat.Jpeg);
-    }
+        private const int MinSize = 64;
+        private const int MaxSize = 1024;
 
-    public enum ImageFormat
-    {
-        Jpeg,
-        Png
-    }
-
-    public class ImageProcessingService : IImageProcessingService
-    {
-        private const int MinDimension = 64;
-        private const int MaxDimension = 1024;
-        
-        public async Task<MemoryStream> ProcessImage(IFormFile file, ImageFormat outputFormat = ImageFormat.Jpeg)
+        public Stream ConvertAndResizeImage(Stream input, string targetFormat = "jpeg")
         {
-            using var inputStream = file.OpenReadStream();
-            using var image = await Image.LoadAsync(inputStream);
-            
-            // Определяем необходимость и параметры масштабирования
-            var (newWidth, newHeight) = CalculateNewDimensions(image.Width, image.Height);
-            
-            // Если размеры изменились, масштабируем изображение
-            if (newWidth != image.Width || newHeight != image.Height)
-            {
-                image.Mutate(x => x.Resize(newWidth, newHeight));
-            }
+            if (input == null)
+                throw new ArgumentNullException(nameof(input));
 
-            var outputStream = new MemoryStream();
-            
-            // Сохраняем в выбранном формате
-            switch (outputFormat)
+            // Проверка допустимого значения targetFormat
+            if (targetFormat != "jpeg" && targetFormat != "png")
+                throw new ArgumentException("Допустимые форматы: 'jpeg' или 'png'", nameof(targetFormat));
+
+            try
             {
-                case ImageFormat.Jpeg:
-                    await image.SaveAsJpegAsync(outputStream, new JpegEncoder
+                // Загружаем изображение и определяем его исходный формат.
+                IImageFormat? sourceFormat;
+                using (var image = Image.Load(input))
+                {
+                    sourceFormat = image.Metadata.DecodedImageFormat;
+                    int originalWidth = image.Width;
+                    int originalHeight = image.Height;
+                    double scaleFactor = 1.0;
+
+                    // Если изображение больше допустимого, вычисляем коэффициент уменьшения
+                    if (originalWidth > MaxSize || originalHeight > MaxSize)
                     {
-                        Quality = 85 // Оптимальный баланс между качеством и размером
-                    });
-                    break;
-                    
-                case ImageFormat.Png:
-                    await image.SaveAsPngAsync(outputStream, new PngEncoder
+                        double ratioWidth = (double)MaxSize / originalWidth;
+                        double ratioHeight = (double)MaxSize / originalHeight;
+                        scaleFactor = Math.Min(ratioWidth, ratioHeight);
+                    }
+                    // Если изображение меньше допустимого, масштабируем вверх
+                    else if (originalWidth < MinSize || originalHeight < MinSize)
                     {
-                        CompressionLevel = PngCompressionLevel.BestCompression
-                    });
-                    break;
-                    
-                default:
-                    throw new ArgumentException("Неподдерживаемый формат изображения");
+                        double ratioWidth = (double)MinSize / originalWidth;
+                        double ratioHeight = (double)MinSize / originalHeight;
+                        scaleFactor = Math.Max(ratioWidth, ratioHeight);
+                    }
+
+                    // Если масштабирование требуется, изменяем размер с сохранением пропорций
+                    if (Math.Abs(scaleFactor - 1.0) > 0.01)
+                    {
+                        int newWidth = (int)(originalWidth * scaleFactor);
+                        int newHeight = (int)(originalHeight * scaleFactor);
+                        image.Mutate(ctx => ctx.Resize(newWidth, newHeight));
+                    }
+
+                    // Создаем поток для сохранения результата
+                    var outputStream = new MemoryStream();
+
+                    // Сохраняем в нужном формате
+                    if (targetFormat == "jpeg")
+                    {
+                        image.SaveAsJpeg(outputStream, new JpegEncoder 
+                        { 
+                            Quality = 90 // Хорошее качество, но с разумным сжатием
+                        });
+                    }
+                    else // targetFormat == "png"
+                    {
+                        image.SaveAsPng(outputStream, new PngEncoder 
+                        {
+                            CompressionLevel = PngCompressionLevel.DefaultCompression // Средний уровень сжатия
+                        });
+                    }
+
+                    outputStream.Position = 0;
+                    return outputStream;
+                }
             }
-            
-            outputStream.Position = 0;
-            return outputStream;
-        }
-
-        private (int width, int height) CalculateNewDimensions(int currentWidth, int currentHeight)
-        {
-            var aspectRatio = (float)currentWidth / currentHeight;
-
-            // Если изображение слишком большое
-            if (currentWidth > MaxDimension || currentHeight > MaxDimension)
+            catch (UnknownImageFormatException ex)
             {
-                if (currentWidth > currentHeight)
-                {
-                    // Для широких изображений
-                    return (MaxDimension, (int)Math.Round(MaxDimension / aspectRatio));
-                }
-                else
-                {
-                    // Для высоких изображений
-                    return ((int)Math.Round(MaxDimension * aspectRatio), MaxDimension);
-                }
+                throw new ArgumentException("Неподдерживаемый формат изображения", nameof(input), ex);
             }
-
-            // Если изображение слишком маленькое
-            if (currentWidth < MinDimension || currentHeight < MinDimension)
+            catch (Exception ex)
             {
-                if (currentWidth < currentHeight)
-                {
-                    // Для узких изображений
-                    return (MinDimension, (int)Math.Round(MinDimension / aspectRatio));
-                }
-                else
-                {
-                    // Для широких маленьких изображений
-                    return ((int)Math.Round(MinDimension * aspectRatio), MinDimension);
-                }
+                throw new InvalidOperationException("Ошибка при обработке изображения", ex);
             }
-
-            // Если размеры в допустимых пределах, оставляем как есть
-            return (currentWidth, currentHeight);
         }
     }
 }
