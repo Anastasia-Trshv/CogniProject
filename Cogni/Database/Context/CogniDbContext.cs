@@ -7,13 +7,15 @@ namespace Cogni.Database.Context;
 
 public partial class CogniDbContext : DbContext
 {
+    private readonly string connectionString;
     public CogniDbContext()
     {
     }
 
-    public CogniDbContext(DbContextOptions<CogniDbContext> options)
+    public CogniDbContext(DbContextOptions<CogniDbContext> options, IConfiguration config)
         : base(options)
     {
+        connectionString = config["ConnectionStrings:PostgreSQLConnection"];
     }
 
     public virtual DbSet<Article> Articles { get; set; }
@@ -48,7 +50,7 @@ public partial class CogniDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=89.46.131.128;Port=5432;Database=CogniDBv3;Username=CogniAdmin;Password=sddbjssb1221j");
+        => optionsBuilder.UseNpgsql(connectionString);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

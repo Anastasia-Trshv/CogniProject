@@ -8,7 +8,7 @@ namespace Cogni.Services
         private readonly IFriendRepository _friendRepository;
         public FriendService(IFriendRepository friendRepository)
         {
-            this._friendRepository = friendRepository;
+            _friendRepository = friendRepository;
         }
 
         public async Task<List<FriendDto>> GetUserFriends(int userId)
@@ -17,7 +17,7 @@ namespace Cogni.Services
             return list;
         }
 
-        public async Task<List<(int id, string picUrl)>> GetFriendsPreview(int userId)
+        public async Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId)
         {
             var list = await _friendRepository.GetFriendsPreview(userId);
             return list;

@@ -1,4 +1,5 @@
-﻿using Cogni.Database.Context;
+﻿using Cogni.Abstractions.Repositories;
+using Cogni.Database.Context;
 using Cogni.Database.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +13,11 @@ namespace Cogni.Controllers
     public class CogniController : ControllerBase//временный контроллер
     {
         private readonly CogniDbContext _context;
-        public CogniController(CogniDbContext cogniDb)
+        private readonly IUserRepository _userRepository;
+        public CogniController(CogniDbContext cogniDb, IUserRepository userRepository)
         {
             _context = cogniDb;
+            _userRepository = userRepository;
         }
         /// <summary>
         /// Контроллер для тестов бэка, все методы не для фронта
@@ -190,5 +193,6 @@ namespace Cogni.Controllers
             type.NameOfType= name;
             await _context.SaveChangesAsync();
         }
+        
     }
 }
