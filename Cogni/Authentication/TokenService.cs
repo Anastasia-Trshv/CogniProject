@@ -64,7 +64,7 @@ namespace Cogni.Authentication
                 ValidateAudience = true,
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(AuthOptions.GetSymmetricSecurityKey(key).ToString())),
+                IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(key),
                 ValidateLifetime = true
             };
 
