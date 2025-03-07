@@ -18,6 +18,7 @@ namespace Cogni.Abstractions.Repositories
         Task RemoveTokens(int id); //удаляет токены пользователя(когда разлогиниваем) 
         Task UpdateUsersAToken(int id, string atoken);//обновляем аксес токен пользователя
         Task AddTokens(int id, string rtoken, string atoken, DateTime rTokenExpiry);
+        Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit); //используется для получения случайных пользователей на странице с поиском друзей
 
     }
 }

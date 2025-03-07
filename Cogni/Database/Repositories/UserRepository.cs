@@ -214,6 +214,41 @@ namespace Cogni.Database.Repositories
             user.AToken = atoken;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit)
+        {
+            var users = _context.Users
+                .OrderBy(u => u.Id)
+                .Skip(startsFrom)
+                .Take(limit)
+                .Where(u => u.Id != userId)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Surname,
+                    u.Name,
+                    u.IdMbtiType,
+                    Avatar = u.Avatars
+                    .Where(a => a.IsActive == true)
+                    .Select(u =>  u.AvatarUrl)
+                    .FirstOrDefault()
+                })
+                .ToList();
+
+            List<FriendDto> result = new List<FriendDto>();
+            foreach(var u in users)
+            {
+                result.Add(new FriendDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surname = u.Surname,
+                    PicUrl = u.Avatar,
+                    Mbti = u.IdMbtiType
+                });
+            } 
+            return result;
+        }
         private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
         {
             return new UserModel
