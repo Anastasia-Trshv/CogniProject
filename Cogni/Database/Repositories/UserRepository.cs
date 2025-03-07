@@ -249,6 +249,43 @@ namespace Cogni.Database.Repositories
             } 
             return result;
         }
+
+        public async Task<List<FriendDto>> SearchUserByNameAndType(int userId, string NameSurname, int mbtiType)
+        {
+            var users = _context.Users
+                .OrderBy(u => u.Id)
+                .Where(u => u.Id != userId && // Исключаем текущего пользователя
+                (string.IsNullOrEmpty(NameSurname) || // Если NameSurname не указан, игнорируем это условие
+                (u.Name + " " + u.Surname).Contains(NameSurname.Trim())) && // Поиск по полному имени
+                (mbtiType == 0 || u.IdMbtiType == mbtiType))
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Surname,
+                    u.Name,
+                    u.IdMbtiType,
+                    Avatar = u.Avatars
+                    .Where(a => a.IsActive == true)
+                    .Select(u => u.AvatarUrl)
+                    .FirstOrDefault()
+                })
+                .ToList();
+
+            List<FriendDto> result = new List<FriendDto>();
+            foreach (var u in users)
+            {
+                result.Add(new FriendDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surname = u.Surname,
+                    PicUrl = u.Avatar,
+                    Mbti = u.IdMbtiType
+                });
+            }
+            return result;
+        }
+
         private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
         {
             return new UserModel

@@ -221,6 +221,21 @@ namespace Cogni.Controllers
             return await _userService.GetRandomUsers(id, request.startsFrom, request.limit);
         }
 
+        /// <summary>
+        /// Поиск пользователей по имени и типу
+        /// </summary>
+        /// <response code="200">Успешно</response>
+        /// <remarks></remarks>
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult<List<FriendDto>>> SearchUserByNameAndMbti(SearchUserRequest request)
+        {
+            string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
+            int id = _tokenService.GetIdFromToken(token);
+            return await _userService.SearchUserByNameAndType(id, request.Name, request.mbtiType);
+        }
+
 
     }
 }
