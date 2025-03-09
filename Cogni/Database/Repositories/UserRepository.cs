@@ -256,7 +256,7 @@ namespace Cogni.Database.Repositories
                 .OrderBy(u => u.Id)
                 .Where(u => u.Id != userId && // Исключаем текущего пользователя
                 (string.IsNullOrEmpty(NameSurname) || // Если NameSurname не указан, игнорируем это условие
-                (u.Name + " " + u.Surname).Contains(NameSurname.Trim())) && // Поиск по полному имени
+                ((u.Name + " " + u.Surname).ToLower()).Contains((NameSurname.Trim()).ToLower())) && // Поиск по полному имени
                 (mbtiType == 0 || u.IdMbtiType == mbtiType))
                 .Select(u => new
                 {
