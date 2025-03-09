@@ -5,10 +5,11 @@ using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
+using Cogni.Abstraction.Services;
 
 namespace Cogni.Services
 {
-    public class ImageConverterService
+    public class ImageConverterService : IImageConverterService
     {
         private const int MinSize = 64;
         private const int MaxSize = 1024;
