@@ -4,6 +4,6 @@ namespace Cogni.Abstraction.Services
 {
     public interface IImageConverterService
     {
-        Stream ConvertAndResizeImage(Stream input, string targetFormat = "jpeg");
+        IFormFile ConvertAndResizeImage(IFormFile input, string targetFormat = "jpeg");
     }
 } 

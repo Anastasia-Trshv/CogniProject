@@ -14,10 +14,10 @@ namespace Cogni.Services
         private const int MinSize = 64;
         private const int MaxSize = 1024;
 
-        public Stream ConvertAndResizeImage(Stream input, string targetFormat = "jpeg")
+        public IFormFile ConvertAndResizeImage(IFormFile inputFile, string targetFormat = "jpeg")
         {
-            if (input == null)
-                throw new ArgumentNullException(nameof(input));
+            if (inputFile == null)
+                throw new ArgumentNullException(nameof(inputFile));
 
             // Проверка допустимого значения targetFormat
             if (targetFormat != "jpeg" && targetFormat != "png")
@@ -25,11 +25,8 @@ namespace Cogni.Services
 
             try
             {
-                // Загружаем изображение и определяем его исходный формат.
-                IImageFormat? sourceFormat;
-                using (var image = Image.Load(input))
+                using (var image = Image.Load(inputFile.OpenReadStream()))
                 {
-                    sourceFormat = image.Metadata.DecodedImageFormat;
                     int originalWidth = image.Width;
                     int originalHeight = image.Height;
                     double scaleFactor = 1.0;
@@ -63,26 +60,33 @@ namespace Cogni.Services
                     // Сохраняем в нужном формате
                     if (targetFormat == "jpeg")
                     {
-                        image.SaveAsJpeg(outputStream, new JpegEncoder 
-                        { 
+                        image.SaveAsJpeg(outputStream, new JpegEncoder
+                        {
                             Quality = 90 // Хорошее качество, но с разумным сжатием
                         });
                     }
                     else // targetFormat == "png"
                     {
-                        image.SaveAsPng(outputStream, new PngEncoder 
+                        image.SaveAsPng(outputStream, new PngEncoder
                         {
                             CompressionLevel = PngCompressionLevel.DefaultCompression // Средний уровень сжатия
                         });
                     }
 
-                    outputStream.Position = 0;
-                    return outputStream;
+                    // Создаем объект FormFile
+                    outputStream.Position = 0; // Сбрасываем позицию потока
+                    var outputFile = new FormFile(outputStream, 0, outputStream.Length, inputFile.Name, $"{Path.GetFileNameWithoutExtension(inputFile.FileName)}.{targetFormat}")
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = targetFormat == "jpeg" ? "image/jpeg" : "image/png"
+                    };
+
+                    return outputFile;
                 }
             }
             catch (UnknownImageFormatException ex)
             {
-                throw new ArgumentException("Неподдерживаемый формат изображения", nameof(input), ex);
+                throw new ArgumentException("Неподдерживаемый формат изображения", nameof(inputFile), ex);
             }
             catch (Exception ex)
             {

@@ -1,19 +1,24 @@
 using Cogni.Abstractions.Services;
 using Cogni.Abstractions.Repositories;
 using SixLabors.ImageSharp;
+using Cogni.Abstraction.Services;
 
 namespace Cogni.Services
 {
     public class ImageService : IImageService
     {
         private readonly IImageRepository _imageRepository;
-        public ImageService(IImageRepository imageRepository)
+        private readonly IImageConverterService _imageConverterService; 
+        public ImageService(IImageRepository imageRepository, IImageConverterService imageConverter)
         {
             _imageRepository = imageRepository;
+            _imageConverterService = imageConverter;
         }
         // Добавляет изображение на сервер и возвращает URL с ID
-        public async Task<String> UploadImage(IFormFile file)
+        public async Task<String> UploadImage(IFormFile inputFile)
         {
+            var file = _imageConverterService.ConvertAndResizeImage(inputFile);
+
             if (!file.ContentType.StartsWith("image/jpeg") && !file.ContentType.StartsWith("image/png"))
                 throw new InvalidDataException("Изображения должны быть в формате JPG или PNG");
             using var stream = file.OpenReadStream();

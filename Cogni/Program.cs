@@ -1,3 +1,4 @@
+using Cogni.Abstraction.Services;
 using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
 using Cogni.Authentication;
@@ -76,7 +77,7 @@ builder.Services.AddTransient<IImageService, ImageService>();
 builder.Services.AddTransient<IImageRepository, ImageRepository>();
 builder.Services.AddTransient<IMbtiRepository, MbtiRepository>();
 builder.Services.AddTransient<IMbtiService, MbtiService>();
-builder.Services.AddTransient<IImageProcessingService, ImageProcessingService>();
+builder.Services.AddTransient<IImageConverterService, ImageConverterService>();
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
