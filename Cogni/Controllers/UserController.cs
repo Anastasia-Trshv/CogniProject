@@ -92,7 +92,7 @@ namespace Cogni.Controllers
         /// <summary>
         /// Меняет текущую аватарку на новую
         /// </summary>
-        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Поддерживаются форматы JPEG/JPG, PNG, GIF, BMP, TIFF, SVG, WebP, HEIF/HEIC, ICO, RAW. </remarks>
         [HttpPut]
         [Authorize]
         public async Task<ActionResult> ChangeAvatar([FromForm] IFormFile Picture)
@@ -106,7 +106,7 @@ namespace Cogni.Controllers
         /// <summary>
         /// Меняет текущий баннер на новый
         /// </summary>
-        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Разрешение изображения должно быть между 64x64 и 1024x1024. Изображения должны быть в формате JPG или PNG.  </remarks>
+        /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data). Поддерживаются форматы JPEG/JPG, PNG, GIF, BMP, TIFF, SVG, WebP, HEIF/HEIC, ICO, RAW.</remarks>
         [HttpPut]
         [Authorize]
         public async Task<ActionResult> ChangeBanner([FromForm] IFormFile Picture)
