@@ -159,5 +159,15 @@ namespace Cogni.Services
         {
            await _userRepository.UpdateUsersAToken(id, atoken);
         }
+
+        public async Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit)
+        {
+            return await _userRepository.GetRandomUsers(userId, startsFrom, limit);
+        }
+
+        public async Task<List<FriendDto>> SearchUserByNameAndType(int userId, string NameSurname, int mbtiType)
+        {
+            return await _userRepository.SearchUserByNameAndType(userId, NameSurname, mbtiType);
+        }
     }
 }

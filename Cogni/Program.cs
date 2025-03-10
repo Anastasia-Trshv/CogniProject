@@ -78,6 +78,8 @@ builder.Services.AddTransient<IImageRepository, ImageRepository>();
 builder.Services.AddTransient<IMbtiRepository, MbtiRepository>();
 builder.Services.AddTransient<IMbtiService, MbtiService>();
 builder.Services.AddTransient<IImageConverterService, ImageConverterService>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddAuthentication(x =>
 {
     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

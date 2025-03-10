@@ -6,6 +6,8 @@ namespace Cogni.Database.Repositories
 {
     public class FriendRepository : IFriendRepository
     {
+        // todo: put it somewhere else
+        private readonly string placeholderImage = "https://yt3.googleusercontent.com/cBNnmASNGeUEDG3ij8pHF6592DTJWnwRPsrAGIql7p5P7hdw9VwQ_HJdZG9Pwjk806tQCMTbhw=s900-c-k-c0x00ffffff-no-rj";
         private readonly CogniDbContext _context;
         public FriendRepository(CogniDbContext context)
         {
@@ -25,7 +27,6 @@ namespace Cogni.Database.Repositories
                     Mbti = u.IdMbtiTypeNavigation.Id
                 })
                 .ToListAsync();
-
             return friends;
         }
 

@@ -93,11 +93,22 @@ namespace Cogni.Database.Repositories
                 .Include(u => u.IdRoleNavigation)
                 .Include(u=> u.Avatars)
                 .FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+            {
+                return new UserModel { Id =0};
+            }
             var userModel = Converter(user);
             userModel.RoleName = user.IdRoleNavigation.NameRole;
             userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
-            Task task = Task.Factory.StartNew(()=>  userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
-            task.Wait();
+            if (user.Avatars.Count != 0)
+            {
+                Task task = Task.Factory.StartNew(() => userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
+                task.Wait();
+            }
+            else
+            {
+                userModel.ActiveAvatar = null;
+            }
             return userModel;
         }
 
@@ -203,6 +214,78 @@ namespace Cogni.Database.Repositories
             user.AToken = atoken;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit)
+        {
+            var users = _context.Users
+                .OrderBy(u => u.Id)
+                .Skip(startsFrom)
+                .Take(limit)
+                .Where(u => u.Id != userId)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Surname,
+                    u.Name,
+                    u.IdMbtiType,
+                    Avatar = u.Avatars
+                    .Where(a => a.IsActive == true)
+                    .Select(u =>  u.AvatarUrl)
+                    .FirstOrDefault()
+                })
+                .ToList();
+
+            List<FriendDto> result = new List<FriendDto>();
+            foreach(var u in users)
+            {
+                result.Add(new FriendDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surname = u.Surname,
+                    PicUrl = u.Avatar,
+                    Mbti = u.IdMbtiType
+                });
+            } 
+            return result;
+        }
+
+        public async Task<List<FriendDto>> SearchUserByNameAndType(int userId, string NameSurname, int mbtiType)
+        {
+            var users = _context.Users
+                .OrderBy(u => u.Id)
+                .Where(u => u.Id != userId && // Исключаем текущего пользователя
+                (string.IsNullOrEmpty(NameSurname) || // Если NameSurname не указан, игнорируем это условие
+                ((u.Name + " " + u.Surname).ToLower()).Contains((NameSurname.Trim()).ToLower())) && // Поиск по полному имени
+                (mbtiType == 0 || u.IdMbtiType == mbtiType))
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Surname,
+                    u.Name,
+                    u.IdMbtiType,
+                    Avatar = u.Avatars
+                    .Where(a => a.IsActive == true)
+                    .Select(u => u.AvatarUrl)
+                    .FirstOrDefault()
+                })
+                .ToList();
+
+            List<FriendDto> result = new List<FriendDto>();
+            foreach (var u in users)
+            {
+                result.Add(new FriendDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Surname = u.Surname,
+                    PicUrl = u.Avatar,
+                    Mbti = u.IdMbtiType
+                });
+            }
+            return result;
+        }
+
         private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
         {
             return new UserModel

@@ -4,10 +4,16 @@ namespace Cogni.Database.Repositories
 {
     public class ImageRepository : IImageRepository
     {
-        private const string UPLOADCARE_PUB_KEY = "3aff0939747d03d6b4f4";
-        private const string UPLOADCARE_SECRET_KEY = "86eebd9da7f3bc584505";
+        private string UPLOADCARE_PUB_KEY;
+        private string UPLOADCARE_SECRET_KEY;
 
         // Добавляет изображение на сервер и возвращает URL с ID
+
+        public ImageRepository(IConfiguration config) 
+        {
+            UPLOADCARE_PUB_KEY = config["ImageRepository:UPLOADCARE_PUB_KEY"];
+            UPLOADCARE_SECRET_KEY = config["ImageRepository:UPLOADCARE_SECRET_KEY"];
+        }
         public async Task<String> UploadImage(IFormFile file)
         {
             using var client = new HttpClient();
