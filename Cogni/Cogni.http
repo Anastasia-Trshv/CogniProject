@@ -1,4 +1,4 @@
-@Cogni_HostAddress = http://localhost:5279
+@Cogni_HostAddress = http://localhost:7055
 
 GET {{Cogni_HostAddress}}/weatherforecast/
 Accept: application/json

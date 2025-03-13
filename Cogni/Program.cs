@@ -17,7 +17,7 @@ builder.Services.AddCors(option => option.AddPolicy(
     name: "Default",
     policy =>
     {
-        policy.WithOrigins("http://localhost:3000");
+        policy.WithOrigins("http://localhost:7054");
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
         policy.AllowCredentials();
@@ -109,12 +109,22 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
+app.UseRouting();
+
 app.UseCors("Default");
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseStaticFiles();
 
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers(); // Для API
+    endpoints.MapFallbackToFile("index.html"); // Для SPA
+});
 
 app.MapControllers();
 
