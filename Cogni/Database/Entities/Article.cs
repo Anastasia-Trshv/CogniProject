@@ -10,12 +10,6 @@ public partial class Article
     public string? ArticleName { get; set; }
 
     public string? ArticleBody { get; set; }
-    
-    public string? Annotation { get; set; }
-
-    public DateTime? Created { get; set; }
-
-    public int? ReadsNumber { get; set; }
 
     public int IdUser { get; set; }
 

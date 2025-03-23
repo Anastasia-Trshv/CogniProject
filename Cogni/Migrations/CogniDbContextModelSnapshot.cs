@@ -31,9 +31,6 @@ namespace Cogni.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Annotation")
-                        .HasColumnType("text");
-
                     b.Property<string>("ArticleBody")
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)")
@@ -44,15 +41,9 @@ namespace Cogni.Migrations
                         .HasColumnType("character varying(128)")
                         .HasColumnName("article_name");
 
-                    b.Property<DateTime?>("Created")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<int>("IdUser")
                         .HasColumnType("integer")
                         .HasColumnName("id_user");
-
-                    b.Property<int?>("ReadsNumber")
-                        .HasColumnType("integer");
 
                     b.HasKey("Id")
                         .HasName("article_pkey");
