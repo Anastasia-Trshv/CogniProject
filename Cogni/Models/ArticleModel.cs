@@ -14,6 +14,12 @@ namespace Cogni.Models
 
         public int IdUser { get; set; }
 
+        public string? Annotation { get; set; }
+
+        public DateTime? Created { get; set; }
+
+        public int? ReadsNumber { get; set; }
+
         public List<ArticleImageModel> ArticleImages { get; set; } = new List<ArticleImageModel>();
 
         public User? IdUserNavigation { get; set; }
