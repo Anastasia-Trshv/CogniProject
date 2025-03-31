@@ -1,0 +1,22 @@
+services:
+  postgres: # for development
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: CogniAdmin
+      POSTGRES_PASSWORD: sdd*bjs4_sb1221j
+      POSTGRES_DB: CogniDBv3
+    ports:
+      - "5001:5432"
+  redis:
+    image: redis:7.2.4-alpine
+    restart: always
+    ports:
+      - "5002:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+volumes:
+  redis_data:
+    driver: local

@@ -51,19 +51,15 @@ namespace Cogni.Services
 
         public async Task<bool> ChangePassword(int id, string oldPassword, string newPassword)
         {
-            var user = await _userRepository.Get(id);
-            bool result = _passwordHasher.VerifyPassword(oldPassword, user.PasswordHash, user.Salt);
-            if (result == true)
+            var user = await _userRepository.GetUserCredsById(id);
+            if (user != null && _passwordHasher.VerifyPassword(oldPassword, user.PasswordHash, user.Salt))
             {
                 byte[] salt;
                 var newHash = _passwordHasher.HashPassword(newPassword, out salt);    
                 await _userRepository.ChangePassword(id,newHash, salt);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         public async Task<bool> ChekUser(string email)
@@ -71,15 +67,13 @@ namespace Cogni.Services
             return await _userRepository.CheckUser(email);
         }
 
-        public async Task<UserModel> CreateUser(SignUpRequest user)
+        public async Task<AuthedUserModel> CreateUser(SignUpRequest user)
         {
-            if (await _userRepository.CheckUser(user.Email) == false)//если пользователь с такой почтой еще не существует
+            if (await _userRepository.CheckUser(user.Email) == false) //если пользователь с такой почтой еще не существует
             {
-
                 byte[] salt;
                 string passHash = _passwordHasher.HashPassword(user.Password, out salt);
                 var typeid = await _mbtiService.GetMbtiTypeIdByName(user.MbtiType);
-
                 User userEntity = new User
                 {
                     Name = user.Name,
@@ -91,75 +85,52 @@ namespace Cogni.Services
                     IdMbtiType = typeid,
                     LastLogin = DateTime.Now
                 };
-                var newuser = await _userRepository.Create(userEntity);
-                var rtoken = _tokenService.GenerateRefreshToken();
-                var atoken = _tokenService.GenerateAccessToken(newuser.Id, newuser.RoleName);
-                var time = _tokenService.GetRefreshTokenExpireTime();
-                await _userRepository.AddTokens(newuser.Id, rtoken, atoken, time);
-
-                newuser.AToken = atoken;
-                newuser.RToken = rtoken;
-                newuser.RefreshTokenExpiryTime = time;
-
-                return newuser;
+                var newuser = await _userRepository.CreateUser(userEntity);
+                return newuser.ToAuthed(
+                    _tokenService.GenerateAccessToken(newuser.Id, newuser.RoleName),
+                    _tokenService.GenerateRefreshToken(newuser.Id),
+                    _tokenService.GetRefreshTokenExpireTime(),
+                    _tokenService.GetAccessTokenExpireTime()
+                );
             }
             else
             {
-                return new UserModel();
+                throw new Exception("email_exists"); // todo: сделать кастомные ошибки?
             }
         }
 
-        public async Task<UserModel> Get(int id)
-        {
-            return await _userRepository.Get(id);
+        public async Task<PublicUserModel?> GetPublicUser(int id) {
+            return await _userRepository.GetPublicUser(id);
         }
 
-        public async Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
+
+
+        public async Task<string?> GetUserRole(int id)
         {
-            return await _userRepository.GetRTokenAndExpiryTimeAndRole(id);    
+            return await _userRepository.GetUserRole(id);    
         }
 
-        public async Task<UserModel> GetUser(string email, string password)
+        public async Task<AuthedUserModel?> Login(string email, string password)
         {
-            
-            var user =  await _userRepository.Get(email);
-            if(user.Id == 0)
+            var user =  await _userRepository.GetPrivateUserByEmail(email);
+            if(user != null && _passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
             {
-                return new UserModel();
+                return user.ToAuthed(
+                    _tokenService.GenerateAccessToken(user.Id, user.RoleName),
+                    _tokenService.GenerateRefreshToken(user.Id),
+                    _tokenService.GetAccessTokenExpireTime(),
+                    _tokenService.GetRefreshTokenExpireTime()
+                );
             }
-            else if (_passwordHasher.VerifyPassword(password, user.PasswordHash, user.Salt))
-            {
-                var atoken = _tokenService.GenerateAccessToken(user.Id, user.RoleName);
-                var rtoken = _tokenService.GenerateRefreshToken();
-                var time = _tokenService.GetRefreshTokenExpireTime();
-                await _userRepository.AddTokens(user.Id, rtoken, atoken, time);
-                user.AToken= atoken;
-                user.RefreshTokenExpiryTime= time;
-                user.RToken = rtoken;
-                return user;
-            }
-            else
-            {
-                return new UserModel();
-            }
-        }
-
-        public async Task RemoveTokens(int id)
-        {
-           await _userRepository.RemoveTokens(id);
+            return null;
         }
 
         public async Task SetMbtiType(int userId, string mbtiType)
         {
-            var typeId =await _mbtiService.GetMbtiTypeIdByName(mbtiType);
+            var typeId = await _mbtiService.GetMbtiTypeIdByName(mbtiType);
             await _userRepository.SetMbtiType(userId, typeId);
         }
-
-        public async Task UpdateUsersAToken(int id, string atoken)
-        {
-           await _userRepository.UpdateUsersAToken(id, atoken);
-        }
-
+        
         public async Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit)
         {
             return await _userRepository.GetRandomUsers(userId, startsFrom, limit);

@@ -6,7 +6,7 @@ namespace Cogni.Authentication
     public static class AuthOptions
     {
         public const int AccessTokenExpirationTime = 10;
-        public const int RefreshTokenExpirationTime = 2;
+        public const int RefreshTokenExpirationTime = 2 * 24 * 60;
         public static SymmetricSecurityKey GetSymmetricSecurityKey(string Key)
         {
 

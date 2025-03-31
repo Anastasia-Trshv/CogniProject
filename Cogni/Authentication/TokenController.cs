@@ -1,6 +1,8 @@
 ﻿using Cogni.Abstractions.Services;
 using Cogni.Authentication.Abstractions;
+using Cogni.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 
 namespace Cogni.Authentication
 {
@@ -8,10 +10,12 @@ namespace Cogni.Authentication
     [Route("[controller]/[action]")]
     public class TokenController : ControllerBase
     {
+        private readonly IDatabase _redisDb;
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
-        public TokenController(IUserService userService, ITokenService tokenService)
+        public TokenController(IUserService userService, ITokenService tokenService, IConnectionMultiplexer redis)
         {
+            _redisDb = redis.GetDatabase();
             _userService = userService;
             _tokenService = tokenService;
         }
@@ -23,30 +27,25 @@ namespace Cogni.Authentication
         /// <response code="200">Токен обновлен.</response>
         /// <response code="401">Рефреш токен невалиден. Разлогиньте пользователя.</response>
         [HttpGet]
-        public async Task<ActionResult<string>> Refresh(int id)
+        public async Task<ActionResult<TokenResponse>> Refresh()
         {
             string refreshToken = Request.Headers["Refresh-token"];
-            var data = await _userService.GetRTokenAndExpiryTimeAndRole(id);
-            var expiryTime = data.Item2;
-            var validRToken = data.Item1;
-            var role = data.Item3;
-
-            if (expiryTime <= DateTime.UtcNow)
-            {
-                await _userService.RemoveTokens(id);//разлогинить если истек рефреш
-                return Unauthorized("Refresh token has expired");
-            }
-            else if (validRToken != refreshToken)
-            {
-                await _userService.RemoveTokens(id);//разлогинить если прислали не тот рефреш
-                return Unauthorized("Refresh token is invalid");
-            }
-            else
-            {
-                var newToken = _tokenService.GenerateAccessToken(id, role);
-                await _userService.UpdateUsersAToken(id, newToken);  //сохранить новые токены
-                return Ok(newToken);
-            }
+            var userIdStr = _redisDb.StringGet($"refresh_token:{refreshToken}");
+            await _redisDb.KeyDeleteAsync($"refresh_token:{refreshToken}");
+            if (userIdStr.IsNullOrEmpty) {return Unauthorized("Refresh token is invalid or expired");}
+            var userId = int.Parse(userIdStr);
+            var role = await _userService.GetUserRole(userId);
+            if (role == null) {return Unauthorized("Refresh token is invalid");} // Возможно только если пользователь удален
+            var newAToken = _tokenService.GenerateAccessToken(userId, role);
+            var newRefreshToken = Guid.NewGuid().ToString();
+            _redisDb.StringSet($"refresh_token:{newRefreshToken}", userId.ToString(), 
+                                TimeSpan.FromMinutes(AuthOptions.RefreshTokenExpirationTime));
+            return Ok(new TokenResponse(
+                newAToken,
+                newRefreshToken,
+                _tokenService.GetAccessTokenExpireTime(),
+                _tokenService.GetRefreshTokenExpireTime()
+            ));
         }
 
     }

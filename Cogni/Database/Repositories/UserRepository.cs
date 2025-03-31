@@ -9,8 +9,13 @@ namespace Cogni.Database.Repositories
     public class UserRepository : IUserRepository
     {
         readonly CogniDbContext _context;
-        public UserRepository(CogniDbContext context) 
+
+        readonly ILogger<UserRepository> _logger;
+
+
+        public UserRepository(CogniDbContext context, ILogger<UserRepository> logger) 
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -24,53 +29,39 @@ namespace Cogni.Database.Repositories
             return true;
         }
 
-        public async Task<UserModel> Create(User user)
+        public async Task<PrivateUserModel> CreateUser(User user)
         {
-            
-
+            // C каких пор Email стал неуникальным?
             await _context.Users.AddAsync(user);
             //await _context.Avatars.AddAsync(new Avatar {UserId = user.Id, AvatarUrl = placeholder, IsActive=true, DateAdded=DateTime.Now});
             await _context.SaveChangesAsync();
             _context.Entry(user).Reference(u => u.IdRoleNavigation).Load();
             _context.Entry(user).Reference(u => u.IdMbtiTypeNavigation).Load();
-            UserModel model = Converter(user);
-            //model.ActiveAvatar = placeholder;
+            _context.Entry(user).Collection(u => u.Avatars).Load();
+            PrivateUserModel model = Converter(user);
             return model;
         }
 
-        public async Task<UserModel> Get(string email)
-        {
-           User? user = await _context.Users
-                .Include(u => u.Avatars)
+        public async Task<PrivateUserModel?> GetPrivateUserByEmail(string email){
+            User? user = await _context.Users
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
-                .FirstOrDefaultAsync(u => u.Email == email);
-            if (user == null)
-            {
-                var newuser = new UserModel();
-                return newuser;
+                .Include(u => u.Avatars)
+                .FirstOrDefaultAsync(u=> u.Email==email);
+            if (user == null){
+                return null;
             }
-            else
-            {
-                UserModel newuser = Converter(user);
-                var pic  = user.Avatars.FirstOrDefault(r => r.IsActive == true);
-                if (pic != null)
-                { 
-                    newuser.ActiveAvatar = pic.AvatarUrl; 
-                }
-                else 
-                {
-                    newuser.ActiveAvatar = null;
-                }
-               
-                newuser.RoleName = user.IdRoleNavigation.NameRole;
-                newuser.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
-                
-                return newuser;
-            }
-
+            return Converter(user);
         }
-               
+
+        public async Task<UserCredsModel?> GetUserCredsById(int id){
+            User? user = await _context.Users.FirstOrDefaultAsync(u=> u.Id==id);
+            if (user == null){
+                return null;
+            }
+            return new UserCredsModel{Id = user.Id, PasswordHash = user.PasswordHash, Salt = user.Salt};
+        }
+
         public async Task SetMbtiType(int userId, int mbtiId)
         {
             var u = await _context.Users
@@ -82,34 +73,21 @@ namespace Cogni.Database.Repositories
                 return;
             }
             // ачо делать если нет юзера?
+            // - ничего не делать)
             // todo: handle error
             return;
         }
 
-        public async Task<UserModel> Get(int id)
+        public async Task<PublicUserModel?> GetPublicUser(int id)
         {
             var user = await _context.Users
                 .Include(u => u.IdMbtiTypeNavigation)
                 .Include(u => u.IdRoleNavigation)
-                .Include(u=> u.Avatars)
+                .Include(u => u.Avatars)
                 .FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
-            {
-                return new UserModel { Id =0};
-            }
+            if (user == null){ return null;}
             var userModel = Converter(user);
-            userModel.RoleName = user.IdRoleNavigation.NameRole;
-            userModel.MbtyType = user.IdMbtiTypeNavigation.NameOfType;
-            if (user.Avatars.Count != 0)
-            {
-                Task task = Task.Factory.StartNew(() => userModel.ActiveAvatar = user.Avatars.FirstOrDefault(i => i.IsActive == true).AvatarUrl);
-                task.Wait();
-            }
-            else
-            {
-                userModel.ActiveAvatar = null;
-            }
-            return userModel;
+            return userModel.ToPublic();
         }
 
         public async Task ChangeAvatar(int id, string picLink)
@@ -182,37 +160,14 @@ namespace Cogni.Database.Repositories
         }
 
        
-        public async Task<(string, DateTime, string)> GetRTokenAndExpiryTimeAndRole(long id)
+        public async Task<string?> GetUserRole(int id)
         {
-            var user = await _context.Users
-               .Include(u => u.IdRoleNavigation)
-               .FirstOrDefaultAsync(u => u.Id == id);
-            return (user.RToken, user.RefreshTokenExpiryTime, user.IdRoleNavigation.NameRole);
-        }
-
-        public async Task RemoveTokens(int id)
-        {
-            var user = await _context.Users.FindAsync(id);
-            user.AToken = null;
-            user.RToken = null;
-            user.RefreshTokenExpiryTime = default;
-            await _context.SaveChangesAsync();
-        }
-        
-        public async Task AddTokens(int id, string RToken, string AToken, DateTime expiry)
-        {
-            var user1 = await _context.Users.FindAsync(id);
-            user1.AToken = AToken;
-            user1.RToken = RToken;
-            user1.RefreshTokenExpiryTime = expiry;
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task UpdateUsersAToken(int id, string atoken)
-        {
-            var user = await _context.Users.FindAsync(id);
-            user.AToken = atoken;
-            await _context.SaveChangesAsync();
+            var role = await _context.Users
+                .Include(u => u.IdRoleNavigation)
+                .Where(u => u.Id == id)
+                .Select(u => u.IdRoleNavigation.NameRole)
+                .FirstOrDefaultAsync();
+            return role;
         }
 
         public async Task<List<FriendDto>> GetRandomUsers(int userId, int startsFrom, int limit)
@@ -285,30 +240,26 @@ namespace Cogni.Database.Repositories
             }
             return result;
         }
-
-        private UserModel Converter(User user)//метод конвертирующие из User-сущности в UserModel 
+        private PrivateUserModel Converter(User user)//метод конвертирующие из User-сущности в PrivateUserModel 
         {
-            return new UserModel
+            Avatar? avatar = user.Avatars.FirstOrDefault(i => i.IsActive == true);
+            return new PrivateUserModel
             {
                 Id = user.Id,
                 Name = user.Name,
                 Surname = user.Surname,
                 Description = user.Description,
-                AToken = user.AToken,
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
-                RToken = user.RToken,
                 Salt = user.Salt,
                 PasswordHash = user.PasswordHash,
                 Email = user.Email,
                 BannerImage = user.BannerImage,
                 IdRole = user.IdRole,
                 IdMbtiType = user.IdMbtiType,
-                MbtyType = user.IdMbtiTypeNavigation.NameOfType,
+                MbtiType = user.IdMbtiTypeNavigation.NameOfType,
                 RoleName = user.IdRoleNavigation.NameRole,
-                LastLogin= user.LastLogin
-
+                LastLogin = user.LastLogin,
+                ActiveAvatar = avatar == null ? "" : avatar.AvatarUrl
             };
         }
-
     }
 }

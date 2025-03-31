@@ -1,6 +1,7 @@
 ﻿using Cogni.Authentication.Abstractions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -10,17 +11,17 @@ namespace Cogni.Authentication
 {
     public class TokenService : ITokenService
     {
+        private readonly IDatabase _redisDb;
         private readonly string issuer;
         private readonly string audience;
         private readonly string key;
-        public TokenService(IConfiguration config)
+        public TokenService(IConfiguration config, IConnectionMultiplexer redis)
         {
+            _redisDb = redis.GetDatabase();
             issuer = config["Token:Issuer"];
             audience = config["Token:Audience"];
             key = config["Token:Key"];
         }
-
-        const int RefreshExpiryDays = 2;
 
         public string GenerateAccessToken(int id, string role)
         {
@@ -36,7 +37,7 @@ namespace Cogni.Authentication
                 Expires = DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime),
                 SigningCredentials = new SigningCredentials(
                     AuthOptions.GetSymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256)
+                    SecurityAlgorithms.HmacSha256) // TODO: use rsa256 instead
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -44,16 +45,13 @@ namespace Cogni.Authentication
             return tokenHandler.WriteToken(token);
         }
 
-        public string GenerateRefreshToken()
+        public string GenerateRefreshToken(int userId)
         {
-            var randomNumber = new byte[32];
-            using (var rng = RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(randomNumber);
-                return Convert.ToBase64String(randomNumber);
-            }
+            var refreshToken = Guid.NewGuid().ToString();
+            _redisDb.StringSet($"refresh_token:{refreshToken}", userId.ToString(), 
+                                TimeSpan.FromMinutes(AuthOptions.RefreshTokenExpirationTime));
+            return refreshToken;
         }
-
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)//метод позволяет проверить и извлечь информацию из JWT-токена, даже если он истек, при условии, что токен был правильно подписан известным ключом подписи и содержит valid идентификационные данные
         {
@@ -79,7 +77,12 @@ namespace Cogni.Authentication
 
         public DateTime GetRefreshTokenExpireTime()
         {
-            return DateTime.UtcNow.AddDays(RefreshExpiryDays);
+            return DateTime.UtcNow.AddMinutes(AuthOptions.RefreshTokenExpirationTime);
+        }
+
+        public DateTime GetAccessTokenExpireTime()
+        {
+            return DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime);
         }
 
         public int GetIdFromToken(string token)
