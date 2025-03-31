@@ -9,9 +9,9 @@ public class AuthedUserModel {
     public string? BannerImage {get; set;}
     public string TypeMbti {get; set;}
     public string Role {get; set;}
-    public DateTime? LastLogin {get; set;}
+    public int? LastLogin {get; set;}
     public string AccessToken {get; set;}
     public string RefreshToken {get; set;}
-    public DateTime AccessTokenExpireTime {get; set;}
-    public DateTime RefreshTokenExpiryTime {get; set;}
+    public int AccessTokenExpireTime {get; set;}
+    public int RefreshTokenExpiryTime {get; set;}
 }

@@ -9,7 +9,7 @@ public class PrivateUserModel
     public string? Image {get; set;}
     public string? BannerImage {get; set;}
     public string Role {get; set;}
-    public DateTime? LastLogin {get; set;}
+    public int? LastLogin {get; set;}
     public byte[] Salt {get; set;}
     public string? PasswordHash {get; set;}
     public string? Email {get; set;}
@@ -51,8 +51,8 @@ public class PrivateUserModel
             LastLogin = this.LastLogin,
             AccessToken = AccessToken,
             RefreshToken = RefreshToken,
-            AccessTokenExpireTime = AccessTokenExpireTime,
-            RefreshTokenExpiryTime = RefreshTokenExpiryTime
+            AccessTokenExpireTime = (int)(AccessTokenExpireTime.Subtract(new DateTime(1970, 1, 1))).TotalSeconds, 
+            RefreshTokenExpiryTime = (int)(RefreshTokenExpiryTime.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
         };
     }
 }

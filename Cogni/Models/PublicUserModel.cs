@@ -10,6 +10,6 @@ public class PublicUserModel
     public string? BannerImage {get; set;}
     public string TypeMbti {get; set;}
     public string? ActiveAvatar {get; set;}
-    public DateTime? LastLogin {get; set;}
+    public int? LastLogin {get; set;}
 
 }

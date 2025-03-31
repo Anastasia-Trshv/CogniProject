@@ -257,7 +257,7 @@ namespace Cogni.Database.Repositories
                 IdMbtiType = user.IdMbtiType,
                 MbtiType = user.IdMbtiTypeNavigation.NameOfType,
                 RoleName = user.IdRoleNavigation.NameRole,
-                LastLogin = user.LastLogin,
+                LastLogin = user.LastLogin  == null ? null : (int)(user.LastLogin.Value.Subtract(new DateTime(1970, 1, 1))).TotalSeconds,
                 ActiveAvatar = avatar == null ? "" : avatar.AvatarUrl
             };
         }
