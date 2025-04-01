@@ -9,6 +9,7 @@ using Cogni.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,7 +59,8 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-
+var redisConnection = builder.Configuration.GetValue<string>("Redis:ConnectionString");
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnection));
 
 builder.Services.AddDbContext<CogniDbContext>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();

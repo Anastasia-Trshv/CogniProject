@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.Swagger.Annotations;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cogni.Controllers
 {
@@ -39,39 +40,41 @@ namespace Cogni.Controllers
         /// <response code="200">Пользователь создан</response>
         /// <response code="404">Логин занят</response>
         [HttpPost]
-        public async Task<ActionResult<FullUserResponse>> CreateUser([FromBody] SignUpRequest request)
+        public async Task<ActionResult<AuthedUserModel>> CreateUser([FromBody] SignUpRequest request)
         {
-            var result = await _userService.CreateUser(request);
-            if(result.Id == 0)
+            try
             {
-                return BadRequest("Логин занят");
+                var user = await _userService.CreateUser(request);
+                return Ok(user);
             }
-            else{
-                var newUser = new FullUserResponse(result.Id, result.Name, result.Surname, result.Description, result.ActiveAvatar, result.BannerImage, result.MbtyType, result.RoleName, result.LastLogin, result.AToken, result.RToken);
-                return Ok(newUser);
+            catch (DbUpdateException ex)
+            {
+                var msg = (ex.InnerException?.Message ?? ex.Message);
+                if (msg.Contains("mbti_type", StringComparison.OrdinalIgnoreCase)) {
+                    return BadRequest("Некорректный mbti!");
+                }
             }
+            catch (Exception ex) {
+                if (ex.Message.Contains("exists", StringComparison.OrdinalIgnoreCase)) {
+                    return BadRequest("Логин занят!");
+                }
+            }
+            return StatusCode(500);
         }
 
         /// <summary>
         /// Вход пользователя в систему
         /// </summary>
         /// <response code="200">Пользователь найден, данные для входа верны</response>
-        /// <response code="404">Неверный логин или пароль</response>
+        /// <response code="401">Неверный логин или пароль</response>
         [HttpPost]
-        public async Task<ActionResult<FullUserResponse>> GetUserByEmail([FromBody] LoginRequest request)
+        public async Task<ActionResult<AuthedUserModel>> LoginByEmail([FromBody] LoginRequest request)
         {
-            var user = await _userService.GetUser(request.email, request.password);
-            //конверация в userresponse
-            if(user.Id == 0)
-            {
-                return NotFound();
+            var user = await _userService.Login(request.email, request.password);
+            if (user == null) {
+                return Unauthorized("Неверные данные для входа!");
             }
-            else
-            {
-                var response = new FullUserResponse(user.Id, user.Name, user.Surname, user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.RoleName, user.LastLogin, user.AToken, user.RToken);//создать токены
-
-                return Ok(response);
-            }
+            return user;
         }
 
         /// <summary>
@@ -133,7 +136,7 @@ namespace Cogni.Controllers
             var res = await _userService.ChangeDescription (id, descRequest.Description);
             if (res)
             {
-            return Ok();
+                return Ok();
             }
             else
             {
@@ -191,19 +194,13 @@ namespace Cogni.Controllers
         /// <response code="404">Пользователь не найден</response>
         [HttpGet]
         [Authorize]
-        public async Task<ActionResult<UserByIdResponse>> GetUserById(int id)
+        public async Task<ActionResult<PublicUserModel>> GetUserById(int id)
         {
-            var user = await _userService.Get(id);
-            if(user.Id == 0)
-            {
+            var user = await _userService.GetPublicUser(id);
+            if (user == null) {
                 return NotFound();
             }
-            else
-            {
-                UserByIdResponse response = new UserByIdResponse(id, user.Name, user.Surname ,user.Description, user.ActiveAvatar, user.BannerImage, user.MbtyType, user.LastLogin);
-
-                return Ok(response);
-            }
+            return Ok(user);
         }
 
         /// <summary>
