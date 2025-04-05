@@ -59,17 +59,8 @@ builder.Services.AddSwaggerGen(opt =>
     });
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    var redisHost = builder.Configuration["Redis:Host"];
-    var redisPort = builder.Configuration["Redis:Port"];
-    var redisUser = builder.Configuration["Redis:User"];
-    var redisPassword = builder.Configuration["Redis:Password"] ;
-    var configuration = ConfigurationOptions.Parse($"{redisHost}:{redisPort}");
-    configuration.User = redisUser;
-    configuration.Password = redisPassword;
-    return ConnectionMultiplexer.Connect(configuration);
-});
+var redisConnection = builder.Configuration.GetValue<string>("Redis:ConnectionString");
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnection));
 
 builder.Services.AddDbContext<CogniDbContext>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();

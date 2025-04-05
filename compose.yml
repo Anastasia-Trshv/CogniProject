@@ -1,22 +1,169 @@
 services:
-  postgres: # for development
+  rabbitmq:
+    image: "rabbitmq:management"
+    restart: always
+    ports:
+      - "5003:5672"
+      - "15672:15672"  # Web UI
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+  postgres:
     image: "postgres:latest"
     environment:
-      POSTGRES_USER: CogniAdmin
-      POSTGRES_PASSWORD: sdd*bjs4_sb1221j
-      POSTGRES_DB: CogniDBv3
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: chatdb
     ports:
-      - "5001:5432"
+      - "5004:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d chatdb"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
   redis:
     image: redis:7.2.4-alpine
     restart: always
+    environment:
+      REDIS_ARGS: "--requirepass password --user user on >password ~* allcommands --user default off nopass nocommands"
     ports:
       - "5002:6379"
-    command: ["redis-server", "--appendonly", "yes"]
+    command:
+      [
+        "redis-server",
+        "--requirepass", "password",
+        "--user", "user", "on", ">password", "~*", "allcommands",
+        "--user", "default", "off", "nopass", "nocommands"
+      ]
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "password", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+  minio:
+    image: minio/minio
+    restart: always
     environment:
-      - ALLOW_EMPTY_PASSWORD=yes
+      MINIO_HOST: "http://minio:9000"
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+      BUCKET_NAME: "chat-files"
+    ports:
+      - "9000:9000"
+      - "9090:9090"   # Web UI
+    entrypoint: ["/bin/sh", "/data/init.sh"]
+    volumes:
+      - ./minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://minio:9000/minio/health/live"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+  frontend:
+    build:
+      context: ./ChatDevFrontend
+    image: chat-frontend
+    expose:
+      - "80"
+    depends_on:
+      - backend_1
+      - backend_2
+      - backend_3
+      - backend_4
+    volumes:
+      - frontend-build:/usr/share/nginx/html
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - frontend-build:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend_1
+      - backend_2
+      - backend_3
+      - backend_4
+
+  backend_1:
+    build:
+      context: ./
+    image: chat-backend
+    ports:
+      - "700:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  backend_2:
+    build:
+      context: ./
+    image: chat-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  backend_3:
+    build:
+      context: ./
+    image: chat-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+  backend_4:
+    build:
+      context: ./
+    image: chat-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
 volumes:
   redis_data:
     driver: local
+  frontend-build:

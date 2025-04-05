@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script type="module" src="src/connection.js"></script>
+    <script type="module" src="src/users-devonly.js"></script>
+    <script type="module" src="src/side_panel.js"></script>
+    <script type="module" src="src/signalR.js"></script>
+    <script type="module" src="src/chats.js"></script>
+    <link href="/src/style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="absolute flex w-full h-full gap-4 flex-row overflow-clip">
+    <div class="flex w-[256px] h-full flex-col gap-2 items-center overflow-scroll pt-2 px-2">
+      <div class="text-3xl">CHAT API</div>
+      <div class="sep"></div>
+      <div class="text-xl text-center break-words">Login defines session, one login can have multiple live sessions [dev-only identification]</div>
+      <input id="username" placeholder="Login" />
+      <div id="user_id" placeholder="Id"></div>
+      <button id="connect">Connect</button>
+      <button id="disconnect">Disconnect</button>
+      <div id="status" class="text-3xl text-red-500">DISCONNECTED</div>
+
+      <div class="sep"></div>
+      <div class="text-xl">Create direct</div>
+      <input id="direct_username" placeholder="User id"/>
+      <input id="direct_message" placeholder="Message"/>
+      <button id="send_dm">Send</button>
+
+      <div class="sep"></div>
+      <div class="text-xl">Users [dev-only]</div>
+      <div>click to copy id</div>
+      <button id="get_users">Get users</button>
+      <div id="users_container" class="flex flex-col gap-2">
+      </div>
+
+      <div class="sep"></div>
+      <div class="text-xl">Group chat</div>
+      <input id="group_name" placeholder="Group name"/>
+      <button id="create_group">Create Group</button>
+      <input id="group_user" placeholder="User id"/>
+      <button id="add_id_to_group_list">Add user</button>
+      <div class="text-xl">Users to add:</div>
+      <div id="group_users"></div>
+
+      <div class="sep"></div>
+      <div class="text-xl">Rename group</div>
+      <input id="rename_group_id" placeholder="Group id"/>
+      <input id="rename_group_name" placeholder="New name"/>
+      <button id="rename_group">Rename group</button>
+
+      <div class="sep"></div>
+      <div class="text-xl">Add to group</div>
+      <input id="add_to_group_id" placeholder="Group id"/>
+      <input id="add_to_group_user_id" placeholder="User id"/>
+      <button id="add_to_group">Add</button>
+    </div>
+
+    <div class="vsep"></div>
+    <div class="w-[210px] mb-6">
+      <div class="text-3xl w-full text-center px-2 pt-2">Chats</div>
+      <div id="chats_container" class="flex gap-2 flex-col mt-2 h-full overflow-scroll"></div>
+    </div>
+
+    <div class="vsep"></div>
+    <div id="chat_container" class="flex-1 flex flex-col gap-2 pr-2 py-2">
+      <div class="w-full flex flex-row items-center gap-2">
+        <button id="close_chat">Close chat</button>
+        <div id="chat_name" class="text-3xl"></div>
+        <button id="leave_chat" class="ml-auto">Leave group</button>
+        <button id="delete_chat">Delete chat</button>
+        <button id="copy_chat_id">Copy id</button>
+      </div>
+
+      <div class="sep"></div>
+      <div id="messages_container" class="flex-1 flex flex-col-reverse gap-2 overflow-y-scroll">
+      </div>
+
+      <div class="sep"></div>
+      <div class="flex flex-row gap-2">
+        <textarea id="message_input" class="w-full resize-none border rounded-md focus:outline-[#7a80fc] focus:outline-2 focus:-outline-offset-1 p-1" placeholder="Message"></textarea>
+        <button id="send_message">Send</button>
+        <button id="send_message_media">Send WITH media</button>
+        <button id="send_message_file">Send WITH files</button>
+        <input type="file" id="files-input" multiple class="hidden"/>
+        <input type="file" id="media-input" multiple class="hidden"/>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
