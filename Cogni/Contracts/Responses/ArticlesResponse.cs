@@ -1,9 +1,10 @@
 ﻿namespace Cogni.Contracts
 {
-   
+
     public record ArticlesResponse
     (
         int IdArticle,
-        string ArticleName
+        string ArticleName,
+        string? Annotation
     );
 }
