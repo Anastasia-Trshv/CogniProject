@@ -7,6 +7,7 @@
         string ArticleBody,
         List<string> ImageUrls,
         int IdUser,
-        IFormFileCollection? Files
+        IFormFileCollection? Files,
+        string Annotation
     );
 }

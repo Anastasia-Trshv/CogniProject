@@ -8,7 +8,8 @@ public interface IArticleService
     Task<ArticleModel> GetArticleByIdAsync(int id);
     Task<Article> CreateArticleAsync(CreateArticleRequest request, int userId);
 
-    Task<ArticleModel> UpdateArticleAsync(int id, string articleName, string articleBody, IFormFileCollection files, int userId);
+    Task<ArticleModel> UpdateArticleAsync(int id, ArticleUpdateRequest request, int userId);
+    Task IncrementArticleReadsAsync(int id);
 
     Task DeleteArticleAsync(int id);
 }

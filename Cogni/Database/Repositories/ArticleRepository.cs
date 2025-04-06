@@ -42,6 +42,9 @@ namespace Cogni.Database.Repositories
                 ArticleName = article.ArticleName,
                 ArticleBody = article.ArticleBody,
                 IdUser = article.IdUser,
+                Annotation = article.Annotation,
+                Created = article.Created,
+                ReadsNumber = article.ReadsNumber,
                 ArticleImages = article.ArticleImages.Select(ai => new ArticleImageModel
                 {
                     Id = ai.Id,
@@ -52,13 +55,14 @@ namespace Cogni.Database.Repositories
             };
         }
 
-        public async Task Update(int id, string articleName, string articleBody, List<string> imageUrls)
+        public async Task Update(int id, string articleName, string articleBody, List<string> imageUrls, string annotation)
         {
             var article = await _context.Articles.FindAsync(id);
             if (article != null)
             {
                 article.ArticleName = articleName;
                 article.ArticleBody = articleBody;
+                article.Annotation = annotation;
 
                 article.ArticleImages.Clear();
                 foreach (var imageUrl in imageUrls)
@@ -70,8 +74,20 @@ namespace Cogni.Database.Repositories
             }
         }
 
+        public async Task UpdateReadsNumber(int id, int readsNumber)
+        {
+            var article = await _context.Articles.FindAsync(id);
+
+            if (article != null)
+            {
+                article.ReadsNumber = readsNumber;
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
         public async Task Delete(int id)
-        { 
+        {
             var article = await _context.Articles.FindAsync(id);
             if (article != null)
             {
@@ -83,13 +99,15 @@ namespace Cogni.Database.Repositories
         }
 
 
-        public async Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId)
+        public async Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId, string annotation)
         {
             var article = new Article
             {
                 ArticleName = articleName,
                 ArticleBody = articleBody,
-                IdUser = userId
+                IdUser = userId,
+                Annotation = annotation,
+                Created = DateTime.UtcNow
             };
 
             foreach (var imageUrl in imageUrls)

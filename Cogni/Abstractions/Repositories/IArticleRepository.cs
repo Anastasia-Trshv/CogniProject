@@ -7,8 +7,10 @@ namespace Cogni.Abstractions.Repositories
     {
         Task<List<ArticleModel>> GetAll();
         Task<ArticleModel> GetById(int id);
-        Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId);
-        Task Update(int id, string ArticleName, string articleBody, List<string> imageUrls);
+        Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId, string annotation);
+        Task Update(int id, string ArticleName, string articleBody, List<string> imageUrls, string annotation);
+        Task UpdateReadsNumber(int id, int readsNumber);
+
         Task Delete(int id);
     }
 }

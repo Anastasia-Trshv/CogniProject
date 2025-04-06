@@ -5,6 +5,7 @@
 
         string ArticleName,
         string ArticleBody,
-        IFormFileCollection? Files
+        IFormFileCollection? Files,
+        string Annotation
     );
 }

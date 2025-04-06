@@ -45,10 +45,10 @@ namespace Cogni.Services
                 ArticleName = request.ArticleName,
                 ArticleBody = request.ArticleBody,
                 IdUser = userId,
+                Annotation = request.Annotation,
                 ArticleImages = new List<ArticleImage>()
             };
 
-            //TODO: Upload images to cloud and get URLs
             if (request.Files != null)
             {
                 foreach (var file in request.Files)
@@ -60,14 +60,14 @@ namespace Cogni.Services
 
             List<string> imageUrls = article.ArticleImages.Select(ai => ai.ImageUrl).ToList();
 
-            Article createdArticle = await _articleRepository.Create(article.ArticleName, article.ArticleBody, imageUrls, article.IdUser);
+            Article createdArticle = await _articleRepository.Create(article.ArticleName, article.ArticleBody, imageUrls, article.IdUser, article.Annotation);
 
             return createdArticle;
         }
 
 
 
-        public async Task<ArticleModel> UpdateArticleAsync(int id, string articleName, string articleBody, IFormFileCollection files, int userId)
+        public async Task<ArticleModel> UpdateArticleAsync(int id, ArticleUpdateRequest request, int userId)
         {
             var article = await _articleRepository.GetById(id);
 
@@ -77,16 +77,17 @@ namespace Cogni.Services
             }
 
             // Обновляем название и содержимое статьи
-            article.ArticleName = articleName;
-            article.ArticleBody = articleBody;
+            article.ArticleName = request.ArticleName;
+            article.ArticleBody = request.ArticleBody;
+            article.Annotation = request.Annotation;
 
             // Получаем существующие URL изображений
             List<string> imageUrls = article.ArticleImages.Select(ai => ai.ImageUrl).ToList();
 
             // Обрабатываем загруженные изображения
-            if (files != null)
+            if (request.Files != null)
             {
-                foreach (var file in files)
+                foreach (var file in request.Files)
                 {
                     var imageUrl = await _imageService.UploadImage(file);
                     imageUrls.Add(imageUrl);
@@ -95,15 +96,27 @@ namespace Cogni.Services
             }
 
             // Обновляем статью в репозитории
-            await _articleRepository.Update(article.Id, article.ArticleName, article.ArticleBody, imageUrls);
+            await _articleRepository.Update(article.Id, article.ArticleName, article.ArticleBody, imageUrls, request.Annotation);
 
             // Возвращаем обновленную статью
             return article;
         }
 
+        public async Task IncrementArticleReadsAsync(int id)
+        {
+            var article = await _articleRepository.GetById(id); // Получаем статью из репозитория
+
+            if (article == null)
+            {
+                throw new Exception("Статья не найдена."); // Или другое подходящее исключение
+            }
 
 
+            article.ReadsNumber = (article.ReadsNumber ?? 0) + 1; // Увеличиваем счетчик (если null, начинаем с 0)
 
+            // Сохраняем изменения в репозитории (предполагается, что такой метод существует)
+            await _articleRepository.UpdateReadsNumber(article.Id, article.ReadsNumber.Value); // Нужно реализовать в репозитории
+        }
 
         public async Task DeleteArticleAsync(int id)
         {
@@ -117,6 +130,9 @@ namespace Cogni.Services
                 ArticleName = article.ArticleName,
                 ArticleBody = article.ArticleBody,
                 IdUser = article.IdUser,
+                Annotation = article.Annotation,
+                Created = article.Created,
+                ReadsNumber = article.ReadsNumber,
                 ArticleImages = article.ArticleImages.Select(ai => new ArticleImageModel
                 {
                     Id = ai.Id,
