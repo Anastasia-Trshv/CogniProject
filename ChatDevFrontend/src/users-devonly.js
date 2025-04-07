@@ -1,4 +1,4 @@
-import { fetchUsers } from './globals.js';
+import { fetchUsers, showToast } from './globals.js';
 
 document.getElementById("get_users").addEventListener("click", async function() {
     // Side effect: update uuid_to_username
@@ -16,18 +16,17 @@ document.getElementById("get_users").addEventListener("click", async function() 
             navigator.permissions.query({ name: "clipboard-write" }).then(function(result) {
                 if (result.state === "granted" || result.state === "prompt") {
                     navigator.clipboard.writeText(user.id).then(() => {
-                        alert("User ID copied to clipboard!");
+                        showToast("User ID copied to clipboard!");
                     }).catch(err => {
-                        alert("Failed to copy text: " + err);
+                        showToast("Failed to copy text: " + err);
                     });
                 } else {
-                    alert("Clipboard access denied. Please grant permission.");
+                    showToast("Clipboard access denied. Please grant permission.");
                 }
             }).catch(err => {
-                alert("Error checking clipboard permission: " + err);
+                showToast("Error checking clipboard permission: " + err);
             });
         });
-
         usersContainer.appendChild(userDiv);
     });
 });

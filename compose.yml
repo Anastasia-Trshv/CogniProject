@@ -14,8 +14,10 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
+
   postgres:
     image: "postgres:latest"
+    restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -28,6 +30,7 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
+
   redis:
     image: redis:7.2.4-alpine
     restart: always
@@ -50,6 +53,7 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
+
   minio:
     image: minio/minio # image: minio/minio:RELEASE.2025-04-03T14-56-28Z-cpuv1 # FOR LOW-END CPUs
     restart: always
@@ -69,10 +73,12 @@ services:
       retries: 5
       start_period: 10s
       timeout: 5s
+
   frontend:
     build:
       context: ./ChatDevFrontend
     image: chat-frontend
+    restart: always
     environment:
       VITE_DEV: "false"
     depends_on:
@@ -82,8 +88,10 @@ services:
       - backend_4
     volumes:
       - frontend-build:/usr/share/nginx/html
+
   haproxy:
     image: haproxy:latest
+    restart: always
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
     ports:
@@ -93,11 +101,13 @@ services:
       - backend_2
       - backend_3
       - backend_4
-  # Its scallable!
+
+  # It's scalable!
   backend_1:
     build:
       context: ./
     image: chat-backend
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
     depends_on:
@@ -109,10 +119,12 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
   backend_2:
     build:
       context: ./
     image: chat-backend
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
     depends_on:
@@ -124,10 +136,12 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
   backend_3:
     build:
       context: ./
     image: chat-backend
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
     depends_on:
@@ -139,10 +153,12 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
   backend_4:
     build:
       context: ./
     image: chat-backend
+    restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
     depends_on:
@@ -154,6 +170,7 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+
 volumes:
   redis_data:
     driver: local

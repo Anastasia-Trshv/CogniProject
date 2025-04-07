@@ -104,23 +104,27 @@ if (app.Environment.IsDevelopment())
             await stream.CopyToAsync(context.Response.Body);
         }
     });
+    app.UseCors("DEV-CHATS-AllowFrontend");
+} else {
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        try
+        {
+            dbContext.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while applying migrations.");
+        }
+    }
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    try
-    {
-        dbContext.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while applying migrations.");
-    }
-}
 
-app.UseCors("DEV-CHATS-AllowFrontend");
+
+
+
 
 app.MapHub<ChatHubController>("api" + ChatHubController.HUB_ENDPOINT);
 

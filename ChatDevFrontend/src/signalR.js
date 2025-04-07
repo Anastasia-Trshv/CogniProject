@@ -93,7 +93,7 @@ export async function startSignalRConnection(userId) {
         await UpdateChatTyping(notification)
     });
     connection.on("ErrorResponse", function (notification) {
-        alert(notification);
+        showToast(notification);
     });
     connection.on("MsgsReaden", function (notification) {
         setUnreadenCounter(notification.chatId, notification.unreadCount);

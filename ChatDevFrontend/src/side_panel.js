@@ -1,4 +1,4 @@
-import { getCurrentUserId } from './globals.js';
+import { getCurrentUserId, showToast } from './globals.js';
 import { addToGroup, createGroup, renameGroup, startDm } from './signalR.js';
 const groupUsers = new Set();
 
@@ -35,12 +35,12 @@ document.getElementById("add_id_to_group_list").addEventListener("click", functi
 document.getElementById("create_group").addEventListener("click", async function() {
     const groupName = document.getElementById("group_name").value.trim();
     if (!groupName || groupUsers.size < 1) {
-        alert("Please provide a group name and add at least one user.");
+        showToast("Please provide a group name and add at least one user.");
         return;
     }
     const myId = getCurrentUserId();
     if (!myId) {
-        alert("User is not logged in.");
+        showToast("User is not logged in.");
         return;
     }
     groupUsers.add(myId)
@@ -70,7 +70,7 @@ document.getElementById("rename_group").addEventListener("click", function() {
     if (chatId && newName) {
         renameGroup(chatId, newName);
     } else {
-        alert("Please provide a chat ID and a new name.");
+        showToast("Please provide a chat ID and a new name.");
     }
 });
 

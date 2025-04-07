@@ -1,4 +1,4 @@
-import { apiBase, fetchUsers, fileApi, getCurrentUserId, getUsernameByUuid } from './globals.js';
+import { apiBase, fetchUsers, fileApi, getCurrentUserId, getUsernameByUuid, showToast } from './globals.js';
 import { deleteChat, deleteMessage, editMessage, getMsgs, leaveGroup, readMessages, sendMsg, typing } from './signalR.js'
 
 
@@ -482,12 +482,12 @@ document.getElementById("media-input").addEventListener("change", function(e) {
 function sendFiles(e, as_media=false) {
     const files = e.target.files;
     if (files.length > 9) {
-        alert("You can select up to 9 files only.");
+        showToast("You can select up to 9 files only.");
         return null;
     }
     for (let i = 0; i < files.length; i++) {
         if (files[i].size > 1 * 1024 * 1024 * 1024) {
-            alert(`File ${files[i].name} is too large. Max file size is 1GB.`);
+            showToast(`File ${files[i].name} is too large. Max file size is 1GB.`);
             return null;
         }
     }
@@ -512,7 +512,7 @@ async function uploadFiles(files, as_media=false) {
         if (!as_media) {links = data.links.map(l => "FILE::" + l);}
         sendMessage(links);
     } catch (error) {
-        alert("Error uploading files: " + error.message);
+        showToast("Error uploading files: " + error.message);
     }
 }
 
@@ -540,21 +540,21 @@ document.getElementById("delete_chat").addEventListener("click", function() {
 
 document.getElementById("copy_chat_id").addEventListener("click", function() {
     if (current_chat == null) {
-        alert("No chat selected");
+        showToast("No chat selected");
         return;
     }
     navigator.permissions.query({ name: "clipboard-write" }).then(function(result) {
         if (result.state === "granted" || result.state === "prompt") {
             navigator.clipboard.writeText(current_chat).then(() => {
-                alert("Chat ID copied to clipboard!");
+                showToast("Chat ID copied to clipboard!");
             }).catch(err => {
-                alert("Failed to copy text: " + err);
+                showToast("Failed to copy text: " + err);
             });
         } else {
-            alert("Clipboard access denied. Please grant permission.");
+            showToast("Clipboard access denied. Please grant permission.");
         }
     }).catch(err => {
-        alert("Error checking clipboard permission: " + err);
+        showToast("Error checking clipboard permission: " + err);
     });
 })
 

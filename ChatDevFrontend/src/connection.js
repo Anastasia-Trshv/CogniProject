@@ -1,5 +1,5 @@
 import { flush } from './chats.js';
-import { setCurrentUser, logout, fetchUsers, apiBase } from './globals.js';
+import { setCurrentUser, logout, fetchUsers, apiBase, showToast } from './globals.js';
 import { stopSignalRConnection, startSignalRConnection, updateStatus } from "./signalR.js";
 
 let username;
@@ -8,7 +8,7 @@ let userId;
 document.getElementById("connect").addEventListener("click", async function() {
     username = document.getElementById("username").value.trim();
     if (!username) {
-        alert("Please enter a username.");
+        showToast("Please enter a username.");
         return;
     }
     const response = await fetch(`${apiBase}/auth/register`, {
@@ -30,7 +30,7 @@ document.getElementById("connect").addEventListener("click", async function() {
         connectSignalR(jwtImitation.userId);
     } else {
         const error = await response.json();
-        alert(`Error: ${error.message}`);
+        showToast(`Error: ${error.message}`);
     }
 });
 
