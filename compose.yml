@@ -51,17 +51,16 @@ services:
       start_period: 10s
       timeout: 5s
   minio:
-    image: minio/minio
+    image: minio/minio # image: minio/minio:RELEASE.2025-04-03T14-56-28Z-cpuv1 # FOR LOW-END CPUs
     restart: always
     environment:
       MINIO_HOST: "http://minio:9000"
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: password123
       BUCKET_NAME: "chat-files"
+    entrypoint: ["/bin/sh", "/data/init.sh"]
     ports:
       - "9000:9000"
-      - "9090:9090"   # Web UI
-    entrypoint: ["/bin/sh", "/data/init.sh"]
     volumes:
       - ./minio:/data
     healthcheck:
@@ -74,8 +73,8 @@ services:
     build:
       context: ./ChatDevFrontend
     image: chat-frontend
-    expose:
-      - "80"
+    environment:
+      VITE_DEV: "false"
     depends_on:
       - backend_1
       - backend_2
@@ -83,26 +82,22 @@ services:
       - backend_4
     volumes:
       - frontend-build:/usr/share/nginx/html
-  nginx:
-    image: nginx:alpine
+  haproxy:
+    image: haproxy:latest
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - frontend-build:/usr/share/nginx/html
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
     ports:
-      - "80:80"
+      - "9100:80"
     depends_on:
-      - frontend
       - backend_1
       - backend_2
       - backend_3
       - backend_4
-
+  # Its scallable!
   backend_1:
     build:
       context: ./
     image: chat-backend
-    ports:
-      - "700:80"
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
     depends_on:
@@ -114,7 +109,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-
   backend_2:
     build:
       context: ./
@@ -130,7 +124,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-
   backend_3:
     build:
       context: ./
@@ -146,7 +139,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-
   backend_4:
     build:
       context: ./
@@ -162,7 +154,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-
 volumes:
   redis_data:
     driver: local

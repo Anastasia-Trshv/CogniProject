@@ -26,26 +26,34 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<ChatMember>()
+            .ToTable("chat_members")
             .HasKey(gcm => new { gcm.ChatId, gcm.UserId });
 
         modelBuilder.Entity<ChatMember>()
+            .ToTable("chat_members")
             .HasOne(gcm => gcm.Chat)
             .WithMany(g => g.Members)
             .HasForeignKey(gcm => gcm.ChatId);
         
         modelBuilder.Entity<Message>()
+            .ToTable("messages")
             .Property(m => m.MessageId)
             .ValueGeneratedOnAdd()
             .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn);
         
         modelBuilder.Entity<MessageStatus>()
+            .ToTable("message_statuses")
             .HasKey(ms => new { ms.UserId, ms.ChatId });
 
         modelBuilder.Entity<MessageStatus>()
+            .ToTable("message_statuses")
             .HasOne<Chat>()
             .WithMany()
             .HasForeignKey(ms => ms.ChatId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Chat>()
+            .ToTable("chats");
 
         // DEV-ONLY
         modelBuilder.Entity<User>()

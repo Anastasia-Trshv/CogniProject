@@ -1,5 +1,5 @@
 import { flush } from './chats.js';
-import { setCurrentUser, logout, fetchUsers } from './globals.js';
+import { setCurrentUser, logout, fetchUsers, apiBase } from './globals.js';
 import { stopSignalRConnection, startSignalRConnection, updateStatus } from "./signalR.js";
 
 let username;
@@ -11,7 +11,7 @@ document.getElementById("connect").addEventListener("click", async function() {
         alert("Please enter a username.");
         return;
     }
-    const response = await fetch(`/api/auth/register`, {
+    const response = await fetch(`${apiBase}/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"

@@ -22,7 +22,7 @@ public class HubService : IHubService
         _hubContext = hubContext;
     }
 
-    public async Task SendMessage(string method, string userId, string message)
+    public async Task SendMessage<T>(string method, string userId, T message)
     {
         if (!UserToConnections.ContainsKey(userId))
         {

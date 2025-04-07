@@ -366,6 +366,5 @@ FodyWeavers.xsd
 minio/*
 !minio/init.sh
 
-.vscode
-
 secrets.json
+dev_secrets.json

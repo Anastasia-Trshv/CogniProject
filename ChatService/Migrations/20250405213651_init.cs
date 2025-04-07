@@ -14,7 +14,7 @@ namespace ChatService.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Chats",
+                name: "chats",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -25,11 +25,11 @@ namespace ChatService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Chats", x => x.Id);
+                    table.PrimaryKey("PK_chats", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Messages",
+                name: "messages",
                 columns: table => new
                 {
                     MessageId = table.Column<int>(type: "integer", nullable: false)
@@ -44,7 +44,7 @@ namespace ChatService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Messages", x => x.MessageId);
+                    table.PrimaryKey("PK_messages", x => x.MessageId);
                 });
 
             migrationBuilder.CreateTable(
@@ -60,7 +60,7 @@ namespace ChatService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ChatMembers",
+                name: "chat_members",
                 columns: table => new
                 {
                     ChatId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -68,17 +68,17 @@ namespace ChatService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ChatMembers", x => new { x.ChatId, x.UserId });
+                    table.PrimaryKey("PK_chat_members", x => new { x.ChatId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_ChatMembers_Chats_ChatId",
+                        name: "FK_chat_members_chats_ChatId",
                         column: x => x.ChatId,
-                        principalTable: "Chats",
+                        principalTable: "chats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "MessageStatus",
+                name: "message_statuses",
                 columns: table => new
                 {
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -88,28 +88,28 @@ namespace ChatService.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MessageStatus", x => new { x.UserId, x.ChatId });
+                    table.PrimaryKey("PK_message_statuses", x => new { x.UserId, x.ChatId });
                     table.ForeignKey(
-                        name: "FK_MessageStatus_Chats_ChatId",
+                        name: "FK_message_statuses_chats_ChatId",
                         column: x => x.ChatId,
-                        principalTable: "Chats",
+                        principalTable: "chats",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MessageStatus_Messages_MessageId",
+                        name: "FK_message_statuses_messages_MessageId",
                         column: x => x.MessageId,
-                        principalTable: "Messages",
+                        principalTable: "messages",
                         principalColumn: "MessageId");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_MessageStatus_ChatId",
-                table: "MessageStatus",
+                name: "IX_message_statuses_ChatId",
+                table: "message_statuses",
                 column: "ChatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MessageStatus_MessageId",
-                table: "MessageStatus",
+                name: "IX_message_statuses_MessageId",
+                table: "message_statuses",
                 column: "MessageId");
 
             migrationBuilder.CreateIndex(
@@ -123,19 +123,19 @@ namespace ChatService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ChatMembers");
+                name: "chat_members");
 
             migrationBuilder.DropTable(
-                name: "MessageStatus");
+                name: "message_statuses");
 
             migrationBuilder.DropTable(
                 name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Chats");
+                name: "chats");
 
             migrationBuilder.DropTable(
-                name: "Messages");
+                name: "messages");
         }
     }
 }

@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { addChat, addMessages, addSentMessage, clearUserChats, removeChat, handleNewMessage, user_to_dm, updateOnlineUsers, chats, UpdateChatTyping, setUnreadenCounter, RenameGroupChat, deleteMessageHandler, editMessageHandler } from "./chats.js";
+import { apiBase } from "./globals.js";
 
 export function updateStatus(status) {
     const statusDiv = document.getElementById("status");
@@ -24,9 +25,12 @@ export async function startSignalRConnection(userId) {
         console.warn("SignalR connection already exists. Closing existing connection...");
         await stopSignalRConnection();
     }
-
+    if (connection != null) {
+        await connection.stop();
+        connection = null;
+    } 
     connection = new signalR.HubConnectionBuilder()
-        .withUrl(`/api/chathub?userId=${userId}`)
+        .withUrl(`${apiBase}/chathub?userId=${userId}`)
         .build();
 
     connection.onclose(() => {
@@ -60,60 +64,47 @@ export async function startSignalRConnection(userId) {
         }
     });
 
-    connection.on("ChatAdded", async function (notification) {
-        notification = JSON.parse(notification);
+    connection.on("NewChatAdded", async function (notification) {
         await addChat(
             notification.name, 
-            notification.id, 
+            notification.chatId, 
             notification.isDm, 
             notification.members, 
             notification.lastMessage, 
             notification.unreadCount);
     });
     connection.on("ChatRemoved", function (notification) {
-        console.log(notification)
-        notification = JSON.parse(notification);
-        console.log(notification)
         removeChat(notification.id);
     });
     connection.on("Msgs", async function (messages) {
-        console.log(messages)
         await addMessages(messages)
     });
     connection.on("MsgSent", function (message) {
         addSentMessage(message) 
     });
     connection.on("NewMsg", async function (notification) {
-        notification = JSON.parse(notification);
-        console.log("Newmsg: ", notification)
         await handleNewMessage(notification);
     });
     connection.on("UsersOnline", function (notification) {
         updateOnlineUsers(notification)
     });
     connection.on("ChatsTyping", async function (notification) {
+        console.log("CHATS TYPIN ", notification)
         await UpdateChatTyping(notification)
     });
     connection.on("ErrorResponse", function (notification) {
-        console.log(notification)
         alert(notification);
     });
     connection.on("MsgsReaden", function (notification) {
-        console.log("READEN: ", notification)
-        notification = JSON.parse(notification);
         setUnreadenCounter(notification.chatId, notification.unreadCount);
     });
     connection.on("GroupRenamed", function (notification) {
-        notification = JSON.parse(notification);
         RenameGroupChat(notification.chatId, notification.newName)
     });
     connection.on("MsgDeleted", function (notification) {
-        notification = JSON.parse(notification);
         deleteMessageHandler(notification.senderId, notification.chatId, notification.messageId)
     });
     connection.on("MsgEdited", async function (notification) {
-        notification = JSON.parse(notification);
-        console.log("EDITED ", notification)
         await editMessageHandler(notification.senderId, notification.chatId, notification.messageId, notification.newMessage);
     });
 }

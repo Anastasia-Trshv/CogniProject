@@ -4,6 +4,8 @@ using StackExchange.Redis;
 namespace ChatService.Repository;
 
 public class RedisRepository : IRedisRepository {
+    public const string ONLINE_LIFETIME_SECONDS = "3";
+    public const string TYPING_LIFETIME_SECONDS = "3";
     private readonly IDatabase _redisDb;
     private readonly ILogger<RedisRepository> _logger;
 
@@ -16,7 +18,7 @@ public class RedisRepository : IRedisRepository {
     }
 
     public async Task UserHere(string userId) {
-        await _redisDb.StringSetAsync($"ONLINE:{userId}", userId.ToString(), TimeSpan.FromSeconds(3));
+        await _redisDb.StringSetAsync($"ONLINE:{userId}", userId.ToString(), TimeSpan.FromSeconds(int.Parse(ONLINE_LIFETIME_SECONDS)));
     }
 
     public async Task<Dictionary<string, bool>> GetOnline(string[] userIds) {
@@ -34,7 +36,7 @@ public class RedisRepository : IRedisRepository {
 
     public async Task Typing(string userId, string chatId)
     {
-        var expirationTime = DateTimeOffset.UtcNow.AddSeconds(3).ToUnixTimeSeconds();
+        var expirationTime = DateTimeOffset.UtcNow.AddSeconds(int.Parse(TYPING_LIFETIME_SECONDS)).ToUnixTimeSeconds();
         await _redisDb.SortedSetAddAsync($"TYPING:{chatId}", $"[{userId}]", expirationTime);
     }
 

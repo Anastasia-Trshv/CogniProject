@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ChatService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250402192424_init")]
+    [Migration("20250405213651_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -58,7 +58,7 @@ namespace ChatService.Migrations
 
                     b.HasKey("MessageId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("messages", (string)null);
                 });
 
             modelBuilder.Entity("ChatService.Database.Entities.MessageStatus", b =>
@@ -81,7 +81,7 @@ namespace ChatService.Migrations
 
                     b.HasIndex("MessageId");
 
-                    b.ToTable("MessageStatus");
+                    b.ToTable("message_statuses", (string)null);
                 });
 
             modelBuilder.Entity("ChatService.Entities.Chat", b =>
@@ -105,7 +105,7 @@ namespace ChatService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chats");
+                    b.ToTable("chats", (string)null);
                 });
 
             modelBuilder.Entity("ChatService.Entities.ChatMember", b =>
@@ -118,7 +118,7 @@ namespace ChatService.Migrations
 
                     b.HasKey("ChatId", "UserId");
 
-                    b.ToTable("ChatMembers");
+                    b.ToTable("chat_members", (string)null);
                 });
 
             modelBuilder.Entity("ChatService.Entities.User", b =>

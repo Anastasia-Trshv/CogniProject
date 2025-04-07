@@ -1,3 +1,8 @@
+export const DEV = import.meta.env.VITE_DEV == null ? true : import.meta.env.VITE_DEV === 'true';
+console.log("ISDEV: ", DEV)
+export const apiBase = DEV ? "http://127.0.0.1:5108/api" : "/api"
+export const fileApi =  DEV ? "http://127.0.0.1:9000" : ""
+
 let uuid_to_username = {}
 
 
@@ -18,7 +23,7 @@ export function clearUsernameRelations() {
 }
 
 export async function fetchUsers() {
-    const response = await fetch(`/api/auth/users`, {
+    const response = await fetch(`${apiBase}/auth/users`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json"

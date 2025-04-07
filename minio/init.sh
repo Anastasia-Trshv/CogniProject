@@ -1,6 +1,12 @@
 #!/bin/sh
 set -e
 
+# Install curl if not present
+if ! command -v curl &> /dev/null; then
+  echo "curl not found, installing..."
+  apk add --no-cache curl
+fi
+
 minio server /data --console-address ":9090" &
 
 echo "Waiting for MinIO to start..."

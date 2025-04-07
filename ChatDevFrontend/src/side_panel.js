@@ -9,7 +9,7 @@ document.getElementById("add_id_to_group_list").addEventListener("click", functi
     if (!userId) return;
 
     if (groupUsers.has(userId)) {
-        groupUsers.delete(userId);
+        // groupUsers.delete(userId);
     } else {
         groupUsers.add(userId);
     }
@@ -17,7 +17,7 @@ document.getElementById("add_id_to_group_list").addEventListener("click", functi
     const groupUsersContainer = document.getElementById("group_users");
     groupUsersContainer.innerHTML = '';
     groupUsers.forEach(user => {
-        const userItem = document.createElement("div");
+        const userItem = document.createElement("button");
         userItem.classList.add("user-item");
         userItem.textContent = user;
 
@@ -71,5 +71,28 @@ document.getElementById("rename_group").addEventListener("click", function() {
         renameGroup(chatId, newName);
     } else {
         alert("Please provide a chat ID and a new name.");
+    }
+});
+
+
+let guide_opened = false;
+const guide = document.getElementById("guide");
+
+function toggleGuide() {
+    guide_opened = !guide_opened;
+    if (guide_opened) {
+        guide.style.opacity = "1";
+        guide.style.visibility = "visible";
+    } else {
+        guide.style.opacity = "0";
+        guide.style.visibility = "hidden";
+    }
+}
+
+document.getElementById("open_guide").addEventListener("click", toggleGuide);
+
+document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && guide_opened) {
+        toggleGuide();
     }
 });

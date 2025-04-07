@@ -103,6 +103,9 @@ public class ChatRepository : IChatRepository
             .Where(u => users.Contains(u.Id.ToString()))
             .Select(u => u.Id)
             .ToListAsync();
+        if (userIdsExist.Count != users.Count) {
+            return "One or more users do not exist";
+        }
         var chat = new Chat { Name = groupName, Members = new List<ChatMember>(), CreatedAt = DateTime.UtcNow, OwnerId=Guid.Parse(userId) };
         foreach (var user in users) {
             chat.Members.Add(new ChatMember { UserId = Guid.Parse(user), Chat = chat });
@@ -282,7 +285,7 @@ public class ChatRepository : IChatRepository
         await SendEvent(new MessagesReadenEvent {
             chatId = chatId,
             unreadCount = unreadCount,
-            userId = userId,
+            user_id = userId,
             lastMessageId = last
         }.Serialize());
     }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 namespace ChatService.Controllers;
 
-[Route("Files")]
+[Route("api/Files")]
 public class FilesController : ControllerBase
 {
     private readonly IMinioClient _minioClient;
@@ -28,16 +28,20 @@ public class FilesController : ControllerBase
         foreach (var file in files)
         {
             if (file == null || file.Length > maxSize || file.Length == 0){continue;}
-            var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var originalFileName = file.FileName;
+            var fileExtension = Path.GetExtension(originalFileName);
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(originalFileName);
+            var normalizedFileName = $"{fileNameWithoutExtension}{fileExtension.ToLower()}";
+            var uniqueFileName = $"{Guid.NewGuid()}_{normalizedFileName}";
             using var fileStream = file.OpenReadStream();
             await _minioClient.PutObjectAsync(new PutObjectArgs()
                 .WithBucket(BucketName)
-                .WithObject(fileName)
+                .WithObject(uniqueFileName)
                 .WithStreamData(fileStream)
                 .WithObjectSize(fileStream.Length)
                 .WithContentType("application/octet-stream")
                 );
-            uploadedFiles.Add($"/{BucketName}/{fileName}");
+            uploadedFiles.Add($"/{BucketName}/{uniqueFileName}");
         }
         return Ok(new {links = uploadedFiles});
     }

@@ -15,6 +15,7 @@
   <div class="absolute flex w-full h-full gap-4 flex-row overflow-clip">
     <div class="flex w-[256px] h-full flex-col gap-2 items-center overflow-scroll pt-2 px-2">
       <div class="text-3xl">CHAT API</div>
+      <button id="open_guide">ГАЙД</button>
       <div class="sep"></div>
       <div class="text-xl text-center break-words">Login defines session, one login can have multiple live sessions [dev-only identification]</div>
       <input id="username" placeholder="Login" />
@@ -24,17 +25,17 @@
       <div id="status" class="text-3xl text-red-500">DISCONNECTED</div>
 
       <div class="sep"></div>
-      <div class="text-xl">Create direct</div>
-      <input id="direct_username" placeholder="User id"/>
-      <input id="direct_message" placeholder="Message"/>
-      <button id="send_dm">Send</button>
-
-      <div class="sep"></div>
       <div class="text-xl">Users [dev-only]</div>
       <div>click to copy id</div>
       <button id="get_users">Get users</button>
       <div id="users_container" class="flex flex-col gap-2">
       </div>
+
+      <div class="sep"></div>
+      <div class="text-xl">Create direct</div>
+      <input id="direct_username" placeholder="User id"/>
+      <input id="direct_message" placeholder="Message"/>
+      <button id="send_dm">Send</button>
 
       <div class="sep"></div>
       <div class="text-xl">Group chat</div>
@@ -89,5 +90,83 @@
       </div>
     </div>
   </div>
+
+  
+  <div id="guide" class="guide_allocator absolute overflow-clip hidden">
+    <div id="guide_card" class="guide_card">
+        <h1>Гайд (неочевидные моменты)</h1>
+        <p>Закрыть это окно можно на <b>ESC</b>. Или нажав по кнопке, по которой вы его открыли.</p>
+
+        <details open>
+            <summary>Неочевидные моменты</summary>
+            <p><b>Нажмите по тексту сообщения, чтобы редактировать или удалить его.</b></p>
+            <p>Можно отправлять <b>картинки/файлы и текст</b> в <b>ОДНОМ</b> сообщении. Напишите текст и нажмите "Send with media/files".</p>
+            <p>Размер каждого файла/картинки <b>не должен превышать 1ГБ</b>.</p>
+            <p>Можно писать многострочные сообщения - shift + enter</p>
+            <p>Чат поддерживает различные типы медиа: картинки, видео, аудио, гифки</p>
+            <p>Для скачивания файла нужно нажать по иконке с расширением</p>
+            <p>Взаимодействие с буфером обмена может не работать.</p>
+        </details>
+
+        <h1>Подробный гайд</h1>
+
+        <details>
+            <summary>Общие принципы</summary>
+            <p>Важно разделять понятия <b>"чат"</b> и <b>"группа"</b>. <b>Чат</b> — это любое общение (ЛС или группа), а <b>группа</b> — это только многопользовательские чаты.</p>
+        </details>
+
+        <details>
+            <summary>Левая секция - основные функции</summary>
+            <p>Выберите логин, он может быть любым. Логин уникален и определяет пользователя.</p>
+            <p>Нажмите <b>"Connect"</b>, после чего статус должен измениться на <b style="color:green;">Connected</b>.</p>
+
+            <details>
+                <summary>Get users</summary>
+                <p>Получает список всех пользователей (для отладки). Клик по пользователю копирует его ID.</p>
+            </details>
+
+            <details>
+                <summary>Direct chat</summary>
+                <p>Открывает личный чат с пользователем по его ID.</p>
+                <p>Можно иметь только <b>один диалог</b> с каждым пользователем.</p>
+                <p>Нельзя начать чат с самим собой.</p>
+            </details>
+
+            <details>
+                <summary>Group chat</summary>
+                <p>Добавление пользователей в группу:</p>
+                <ul>
+                    <li>Впишите ID пользователя в поле "User ID".</li>
+                    <li>Нажмите <b>"Add user"</b>.</li>
+                    <li>Клик по добавленному пользователю — удаление его из списка.</li>
+                </ul>
+            </details>
+        </details>
+
+        <details>
+            <summary>Секция списка чатов</summary>
+            <p>Здесь отображаются все ваши чаты.</p>
+            <p>Фиолетовая точка — индикатор онлайна собеседника.</p>
+            <p>Под названием чата: последнее сообщение, индикатор набора текста и количество непрочитанных сообщений.</p>
+        </details>
+
+        <details>
+            <summary>Секция чата</summary>
+            <p>Кнопка <b>"Leave group"</b> — выход из группы (но не из ЛС).</p>
+            <p>Кнопка <b>"Delete chat"</b> — удаление чата (группу может удалить только создатель).</p>
+            <p>Можно писать многострочные сообщения - shift + enter</p>
+            <p><b>"Copy chat ID"</b> — копирование ID чата в буфер обмена.</p>
+            <p>Чат поддерживает различные типы медиа: картинки, видео, аудио, гифки</p>
+            <p>Для скачивания файла нужно нажать по иконке с расширением</p>
+        </details>
+
+        <details>
+            <summary>Известные ошибки</summary>
+            <p><b>Взаимодействие с буфером обмена</b> работает только в режиме разработки или с TLS-сертификатами (HTTPS).</p>
+            <p><b>Балансировка нагрузки</b>: стандартные методы Nginx не подходят для масштабирования чатов, поэтому используется HAProxy.</p>
+        </details>
+    </div>
+</div>
+
 </body>
 </html>

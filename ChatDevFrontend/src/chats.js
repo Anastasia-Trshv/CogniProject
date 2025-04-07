@@ -1,4 +1,4 @@
-import { fetchUsers, getCurrentUserId, getUsernameByUuid } from './globals.js';
+import { apiBase, fetchUsers, fileApi, getCurrentUserId, getUsernameByUuid } from './globals.js';
 import { deleteChat, deleteMessage, editMessage, getMsgs, leaveGroup, readMessages, sendMsg, typing } from './signalR.js'
 
 
@@ -48,7 +48,7 @@ export async function replaceUUIDs(input) {
     );
     let result = input;
     for (const { fullMatch, replacement } of replacements) {
-        result = result.replace(fullMatch, replacement);
+        result = result.replace(`${fullMatch}`, replacement);
     }
     return result;
 }
@@ -198,6 +198,7 @@ export function openChat(chatId) {
     const name = document.getElementById("chat_name");
     name.textContent = nameSrc.textContent;
     current_chat = chatId;
+    setUnreadenCounter(chatId, 0);
     readMessages(chatId, -1);
     getMsgs(chatId, -1, false, 30);
 }
@@ -213,6 +214,8 @@ export function clearChat(){
 
 // handler for msgSent to prevent duplicates, you can remove it, but this may increase the delay as the message will go through rabbitmq instead of insta-response
 export function addSentMessage(message){ 
+    // i will remove it too because sometimes it cause duplicate messages and i dont wanna fix it :)
+    return;
     if (current_chat == null || current_chat != message.chatId) return
     sent_msgs.add(message.messageId)
     chat_messages.push(message)
@@ -356,7 +359,8 @@ async function showMessages() {
             if (msg.attachments != null && msg.attachments.length != 0){
                 msg.attachments.forEach(file_link => {
                     if (file_link.startsWith("FILE::")) {
-                        const link = file_link.substring(6);
+                        const link = fileApi + file_link.substring(6);
+                        //fileApi
                         const name = removeUUID(getFilename(link));
                         const fileEl = document.createElement("div");
                         fileEl.className = "file"
@@ -373,7 +377,7 @@ async function showMessages() {
                         fileEl.appendChild(fileName);
                         msgEl.appendChild(fileEl);
                     } else {
-                        const mediaEl = document.createRange().createContextualFragment(createMediaComponent(file_link));
+                        const mediaEl = document.createRange().createContextualFragment(createMediaComponent(fileApi + file_link));
                         msgEl.appendChild(mediaEl);
                     }
                 });
@@ -392,7 +396,7 @@ function beginEditMessage(msgEl, textEl, msgId) {
     console.log("Editing", msgId);
     const originalText = textEl.textContent;
     const input = document.createElement("textarea");
-    input.type = "text";
+    // input.type = "text";
     input.value = originalText;
     input.className = "edit_input";
     input.id = "edit_input_" + msgId;
@@ -448,7 +452,10 @@ function saveEditedMessage(input, textEl, msgEl, msgId) {
 const messageInput = document.getElementById("message_input");
 messageInput.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
-        sendMessage()
+        if (!event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
     }
 });
 
@@ -492,7 +499,7 @@ async function uploadFiles(files, as_media=false) {
         formData.append("files", files[i]);
     }
     try {
-        const response = await fetch(`/Files/Upload`, {
+        const response = await fetch(`${apiBase}/Files/Upload`, {
             method: "POST",
             body: formData
         });
@@ -514,7 +521,7 @@ function sendMessage(ext=null){
     const message = messageInput.value.trim();
     messageInput.value = "";
     if (current_chat == null) return
-    if (message != "" || ext != null) {
+    if (message != "" || (ext != null && ext.length > 0)) {
         scrollToBottom();
         readMessages(current_chat, -1);
         sendMsg(current_chat, message, ext)
@@ -532,9 +539,22 @@ document.getElementById("delete_chat").addEventListener("click", function() {
 })
 
 document.getElementById("copy_chat_id").addEventListener("click", function() {
-    if (current_chat == null) {alert ("No chat selected"); return}
-    navigator.clipboard.writeText(current_chat).then(() => {}).catch(err => {
-        alert("Failed to copy text: " + err);
+    if (current_chat == null) {
+        alert("No chat selected");
+        return;
+    }
+    navigator.permissions.query({ name: "clipboard-write" }).then(function(result) {
+        if (result.state === "granted" || result.state === "prompt") {
+            navigator.clipboard.writeText(current_chat).then(() => {
+                alert("Chat ID copied to clipboard!");
+            }).catch(err => {
+                alert("Failed to copy text: " + err);
+            });
+        } else {
+            alert("Clipboard access denied. Please grant permission.");
+        }
+    }).catch(err => {
+        alert("Error checking clipboard permission: " + err);
     });
 })
 
@@ -592,10 +612,12 @@ export async function UpdateChatTyping(chatTyping) {
         if (chatElement == null || chatTypingText == null) {
             continue;
         }
-        var t = await replaceUUIDs(val) + " is typing";
+        var t = "";
         var i = parseInt(val);
         if (i) {
             t = i + " users typing";
+        } else {
+            t = await replaceUUIDs(val) + " is typing";
         }
         chatTypingText.textContent = t;
         chatElement.classList.add("typing");
@@ -645,3 +667,4 @@ export async function editMessageHandler(senderId, chatId, messageId, newMessage
         messageEl.textContent = newMessage;
     }
 }
+
