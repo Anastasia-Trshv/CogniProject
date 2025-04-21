@@ -23,15 +23,18 @@ public class ArticleModel
 
     public User? IdUserNavigation { get; set; }
 
-    public ArticleModel(int id, string? articleName, string? articleBody, int idUser, List<ArticleImageModel> articleImages, User? idUserNavigation)
-    {
-        Id = id;
-        ArticleName = articleName;
-        ArticleBody = articleBody;
-        IdUser = idUser;
-        ArticleImages = articleImages;
-        IdUserNavigation = idUserNavigation;
-    }
+        public ArticleModel(int id, string? articleName, string? articleBody, int idUser, List<ArticleImageModel> articleImages, User? idUserNavigation, string? annotation, DateTime? created, int? readsNumber)
+        {
+            Id = id;
+            ArticleName = articleName;
+            ArticleBody = articleBody;
+            IdUser = idUser;
+            ArticleImages = articleImages;
+            IdUserNavigation = idUserNavigation;
+            Annotation = annotation;
+            Created = created;
+            ReadsNumber = readsNumber;
+        }
 
     public ArticleModel() { }
 }
