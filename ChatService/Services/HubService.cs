@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using ChatService.Abstractions;
 using ChatService.Controllers;
-using ChatService.Database.Context;
+using Cogni.Database.Context;
 using Microsoft.AspNetCore.SignalR;
 
 namespace ChatService.Services;

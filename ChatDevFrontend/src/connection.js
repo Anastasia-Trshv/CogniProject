@@ -1,44 +1,39 @@
 import { flush } from './chats.js';
-import { setCurrentUser, logout, fetchUsers, apiBase, showToast } from './globals.js';
+import { setCurrentUser, logout, fetchUsers, apiBase, showToast, getCurrentUserId } from './globals.js';
 import { stopSignalRConnection, startSignalRConnection, updateStatus } from "./signalR.js";
 
 let username;
 let userId;
 
 document.getElementById("connect").addEventListener("click", async function() {
-    username = document.getElementById("username").value.trim();
-    if (!username) {
-        showToast("Please enter a username.");
+    let token = document.getElementById("token").value.trim();
+    if (!token) {
+        showToast("Please enter a token.");
         return;
     }
-    const response = await fetch(`${apiBase}/auth/register`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username: username
-        })
-    });
-    if (response.ok) {
-        const jwtImitation = await response.json();
-        userId = jwtImitation.userId;
-        console.log("JWT imitation: ", jwtImitation);
-        await fetchUsers();
-        flush();
-        setCurrentUser(jwtImitation.userId);
-        connectSignalR(jwtImitation.userId);
-    } else {
-        const error = await response.json();
-        showToast(`Error: ${error.message}`);
+    let id;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log(payload);
+        id = payload["userId"];
+        if (!id) {
+            showToast("Invalid token.");
+            return;
+        }
+    } catch (err) {
+        showToast("Invalid token.");
+        return;
     }
+    
+    setCurrentUser(id);
+    connectSignalR(token);
 });
 
 
 
-async function connectSignalR(userId) {
+async function connectSignalR(token) {
     try {
-        await startSignalRConnection(userId);
+        await startSignalRConnection(token);
     } catch (err) {
         console.log("SignalR Connection Error: ", err);
         updateStatus(false);

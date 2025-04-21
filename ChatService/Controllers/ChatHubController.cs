@@ -5,8 +5,9 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using ChatService.Abstractions;
 using ChatService.CustomSwaggerGen;
-using ChatService.Database.Context;
-using ChatService.Entities;
+using Cogni.Database.Context;
+using Cogni.Authentication;
+using Cogni.Database.Entities;
 using ChatService.Repository;
 using Microsoft.AspNetCore.SignalR;
 using SignalRSwaggerGen.Attributes;
@@ -15,26 +16,28 @@ namespace ChatService.Controllers;
 
 public class ChatHubController : Hub
 {
-    public const string HUB_ENDPOINT = "/ChatHub";
     private static readonly ConcurrentDictionary<string, string> ConnectionToUser = new();
     private static readonly ConcurrentDictionary<string, HashSet<string>> UserToConnections = new();
     private readonly ILogger<ChatHubController> _logger;
     private readonly IHubService _hubService;
     private readonly IChatRepository _db;
     private readonly IRedisRepository _redisRepository;
+    private readonly TokenValidation _tokenValidation;
     public ChatHubController(
         ILogger<ChatHubController> logger,
         IHubService hubService,
         IRedisRepository redis,
-        IChatRepository db
+        IChatRepository db,
+        IConfiguration config
     ) {
         _logger = logger;
         _hubService = hubService;
         _redisRepository = redis;
         _db = db;
+        _tokenValidation = new TokenValidation(config);
     }
 
-    [InvokableSignalREvent("Connection root", HUB_ENDPOINT),
+    [InvokableSignalREvent("Connection root"),
     SignalRCustomEventDescription("You must add \"userId\" to params;\tЕсли инъекция js сработала, то этот метод этого ивента - CONN, значит и остальные методы, связанные с signalR тоже заменятся. Если этого не случилось - ориентируйтесь по пути перед названием эндпоинта. /invoke/Event - INVOKE, /invoke-response/Event - RESPONSE, /listen - LISTEN. Объяснение API: [Методы] Тут все работает на SignalR - обертке над Websockets. Все ответы приходят в json-формате. Мною созданы три типа ивентов, все они ниже: INVOKE - те, которые вы можете вызывать с клиента; RESPONSE - негарантированный ответ после INVOKE. LISTEN - те, которые вы можете слушать на клиенте (как и RESPONSE, кстати). Ниже описаны все эти ивенты. Если что-то не понятно - есть мой ChatDevFrontend для демонстрации работы. Теперь к параметрам: У INVOKE при вызове со стороны клиента важна последовательность, а имена указать не получится, будьте внимательны! У RESPONSE параметры это описание ответа в json - формате, там простые типы - дтошка, сущность, словарик или массив. У LISTEN - Тоже описание ответа, но уже сложнее, все представленные параметры - \"ключи\" json, то есть если указаты параметры chatId (string) и senderId (string), то json будет {chatId: \"string\", senderId: \"string\"}. На момент написания все LISTEN затрагивают одно конкретное изменение одного конкретного элемента. [Чаты] Чаты бывают двух видов: группы и личные сообщения (лс/direct/dm). Я специально разделил понятия chat и group: chat включает в себя как лс, так и группы, а group только группы. Таким образом проще понять с чем ожидается взаимодействие. [Ошибки] Я сделал ErrorResponse для того, чтобы оповещать пользователя, что ожидаемое действие не было совершено. Далеко не все ошибки покрыты, так что добавляйте при надобности, вроде как все сделано довольно просто. [Nginx, Haproxy, Масштабируемость] Микросервис чатов сделан так, чтобы он легко масштабировался для балансировки нагрузки путем дубликации. Nginx'совские методы почему-то не хотят корректно распределять нагрузку между ними (ip_hash не работает в докере (хэширует докеровский ip), хэширование forwarded-for нестабильно, а реалезация через авто-выдачу кук требует нестандартный nginx), поэтому я пересел на Haproxy."),
     EventWithResponse(
         "ErrorResponse",
@@ -46,10 +49,19 @@ public class ChatHubController : Hub
     public override async Task OnConnectedAsync()
     {
         _logger.LogWarning($"Connected: {Context.ConnectionId}");
-        var userId = Context.GetHttpContext()?.Request.Query["userId"];
-        // TODO: AUTHORITY CHECK
-        _hubService.AddRel(userId, Context.ConnectionId);
-        await base.OnConnectedAsync();
+        var token = Context.GetHttpContext()?.Request.Query["token"];
+        _logger.LogWarning($"Token: {token}");
+        try {
+            var payload = _tokenValidation.GetTokenPayload(token);
+            _logger.LogWarning($"Payload: {payload}");
+            var userId = payload.UserId;
+            _hubService.AddRel(userId.ToString(), Context.ConnectionId);
+            await base.OnConnectedAsync();
+        } catch (Exception e) {
+            _logger.LogWarning($"Aborted due invalid token: {e.Message}");
+            Context.Abort();
+            return;
+        }
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
@@ -130,7 +142,7 @@ public class ChatHubController : Hub
         "Msgs",
         "List of messages",
         null,
-        typeof(List<Database.Entities.Message>),
+        typeof(List<Cogni.Database.Entities.Message>),
         "Use -1 as startId to start from last message in chat. List of message objects, order isn't garanteed. Message id is ordered and isn't chat-unique. If you are getting empty list - there are no messages - that may be useful for stop requesting images when approach first message in chat."
     )]
     public async Task GetMsgs(string chatId, int startId, bool toNew, int amount) {
@@ -150,7 +162,7 @@ public class ChatHubController : Hub
         "MsgSent",
         "!USE CAREFULY! Response for sent message",
         "!USE CAREFULY! Sent message, just for speeding up user-response. Also NewMsg event will be sent, so, if you will use that respose without any client-side tracking mechanism, you will have duplicate messages. Message id is ordered and isn't chat-unique.",
-        typeof(Database.Entities.Message),
+        typeof(Cogni.Database.Entities.Message),
         "Message object"
     )]
     public async Task SendMsg(string chatId, string msg, List<string> attachments) {

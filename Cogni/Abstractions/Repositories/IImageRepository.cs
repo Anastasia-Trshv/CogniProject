@@ -1,4 +1,5 @@
 using Cogni.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace Cogni.Abstractions.Repositories
 {

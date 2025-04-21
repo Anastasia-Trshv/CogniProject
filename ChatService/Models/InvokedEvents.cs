@@ -2,9 +2,8 @@ using System.Text;
 using System.Text.Json;
 using ChatService.Abstractions;
 using ChatService.CustomSwaggerGen;
-using ChatService.Database.Context;
-using ChatService.Database.Entities;
-using ChatService.Entities;
+using Cogni.Database.Context;
+using Cogni.Database.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -123,13 +122,13 @@ public class NewMessageEvent : InvokedEvent {
 [ListenableSignalREvent("Happens when chat is removed")]
 public class ChatRemovedEvent : InvokedEvent {
     [CustomEventDescription("Chat id")]
-    public required string id { get; set; }
+    public required string chatId { get; set; }
     [ListenableEventName]
     public override string type => "ChatRemoved";
     public override byte[] Serialize() => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(this));
     public required List<string> to_send { get; set; }
     public override async Task<List<string>> GetRecievers(IChatRepository _db) => this.to_send;
-    public static ChatRemovedEvent FromChatId(string id, List<string> to_send) => new ChatRemovedEvent { id = id, to_send = to_send };
+    public static ChatRemovedEvent FromChatId(string id, List<string> to_send) => new ChatRemovedEvent { chatId = id, to_send = to_send };
 }
 
 [ListenableSignalREvent("Happens when same account reads messages")]

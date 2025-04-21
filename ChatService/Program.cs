@@ -1,7 +1,7 @@
 using System.Reflection;
 using ChatService.Abstractions;
 using ChatService.Controllers;
-using ChatService.Database.Context;
+using Cogni.Database.Context;
 using ChatService.Models;
 using ChatService.Repository;
 using ChatService.Services;
@@ -56,7 +56,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 
-builder.Services.AddDbContext<AppDbContext>();
+builder.Services.AddDbContext<CogniDbContext>();
 
 var rabbitMqConnectionString = builder.Configuration.GetValue<string>("RabbitMQ:ConnectionString");
 builder.Services.AddSingleton(await new ConnectionFactory { Uri = new Uri(rabbitMqConnectionString) }.CreateConnectionAsync());
@@ -105,28 +105,9 @@ if (app.Environment.IsDevelopment())
         }
     });
     app.UseCors("DEV-CHATS-AllowFrontend");
-} else {
-    using (var scope = app.Services.CreateScope())
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        try
-        {
-            dbContext.Database.Migrate();
-        }
-        catch (Exception ex)
-        {
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "An error occurred while applying migrations.");
-        }
-    }
 }
 
-
-
-
-
-
-app.MapHub<ChatHubController>("api" + ChatHubController.HUB_ENDPOINT);
+app.MapHub<ChatHubController>("chat/hub");
 
 app.MapControllers();
 

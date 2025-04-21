@@ -15,17 +15,16 @@
   <div class="absolute flex w-full h-full gap-4 flex-row overflow-clip">
     <div class="flex w-[256px] h-full flex-col gap-2 items-center overflow-scroll pt-2 px-2">
       <div class="text-3xl">CHAT API</div>
-      <button id="open_guide">ГАЙД</button>
+      <button id="open_guide">ГАЙД (МБ УСТАРЕЛ)</button>
       <div class="sep"></div>
-      <div class="text-xl text-center break-words">Login defines session, one login can have multiple live sessions [dev-only identification]</div>
-      <input id="username" placeholder="Login" />
+      <div class="text-xl text-center break-words">Один jwt может иметь несколько независимых сессий!</div>
+      <input id="token" placeholder="Access token" />
       <div id="user_id" placeholder="Id"></div>
       <button id="connect">Connect</button>
       <button id="disconnect">Disconnect</button>
       <div id="status" class="text-3xl text-red-500">DISCONNECTED</div>
-
       <div class="sep"></div>
-      <div class="text-xl">Users [dev-only]</div>
+      <div class="text-xl text-center">Users [dev-only] Получает пользователей с: 0 &lt;= id &lt; 1000 </div>
       <div>click to copy id</div>
       <button id="get_users">Get users</button>
       <div id="users_container" class="flex flex-col gap-2">

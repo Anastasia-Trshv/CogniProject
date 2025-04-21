@@ -1,4 +1,4 @@
-﻿using Cogni.Models;
+﻿using Cogni.Database.Entities;
 
 namespace Cogni.Abstractions.Repositories
 {

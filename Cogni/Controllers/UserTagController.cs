@@ -30,7 +30,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             await _userTagService.AddNewTagToUser(id, tags);
             return Ok();
         }
@@ -44,7 +44,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             var tags = await _userTagService.GetUserTags(id);
             List<TagResponse> result = new List<TagResponse>();
             foreach (var tag in tags)
@@ -61,11 +61,11 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult> RemoveTagFromUser(List<AddTagToUserRequest> tags)
         {
-        string token = Request.Headers["Authorization"];
+            string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
-        await _userTagService.RemoveTagFromUser(id, tags);
-        return Ok();
+            int id = _tokenService.GetTokenPayload(token).UserId;
+            await _userTagService.RemoveTagFromUser(id, tags);
+            return Ok();
         }
 
     }

@@ -1,4 +1,3 @@
-using Cogni.Abstraction.Services;
 using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
 using Cogni.Authentication;
@@ -6,6 +5,9 @@ using Cogni.Authentication.Abstractions;
 using Cogni.Database.Context;
 using Cogni.Database.Repositories;
 using Cogni.Services;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -27,6 +29,16 @@ builder.Services.AddCors(option => option.AddPolicy(
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DEV-ALL",
+        policy => policy
+            .WithOrigins("*")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 
 // Add services to the container.
 
@@ -124,7 +136,29 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("Default");
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors("DEV-ALL");
+} else {
+    app.UseCors("Default");
+}
+
+if (Environment.GetEnvironmentVariable("MIGRATE")?.ToLower() == "true")
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<CogniDbContext>();
+        try
+        {
+            dbContext.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while applying migrations.");
+        }
+    }
+}
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

@@ -39,7 +39,7 @@ var last_messages = {};
 var unread_counts = {};
 
 export async function replaceUUIDs(input) { 
-    const matches = [...input.matchAll(/\[([0-9a-fA-F-]{36})\]/g)];
+    const matches = [...input.matchAll(/\[([0-9])\]/g)];
     const replacements = await Promise.all(
         matches.map(async ([fullMatch, uuid]) => {
             const username = await getUsername(uuid);
@@ -53,10 +53,12 @@ export async function replaceUUIDs(input) {
     return result;
 }
 
+
+// OPTIMIZE IT. IT WAS WRITTEN BEFORE BATCHING.
 export async function getUsername(userid) {
     let username = getUsernameByUuid(userid);
     if (username == null) {
-        await fetchUsers();
+        await fetchUsers([userid]);
         username = getUsernameByUuid(userid);
         if (username == null) {
             console.log("Can't find username");
@@ -157,6 +159,7 @@ async function buildChatPreviewContent(chatId, lastMessage, unreadCount){
 
 export async function addChat(chatName, chatId, isDm, members, lastMessage, unreadCount) {
     console.log("Adding chat: ", chatName, chatId, isDm, members, lastMessage, unreadCount)
+    console.log(getCurrentUserId())
     let dmUser = isDm ? (members[0] == getCurrentUserId() ? members[1] : members[0]) : null;
     chats.add(chatId);
     console.log("dmUser: ", dmUser)
@@ -499,7 +502,7 @@ async function uploadFiles(files, as_media=false) {
         formData.append("files", files[i]);
     }
     try {
-        const response = await fetch(`${apiBase}/Files/Upload`, {
+        const response = await fetch(`${apiBase}/chat/files/upload`, {
             method: "POST",
             body: formData
         });

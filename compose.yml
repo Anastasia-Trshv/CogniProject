@@ -21,11 +21,11 @@ services:
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: chatdb
+      POSTGRES_DB: cogni
     ports:
       - "5004:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d chatdb"]
+      test: ["CMD-SHELL", "pg_isready -U user -d cogni"]
       interval: 10s
       retries: 5
       start_period: 10s
@@ -77,15 +77,11 @@ services:
   frontend:
     build:
       context: ./ChatDevFrontend
-    image: chat-frontend
     restart: always
-    environment:
-      VITE_DEV: "false"
     depends_on:
-      - backend_1
-      - backend_2
-      - backend_3
-      - backend_4
+      - cogni
+      - chat_service_1
+      # - chat_service_2
     volumes:
       - frontend-build:/usr/share/nginx/html
 
@@ -97,15 +93,29 @@ services:
     ports:
       - "9100:80"
     depends_on:
-      - backend_1
-      - backend_2
-      - backend_3
-      - backend_4
-
+      - cogni
+      - chat_service_1
+      # - chat_service_2
+  cogni:
+    build:
+      context: .
+      dockerfile: ./Cogni/Dockerfile
+    restart: always
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Production"
+      MIGRATE: "true"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
   # It's scalable!
-  backend_1:
+  chat_service_1:
     build:
-      context: ./
+      context: .
+      dockerfile: ./ChatService/Dockerfile
     image: chat-backend
     restart: always
     environment:
@@ -119,57 +129,21 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-
-  backend_2:
-    build:
-      context: ./
-    image: chat-backend
-    restart: always
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Production"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-
-  backend_3:
-    build:
-      context: ./
-    image: chat-backend
-    restart: always
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Production"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
-
-  backend_4:
-    build:
-      context: ./
-    image: chat-backend
-    restart: always
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Production"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      minio:
-        condition: service_healthy
+  # chat_service_2:
+  #   build:
+  #     context: ./
+  #   restart: always
+  #   environment:
+  #     ASPNETCORE_ENVIRONMENT: "Production"
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     minio:
+  #       condition: service_healthy
 
 volumes:
   redis_data:

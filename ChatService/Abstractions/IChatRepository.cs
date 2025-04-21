@@ -1,5 +1,4 @@
-using ChatService.Database.Entities;
-using ChatService.Entities;
+using Cogni.Database.Entities;
 using ChatService.Models;
 
 namespace ChatService.Abstractions;

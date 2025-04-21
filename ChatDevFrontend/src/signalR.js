@@ -1,6 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import { addChat, addMessages, addSentMessage, clearUserChats, removeChat, handleNewMessage, user_to_dm, updateOnlineUsers, chats, UpdateChatTyping, setUnreadenCounter, RenameGroupChat, deleteMessageHandler, editMessageHandler } from "./chats.js";
-import { apiBase } from "./globals.js";
+import { apiBase, logout, showToast } from "./globals.js";
 
 export function updateStatus(status) {
     const statusDiv = document.getElementById("status");
@@ -20,7 +20,7 @@ export function updateStatus(status) {
 
 let connection = null;
 
-export async function startSignalRConnection(userId) {
+export async function startSignalRConnection(token) {
     if (connection) {
         console.warn("SignalR connection already exists. Closing existing connection...");
         await stopSignalRConnection();
@@ -30,11 +30,12 @@ export async function startSignalRConnection(userId) {
         connection = null;
     } 
     connection = new signalR.HubConnectionBuilder()
-        .withUrl(`${apiBase}/chathub?userId=${userId}`)
+        .withUrl(`${apiBase}/chat/hub?token=${token}`)
         .build();
 
     connection.onclose(() => {
         console.warn("SignalR Disconnected.");
+        showToast("SignalR Disconnected.");
         clearUserChats();
         imHereDaemon.stop();
         fetchDmsDaemon.stop();
@@ -74,7 +75,7 @@ export async function startSignalRConnection(userId) {
             notification.unreadCount);
     });
     connection.on("ChatRemoved", function (notification) {
-        removeChat(notification.id);
+        removeChat(notification.chatId);
     });
     connection.on("Msgs", async function (messages) {
         await addMessages(messages)
@@ -89,7 +90,6 @@ export async function startSignalRConnection(userId) {
         updateOnlineUsers(notification)
     });
     connection.on("ChatsTyping", async function (notification) {
-        console.log("CHATS TYPIN ", notification)
         await UpdateChatTyping(notification)
     });
     connection.on("ErrorResponse", function (notification) {

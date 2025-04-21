@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.Swagger.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Cogni.Controllers
 {
@@ -87,23 +89,28 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             await _userService.SetMbtiType(id, testRequest.mbtiType.ToUpper());
             return Ok();
         }
+
+        
+
+
         /// <summary>
         /// Меняет текущую аватарку на новую
         /// </summary>
         /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data).  Поддерживаются форматы JPEG/JPG, PNG, GIF, BMP, TIFF, SVG, WebP, HEIF/HEIC, ICO, RAW. </remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeAvatar([FromForm] IFormFile Picture)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult> ChangeAvatar([FromForm] ImageUploadRequest request)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
-            var ava = await _userService.ChangeAvatar(id, Picture);
+            int id = _tokenService.GetTokenPayload(token).UserId;
+            var ava = await _userService.ChangeAvatar(id, request.Picture);
             return Ok(ava);
         }
         /// <summary>
@@ -112,12 +119,12 @@ namespace Cogni.Controllers
         /// <remarks>Нужно в теле сообщения отправить файл(Key = Picture, multipart/form-data). Поддерживаются форматы JPEG/JPG, PNG, GIF, BMP, TIFF, SVG, WebP, HEIF/HEIC, ICO, RAW.</remarks>
         [HttpPut]
         [Authorize]
-        public async Task<ActionResult> ChangeBanner([FromForm] IFormFile Picture)
+        public async Task<ActionResult> ChangeBanner([FromForm] ImageUploadRequest request)
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
-            var ban = await _userService.ChangeBanner(id, Picture);
+            int id = _tokenService.GetTokenPayload(token).UserId;
+            var ban = await _userService.ChangeBanner(id, request.Picture);
             return Ok(ban);
         }
 
@@ -132,7 +139,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             var res = await _userService.ChangeDescription (id, descRequest.Description);
             if (res)
             {
@@ -154,7 +161,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             var res = await _userService.ChangeName(id, name.Name, name.Surname);
             if (res)
             {
@@ -176,7 +183,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             var result = await _userService.ChangePassword(id, pasRequest.OldPassword, pasRequest.NewPassword);
             if (result){
                 return Ok();
@@ -214,7 +221,7 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             return await _userService.GetRandomUsers(id, request.startsFrom, request.limit);
         }
 
@@ -229,10 +236,25 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
             return await _userService.SearchUserByNameAndType(id, request.Name, request.mbtiType);
         }
 
-
+        /// <summary>
+        /// Получение нескольких пользователей по List<id>
+        /// </summary>
+        /// <remarks></remarks>
+        [HttpPost]
+        public async Task<List<PublicUserModel>> GetUsersByIds(List<int> userIds)
+        {
+            return await _userService.GetUsersByIds(userIds);
+        }
     }
+}
+
+// Починка свагги
+public class ImageUploadRequest
+{
+    [Required]
+    public IFormFile Picture { get; set; }
 }

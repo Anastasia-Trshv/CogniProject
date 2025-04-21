@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 namespace ChatService.Controllers;
 
-[Route("api/Files")]
+[Route("Chat/Files")]
 public class FilesController : ControllerBase
 {
     private readonly IMinioClient _minioClient;

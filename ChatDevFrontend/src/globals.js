@@ -1,8 +1,10 @@
-export const DEV = false; // import.meta.env.VITE_DEV == null ? true : import.meta.env.VITE_DEV === 'true';
+export const DEV = import.meta.env.DEV;
 console.log("ISDEV: ", DEV)
 export const apiBase = DEV ? "http://127.0.0.1:5108/api" : "/api"
 export const fileApi =  DEV ? "http://127.0.0.1:9000" : ""
+export const cogniApi =  DEV ? "http://127.0.0.1:5279" : "/api"
 
+// uuid is Unique User Identifier now :D
 let uuid_to_username = {}
 
 
@@ -22,20 +24,25 @@ export function clearUsernameRelations() {
     uuid_to_username = {};
 }
 
-export async function fetchUsers() {
-    const response = await fetch(`${apiBase}/auth/users`, {
-        method: "GET",
+
+export async function fetchUsers(user_ids) {
+    const response = await fetch(`${cogniApi}/user/GetUsersByIds`, {
+        method: "POST",
+        body: JSON.stringify(user_ids),
         headers: {
             "Content-Type": "application/json"
         }
     });
+
     if (response.ok) {
         const users = await response.json();
         clearUsernameRelations();
-        users.forEach(user => {
-            addUsernameRelation(user.username, user.id);
-        });
-        return users
+
+        for (const user of users) {
+            addUsernameRelation(`${user.name} ${user.surname}`, user.id);
+        }
+
+        return users;
     } else {
         showToast("Failed to fetch users.");
     }

@@ -1,13 +1,13 @@
-using ChatService.Entities;
+using Cogni.Database.Entities;
 
 namespace ChatService.Models;
 public class ChatDto
 {
     public Guid id { get; set; }
     public required string name { get; set; }
-    public Guid ownerId { get; set; }
+    public int ownerId { get; set; }
     public bool isDm { get; set; }
-    public required List<Guid> members { get; set; }
+    public required List<int> members { get; set; }
     public LastMessageDto? lastMessage { get; set; }
     public int unreadCount { get; set; }
 
@@ -27,8 +27,19 @@ public class ChatDto
 public class LastMessageDto
 {
     public int messageId { get; set; }
-    public Guid senderId { get; set; }
+    public int senderId { get; set; }
     public string msg { get; set; } = string.Empty;
     public bool isFunctional { get; set; }
     public DateTime date { get; set; }
+
+    public static LastMessageDto FromMessage(Message msg) {
+        return new LastMessageDto
+        {
+            messageId = msg.MessageId,
+            senderId = msg.SenderId,
+            msg = msg.Msg,
+            date = msg.Date,
+            isFunctional = msg.IsFunctional
+        };
+    }
 }
