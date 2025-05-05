@@ -65,23 +65,37 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<ArticleResponse>> CreateArticle([FromForm] CreateArticleRequest request)
         {
-            if (string.IsNullOrEmpty(request.ArticleName) || string.IsNullOrEmpty(request.ArticleBody))
+            if (string.IsNullOrEmpty(request.ArticleName) || string.IsNullOrEmpty(request.ArticleBody) || string.IsNullOrEmpty(request.Annotation))
             {
-                return BadRequest("Название статьи и текст не могут быть пустыми.");
+                return BadRequest("Название, текст или аннотация статьи не могут быть пустыми");
             }
 
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
             int userId = _tokenService.GetTokenPayload(token).UserId;
 
 
-            var createdArticle = await _articleService.CreateArticleAsync(request, userId);
+            try
+            {
+                var createdArticle = await _articleService.CreateArticleAsync(request, userId);
 
-            var imageUrls = createdArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
-            var articleResponse = new ArticleResponse(createdArticle.Id, createdArticle.ArticleName, createdArticle.ArticleBody, imageUrls, createdArticle.IdUser, createdArticle.Annotation, createdArticle.Created, createdArticle.ReadsNumber);
+                var imageUrls = createdArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
+                var articleResponse = new ArticleResponse(createdArticle.Id, createdArticle.ArticleName, createdArticle.ArticleBody, imageUrls, createdArticle.IdUser, createdArticle.Annotation, createdArticle.Created, createdArticle.ReadsNumber);
 
-            return CreatedAtAction(nameof(GetArticleById), new { id = createdArticle.Id }, articleResponse);
+                return CreatedAtAction(nameof(GetArticleById), new { id = createdArticle.Id }, articleResponse);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SixLabors.ImageSharp.UnknownImageFormatException ex)
+            {
+                return BadRequest("Неподдерживаемый формат изображения");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Произошла ошибка при создании статьи");
+            }
         }
-
 
 
         /// <summary>
@@ -93,19 +107,33 @@ namespace Cogni.Controllers
         {
             if (request.IdArticle <= 0)
             {
-                return BadRequest("Некорректный ID статьи.");
+                return BadRequest("Некорректный ID статьи");
             }
 
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
             int userId = _tokenService.GetTokenPayload(token).UserId;
 
-            var updatedArticle = await _articleService.UpdateArticleAsync(request.IdArticle, request, userId);
+            try
+            {
+                var updatedArticle = await _articleService.UpdateArticleAsync(request.IdArticle, request, userId);
 
+                var imageUrls = updatedArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
+                var articleResponse = new ArticleResponse(updatedArticle.Id, updatedArticle.ArticleName, updatedArticle.ArticleBody, imageUrls, updatedArticle.IdUser, updatedArticle.Annotation, updatedArticle.Created, updatedArticle.ReadsNumber);
 
-            var imageUrls = updatedArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
-            var articleResponse = new ArticleResponse(updatedArticle.Id, updatedArticle.ArticleName, updatedArticle.ArticleBody, imageUrls, updatedArticle.IdUser, updatedArticle.Annotation, updatedArticle.Created, updatedArticle.ReadsNumber);
-
-            return Ok(articleResponse);
+                return Ok(articleResponse);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SixLabors.ImageSharp.UnknownImageFormatException ex)
+            {
+                return BadRequest("Неподдерживаемый формат изображения");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Произошла ошибка при изменении статьи");
+            }
         }
 
 
