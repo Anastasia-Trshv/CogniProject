@@ -1,3 +1,4 @@
+namespace Cogni.Models;
 public class FriendDto
 {
     public int Id { get; set; }

@@ -71,7 +71,8 @@ namespace Cogni.Controllers
             }
 
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            int userId = _tokenService.GetIdFromToken(token);
+            int userId = _tokenService.GetTokenPayload(token).UserId;
+
 
             var createdArticle = await _articleService.CreateArticleAsync(request, userId);
 
@@ -96,7 +97,7 @@ namespace Cogni.Controllers
             }
 
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            int userId = _tokenService.GetIdFromToken(token);
+            int userId = _tokenService.GetTokenPayload(token).UserId;
 
             var updatedArticle = await _articleService.UpdateArticleAsync(request.IdArticle, request, userId);
 

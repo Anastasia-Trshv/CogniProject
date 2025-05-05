@@ -29,7 +29,8 @@ namespace Cogni.Controllers
         {
             string token = Request.Headers["Authorization"];
             token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetIdFromToken(token);
+            int id = _tokenService.GetTokenPayload(token).UserId;
+
 
 
             var p = await _postService.CreatePost(post, id);
