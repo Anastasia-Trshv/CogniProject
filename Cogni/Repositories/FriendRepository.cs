@@ -55,6 +55,16 @@ public class FriendRepository : IFriendRepository
         _context.Friends.Remove(friend);
         await _context.SaveChangesAsync();
     }
+    public async Task<bool> IsSubscribed(int userId, int friendId)
+    {
+        var friend = await _context.Friends
+            .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId);
+        if (friend == null)
+        {
+            return false;
+        }
+        return true;
+    }
 
     public async Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId)
     {

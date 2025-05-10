@@ -138,7 +138,7 @@ if (app.Environment.IsDevelopment())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("DEV-ALL");
+    app.UseCors("Default");
 } else {
     app.UseCors("Default");
 }
