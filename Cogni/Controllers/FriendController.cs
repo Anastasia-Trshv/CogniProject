@@ -103,7 +103,7 @@ namespace Cogni.Controllers
             }
         }
 
-        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]
         public async Task<ActionResult> IsSubscribed(int friendId)
         {
