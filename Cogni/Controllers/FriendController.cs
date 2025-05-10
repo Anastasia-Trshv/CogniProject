@@ -61,7 +61,7 @@ namespace Cogni.Controllers
         {
             try
             {
-                var token = Request.Headers["Authorization"];
+                string token = Request.Headers["Authorization"];
                 token = token.Replace("Bearer ", string.Empty);
                 var payload = _tokenValidation.GetTokenPayload(token);
                 var userId = payload.UserId;
@@ -95,7 +95,7 @@ namespace Cogni.Controllers
         public async Task<ActionResult> Unsubscribe(int friendId)
         {
             try {
-                var token = Request.Headers["Authorization"];
+                string token = Request.Headers["Authorization"];
                 token = token.Replace("Bearer ", string.Empty);
                 var payload = _tokenValidation.GetTokenPayload(token);
                 var userId = payload.UserId;
@@ -111,7 +111,7 @@ namespace Cogni.Controllers
         public async Task<ActionResult> IsSubscribed(int friendId)
         {
             try {
-                var token = Request.Headers["Authorization"];
+                string token = Request.Headers["Authorization"];
                 token = token.Replace("Bearer ", string.Empty);
                 var payload = _tokenValidation.GetTokenPayload(token);
                 var userId = payload.UserId;
