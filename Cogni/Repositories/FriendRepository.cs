@@ -58,7 +58,7 @@ public class FriendRepository : IFriendRepository
     public async Task<SubscribeDTO> CheckSubscribe(int userId, int friendId)
     {
         return new SubscribeDTO{
-            YourSubsciber = await _context.Friends.FirstOrDefaultAsync(f => f.UserId == friendId && f.FriendId == userId) == null ? false : true,
+            YourSubscriber = await _context.Friends.FirstOrDefaultAsync(f => f.UserId == friendId && f.FriendId == userId) == null ? false : true,
             YouSubscribed = await _context.Friends.FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId) == null ? false : true
         };
     }
