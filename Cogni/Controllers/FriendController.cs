@@ -1,6 +1,7 @@
 ﻿using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
 using Cogni.Authentication.Abstractions;
+using Cogni.Authentication;
 using Cogni.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
@@ -13,11 +14,11 @@ namespace Cogni.Controllers
     public class FriendController : ControllerBase
     {
         private readonly IFriendService _friendService;
-        private readonly ITokenValidation _tokenValidation; 
-        public FriendController(IFriendService friendService, ITokenValidation tokenValidation)
+        private readonly TokenValidation _tokenValidation; 
+        public FriendController(IFriendService friendService, IConfiguration config)
         {
             _friendService = friendService;
-            _tokenValidation = tokenValidation;
+            _tokenValidation = new TokenValidation(config);
         }
         /// <summary>
         /// Получение количества друзей пользователя по id
