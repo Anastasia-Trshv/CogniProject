@@ -14,6 +14,7 @@ using SignalRSwaggerGen.Attributes;
 
 namespace ChatService.Controllers;
 
+[SignalRHubRoot]
 public class ChatHubController : Hub
 {
     private static readonly ConcurrentDictionary<string, string> ConnectionToUser = new();

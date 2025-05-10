@@ -85,13 +85,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => {
-        c.InjectJavascript("/Swagger/inject.js");
-    });
     app.Map("/Swagger/inject.js", async context =>
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "ChatService.Swagger.inject.js";
+        var resourceName = "ChatService.SwaggerExt.inject.js";
         using (var stream = assembly.GetManifestResourceStream(resourceName))
         {
             if (stream == null)
@@ -103,6 +100,9 @@ if (app.Environment.IsDevelopment())
             context.Response.ContentType = "application/javascript";
             await stream.CopyToAsync(context.Response.Body);
         }
+    });
+    app.UseSwaggerUI(c => {
+        c.InjectJavascript("/Swagger/inject.js");
     });
     app.UseCors("DEV-CHATS-AllowFrontend");
 }

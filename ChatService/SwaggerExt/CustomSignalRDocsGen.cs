@@ -34,10 +34,10 @@ public class CustomSigRDocsGen : IDocumentFilter
                 var descriptionAttribute = method.GetCustomAttribute<SignalRCustomEventDescription>();
                 var response = method.GetCustomAttribute<EventWithResponse>();
                 var parameters = method.GetParameters();
-                var newPath = invokableAttribute.EndpointOverride ?? $"/invoke/{method.Name}";
+                var newPath = method.Name == "OnConnectedAsync" ? "/ChatHub" : invokableAttribute.EndpointOverride ?? $"/invoke/{method.Name}";
 
-                var op = invokableAttribute.EndpointOverride == null ? OperationType.Head : 
-                    method.Name == "OnConnectedAsync" ? OperationType.Trace : OperationType.Get;
+                var op = method.Name == "OnConnectedAsync" ? OperationType.Trace : invokableAttribute.EndpointOverride == null ? OperationType.Head : 
+                    OperationType.Get;
 
                 var paramDescriptions = method.GetCustomAttributes<EventArgDescription>();
 
