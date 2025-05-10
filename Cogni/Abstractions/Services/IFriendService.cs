@@ -10,6 +10,6 @@ public interface IFriendService
     Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId);//возвращает 6 аватарок пользователей для блока "Друзья" на странице профиля
     Task Subscribe(int userId, int friendId);//подписка на пользователя
     Task Unsubscribe(int userId, int friendId);//отписка от пользователя
-    Task<bool> IsSubscribed(int userId, int friendId);//отписка от пользователя
+    Task<SubscribeDTO> CheckSubscribe(int userId, int friendId);//отписка от пользователя
 }
 

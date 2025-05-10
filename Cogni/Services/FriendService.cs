@@ -40,8 +40,8 @@ public class FriendService : IFriendService
         await _friendRepository.Unsubscribe(userId, friendId);
     }
 
-    public async Task<bool> IsSubscribed(int userId, int friendId)
+    public async Task<SubscribeDTO> CheckSubscribe(int userId, int friendId)
     {
-        return await _friendRepository.IsSubscribed(userId, friendId);
+        return await _friendRepository.CheckSubscribe(userId, friendId);
     }
 }

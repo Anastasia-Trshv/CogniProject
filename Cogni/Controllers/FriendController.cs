@@ -15,10 +15,16 @@ namespace Cogni.Controllers
     {
         private readonly IFriendService _friendService;
         private readonly TokenValidation _tokenValidation; 
-        public FriendController(IFriendService friendService, IConfiguration config)
-        {
+        private readonly ILogger<FriendController> _logger;
+
+        public FriendController(
+            IFriendService friendService,
+            IConfiguration config,
+            ILogger<FriendController> logger
+        ){
             _friendService = friendService;
             _tokenValidation = new TokenValidation(config);
+            _logger = logger;
         }
         /// <summary>
         /// Получение количества друзей пользователя по id
@@ -108,14 +114,14 @@ namespace Cogni.Controllers
 
         [Microsoft.AspNetCore.Mvc.HttpGet]
         [Authorize]
-        public async Task<ActionResult> IsSubscribed(int friendId)
+        public async Task<ActionResult> CheckSubscribe(int friendId)
         {
             try {
                 string token = Request.Headers["Authorization"];
                 token = token.Replace("Bearer ", string.Empty);
                 var payload = _tokenValidation.GetTokenPayload(token);
                 var userId = payload.UserId;
-                return Ok(await _friendService.IsSubscribed(userId, friendId));
+                return Ok(await _friendService.CheckSubscribe(userId, friendId));
             } catch (Exception e) {
                 return Unauthorized();
             }
