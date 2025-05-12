@@ -2,6 +2,7 @@ using System.Reflection;
 using ChatService.Abstractions;
 using ChatService.Controllers;
 using Cogni.Database.Context;
+using Cogni.Authentication;
 using ChatService.Models;
 using ChatService.Repository;
 using ChatService.Services;
@@ -38,7 +39,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DEV-CHATS-AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
@@ -106,6 +107,8 @@ if (app.Environment.IsDevelopment())
     });
     app.UseCors("DEV-CHATS-AllowFrontend");
 }
+
+app.UseMiddleware<TokenExceptionHandlingMiddleware>();
 
 app.MapHub<ChatHubController>("chat/hub");
 

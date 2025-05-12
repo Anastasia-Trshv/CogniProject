@@ -128,6 +128,7 @@ export function createGroup(group, users) {
     connection.invoke("createGroup", group, users);
 }
 
+
 export function getMsgs(chatId, startId, toNew, amount) {
     connection.invoke("getMsgs", chatId, startId, toNew, amount);
 }

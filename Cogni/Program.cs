@@ -161,6 +161,7 @@ if (Environment.GetEnvironmentVariable("MIGRATE")?.ToLower() == "true")
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<TokenExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

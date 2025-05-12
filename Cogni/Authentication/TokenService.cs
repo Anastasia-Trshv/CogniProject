@@ -26,7 +26,7 @@ public class TokenService : ITokenService
             Subject = payload.ToClaimsIdentity(),
             Issuer = _tokenValidation.Issuer,
             Audience = _tokenValidation.Audience,
-            Expires = DateTime.UtcNow.AddMinutes(AuthOptions.AccessTokenExpirationTime),
+            Expires = GetAccessTokenExpireTime(),
             SigningCredentials = _tokenValidation.GetSigningCredentials()
         };
 

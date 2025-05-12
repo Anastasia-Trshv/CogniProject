@@ -32,7 +32,8 @@ public class TokenValidation : ITokenValidation {
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = AuthOptions.GetSymmetricSecurityKey(Key),
-            ValidateLifetime = !allowExpired
+            ValidateLifetime = !allowExpired,
+            ClockSkew = TimeSpan.FromSeconds(0)
         };
     }
     

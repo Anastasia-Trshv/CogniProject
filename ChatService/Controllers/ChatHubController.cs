@@ -151,6 +151,7 @@ public class ChatHubController : Hub
         var user = _hubService.GetUserId(Context.ConnectionId);
         if (user == null) return;
         var msgs = await _db.GetMsgs(chatId, user, startId, amount, toNew);
+        _logger.LogWarning($"Will send: ", msgs);
         await Clients.Caller.SendAsync("Msgs", msgs);
     }
 
