@@ -1,0 +1,4 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /src/Cogni
+EXPOSE 5279
+ENTRYPOINT ["dotnet", "watch", "run"]
