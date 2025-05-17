@@ -9,6 +9,7 @@ services:
     volumes:
       - ./Cogni:/src/Cogni
       - ./Shared:/src/Shared
+      - ./secrets.json:/src/Cogni/secrets.json
   dev_chat_service:
     build:
       context: .
@@ -20,3 +21,4 @@ services:
     volumes:
       - ./ChatService:/src/ChatService
       - ./Shared:/src/Shared
+      - ./secrets.json:/src/ChatService/secrets.json
