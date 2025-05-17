@@ -39,7 +39,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DEV-CHATS-AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:3000")
+            .SetIsOriginAllowed(origin => 
+                Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+                uri.Host == "localhost"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());

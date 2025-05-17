@@ -20,7 +20,10 @@ builder.Services.AddCors(option => option.AddPolicy(
     name: "Default",
     policy =>
     {
-        policy.WithOrigins("http://localhost:3000");
+        policy.SetIsOriginAllowed(origin => 
+            Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
+            uri.Host == "localhost"
+        );
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
         policy.AllowCredentials();
@@ -29,7 +32,6 @@ builder.Services.AddCors(option => option.AddPolicy(
 builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
-
 
 builder.Services.AddCors(options =>
 {

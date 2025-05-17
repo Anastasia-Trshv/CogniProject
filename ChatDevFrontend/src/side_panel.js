@@ -1,6 +1,83 @@
-import { getCurrentUserId, showToast } from './globals.js';
+import { connectSignalR } from './connection.js';
+import { cogniApi, getCurrentUserId, setCurrentUser, showToast } from './globals.js';
 import { addToGroup, createGroup, renameGroup, startDm } from './signalR.js';
 const groupUsers = new Set();
+
+document.getElementById("register").addEventListener("click", async function() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const name = document.getElementById("name").value.trim();
+    const surname = document.getElementById("surname").value.trim();
+
+    if (!email || !password || !name || !surname) {
+        showToast("Please fill in all register fields.");
+        return;
+    }
+
+    const response = await fetch(`${cogniApi}/user/CreateUser`, {
+        method: "POST",
+        body: JSON.stringify({
+            "name": name,
+            "surname": surname,
+            "email": email,
+            "password": password,
+            "mbtiType": "INTP"
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    let data = await response.json()
+    if (!response.ok) {
+        showToast("Failed to register user: " + data);
+        return;
+    }
+
+    showToast("Succesful registration!", "rgba(200, 100, 100, 0.7)")
+})
+
+document.getElementById("login").addEventListener("click", async function() {
+    const email = document.getElementById("login_email").value.trim();
+    const password = document.getElementById("login_password").value.trim();
+
+    if (!email || !password) {
+        showToast("Please fill in all login fields.");
+        return;
+    }
+    
+    const response = await fetch(`${cogniApi}/user/LoginByEmail`, {
+        method: "POST",
+        body: JSON.stringify({
+            "email": email,
+            "password": password,
+        }),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    });
+    let data = await response.json()
+    if (!response.ok) {
+        showToast("Failed to login: " + data);
+        return;
+    }
+    let token = data.accessToken
+    let id;
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log(payload);
+        id = payload["userId"];
+        if (!id) {
+            showToast("Invalid token.");
+            return;
+        }
+    } catch (err) {
+        showToast("Invalid token.");
+        return;
+    }
+    
+    setCurrentUser(id);
+    connectSignalR(token);
+})
 
 document.getElementById("add_id_to_group_list").addEventListener("click", function() {
     const userIdInput = document.getElementById("group_user");

@@ -17,11 +17,21 @@
       <div class="text-3xl">CHAT API</div>
       <button id="open_guide">ГАЙД (МБ УСТАРЕЛ)</button>
       <div class="sep"></div>
-      <div class="text-xl text-center break-words">Один jwt может иметь несколько независимых сессий!</div>
-      <input id="token" placeholder="Access token" />
-      <div id="user_id" placeholder="Id"></div>
-      <button id="connect">Connect</button>
+      <div class="text-xl text-center break-words">Один пользователь может иметь несколько независимых сессий!</div>
+      
+      <input id="email" placeholder="Email" />
+      <input id="name" placeholder="Name" />
+      <input id="surname" placeholder="Surname" />
+      <input id="password" placeholder="Password" />
+      <button id="register">Register</button>
+
+      <!-- <input id="token" placeholder="Access token" /> -->
+
+      <input id="login_email" placeholder="Email" />
+      <input id="login_password" placeholder="Password" />
+      <button id="login">Login & Connect</button>
       <button id="disconnect">Disconnect</button>
+      <div id="user_id" placeholder="Id"></div>
       <div id="status" class="text-3xl text-red-500">DISCONNECTED</div>
       <div class="sep"></div>
       <div class="text-xl text-center">Users [dev-only] Получает пользователей с: 0 &lt;= id &lt; 1000 </div>
