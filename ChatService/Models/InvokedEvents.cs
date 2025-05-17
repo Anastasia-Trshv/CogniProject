@@ -11,10 +11,10 @@ namespace ChatService.Models;
 
 // это вам не rust ☠️, никаких трейтов
 // also, [JsonProperty("lastName")] attribute exists
-public abstract class InvokedEvent
+public abstract class InvokedEvent // Мда, и никаких Self-типов
 {
     public const int MAX_ATTACHMENTS = 9;
-    public virtual string type { get; } = "";
+    public virtual string type { get; set; } = "";
     public virtual async Task Update(IChatRepository _db){}
     public virtual async Task<List<string>> GetRecievers(IChatRepository _db){ return new (); }
 
@@ -31,21 +31,25 @@ public abstract class InvokedEvent
                 "MsgDeleted" => JsonSerializer.Deserialize<MessageDeletedEvent>(json),
                 "MsgEdited" => JsonSerializer.Deserialize<MessageEditedEvent>(json),
                 "GroupRenamed" => JsonSerializer.Deserialize<GroupRenamedEvent>(json),
+                "InvitedToChat" => JsonSerializer.Deserialize<InvitedToChat>(json),
                 _ => null
             };
         } catch (Exception _ex) {
             return null;
         }
     }
+    public virtual void PreSend(string reciever) {}
 
-    public virtual byte[] Serialize(){
+    public virtual byte[] Serialize()
+    {
         return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(this));
     }
 }
 
 
 [ListenableSignalREvent("Happens when new chat is created")]
-public class ChatAddedEvent : InvokedEvent {
+public class ChatAddedEvent : InvokedEvent
+{
     [CustomEventDescription("Chat id")]
     public required string chatId { get; set; }
     [CustomEventDescription("User name")]
@@ -56,6 +60,8 @@ public class ChatAddedEvent : InvokedEvent {
     public required List<string> members { get; set; }
     [ListenableEventName]
     public override string type => "NewChatAdded";
+    [CustomEventDescription("Owner id")]
+    public int ownerId { get; set; }
     [CustomEventDescription("Last message object")]
     public LastMessageDto? lastMessage { get; set; }
     [CustomEventDescription("Number of unread messages")]
@@ -64,15 +70,57 @@ public class ChatAddedEvent : InvokedEvent {
     public override async Task<List<string>> GetRecievers(IChatRepository _db) => this.members;
     public override byte[] Serialize() => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(this));
 
-    public static ChatAddedEvent FromNewChat(Chat chat, LastMessageDto lastMessage) {
+    public override void PreSend(string reciever)
+    {
+        if (reciever == this.ownerId.ToString() && this.isDm) this.unreadCount = 0;
+        else this.unreadCount = 2;
+    }
+
+    public static ChatAddedEvent FromNewChat(Chat chat, LastMessageDto lastMessage, int unreadCount = 1)
+    {
         return new ChatAddedEvent
         {
             chatId = chat.Id.ToString(),
+            ownerId = chat.OwnerId,
             name = chat.Name,
             members = chat.Members.Select(m => m.UserId.ToString()).ToList(),
             isDm = chat.isDm,
             lastMessage = lastMessage,
-            unreadCount = 1 // нуаче)))
+            unreadCount = unreadCount
+        };
+    }
+}
+
+public class InvitedToChat : InvokedEvent
+{
+    public required string chatId { get; set; }
+    public required string name { get; set; }
+    public bool isDm { get; set; }
+    public required List<string> members { get; set; }
+    public override string type { get; set; } = "InvitedToChat";
+    public int ownerId { get; set; }
+    public LastMessageDto? lastMessage { get; set; }
+    public int unreadCount { get; set; }
+    public override async Task Update(IChatRepository _db){}
+    public override async Task<List<string>> GetRecievers(IChatRepository _db) => this.members;
+    public override byte[] Serialize() => Encoding.UTF8.GetBytes(JsonSerializer.Serialize(this));
+
+    public override void PreSend(string _reciever)
+    {
+        this.type = "NewChatAdded";
+    }
+
+    public static InvitedToChat FromChatUser(Chat chat, LastMessageDto lastMessage, int userId, int unreadCount = 1)
+    {
+        return new InvitedToChat
+        {
+            chatId = chat.Id.ToString(),
+            ownerId = chat.OwnerId,
+            name = chat.Name,
+            members = new List<string> { userId.ToString() },
+            isDm = chat.isDm,
+            lastMessage = lastMessage,
+            unreadCount = unreadCount
         };
     }
 }
@@ -162,7 +210,7 @@ public class MessageDeletedEvent : InvokedEvent {
 }
 
 [ListenableSignalREvent("Happens when message is edited")]
-public class MessageEditedEvent : InvokedEvent {
+public class MessageEditedEvent : InvokedEvent{
     [CustomEventDescription("Chat id")]
     public required string chatId { get; set; }
     [CustomEventDescription("Id of edited message; Message id is ordered and isn't chat-unique")]

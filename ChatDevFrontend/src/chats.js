@@ -39,7 +39,7 @@ var last_messages = {};
 var unread_counts = {};
 
 export async function replaceUUIDs(input) { 
-    const matches = [...input.matchAll(/\[([0-9])\]/g)];
+    const matches = [...input.matchAll(/\[([0-9]+)\]/g)];
     const replacements = await Promise.all(
         matches.map(async ([fullMatch, uuid]) => {
             const username = await getUsername(uuid);
@@ -261,8 +261,10 @@ export async function handleNewMessage(message) {
     const lastMessageEl = document.getElementById("last_message_" + message.chatId);
     lastMessageEl.textContent = await msgToLastMessage(message);
     lastMessageEl.setAttribute("data-message-id", message.messageId);
-    if (message.senderId == getCurrentUserId()) {return;}
-    if (message.chatId == current_chat && isScrolledToBottom(MessagesContainer)) {
+    // if (message.senderId == getCurrentUserId()) {return;}
+    if (message.chatId == current_chat
+        //  && isScrolledToBottom(MessagesContainer)
+    ) { // isScrolledToBottom doesnt works
         console.log("Scrolled to bottom, read all messages")
         readMessages(message.chatId, message.messageId);
     } else {
@@ -568,12 +570,13 @@ MessagesContainer.addEventListener("scroll", () => {
         fetching_history = true;
     }
     if (isScrolledToBottom(MessagesContainer)){
-        readMessages(chatId, -1);
+        readMessages(current_chat, -1);
     }
 });
 
+// TODO: BROKEN
 function isScrolledToBottom(container) {
-    return container.scrollHeight - container.scrollTop <= container.clientHeight + 1;
+    return container.scrollHeight - container.scrollTop >= container.clientHeight + 1;
 }
 
 
@@ -652,7 +655,7 @@ export function deleteMessageHandler(senderId, chatId, messageId) {
     const lastMessageEl = document.querySelector(`.last_message[data-message-id="${messageId}"]`);
     if (lastMessageEl) {
         lastMessageEl.textContent = "[DELETED]";
-        // TODO: request last message?
+        // TODO: request last message? - Get it in delete event from backend!
     }
     const messageEl = document.getElementById("chat_message_" + messageId);
     if (messageEl) {

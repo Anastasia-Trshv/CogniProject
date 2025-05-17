@@ -3,12 +3,11 @@ export const DOCKER_DEV = import.meta.env.VITE_DOCKER_DEV == "true";
 console.log("ISDEV: ", DEV)
 console.log("DOCKER_DEV: ", DOCKER_DEV)
 export const apiBase = DOCKER_DEV ? "http://127.0.0.1:5108" : DEV ? "http://127.0.0.1:5108" : "/api"
-export const fileApi =  DOCKER_DEV ? "http://127.0.0.1:9000" : DEV ? "http://127.0.0.1:9000" : ""
+export const fileApi =  DOCKER_DEV ? "http://212.22.82.127:9111" : DEV ? "http://127.0.0.1:9000" : ""
 export const cogniApi =  DOCKER_DEV ? "http://127.0.0.1:5279" : DEV ? "http://127.0.0.1:5279" : "/api"
 
 // uuid is Unique User Identifier now :D
 let uuid_to_username = {}
-let uuid_to_picture = {}
 
 export function addUsernameRelation(username, uuid) {
     uuid_to_username[uuid] = username;
