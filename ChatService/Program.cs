@@ -2,6 +2,7 @@ using System.Reflection;
 using ChatService.Abstractions;
 using ChatService.Controllers;
 using Cogni.Database.Context;
+using Cogni.Authentication;
 using ChatService.Models;
 using ChatService.Repository;
 using ChatService.Services;
@@ -38,7 +39,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DEV-CHATS-AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:3000")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
@@ -85,13 +86,10 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c => {
-        c.InjectJavascript("/Swagger/inject.js");
-    });
     app.Map("/Swagger/inject.js", async context =>
     {
         var assembly = Assembly.GetExecutingAssembly();
-        var resourceName = "ChatService.Swagger.inject.js";
+        var resourceName = "ChatService.SwaggerExt.inject.js";
         using (var stream = assembly.GetManifestResourceStream(resourceName))
         {
             if (stream == null)
@@ -104,8 +102,13 @@ if (app.Environment.IsDevelopment())
             await stream.CopyToAsync(context.Response.Body);
         }
     });
+    app.UseSwaggerUI(c => {
+        c.InjectJavascript("/Swagger/inject.js");
+    });
     app.UseCors("DEV-CHATS-AllowFrontend");
 }
+
+app.UseMiddleware<TokenExceptionHandlingMiddleware>();
 
 app.MapHub<ChatHubController>("chat/hub");
 

@@ -55,6 +55,13 @@ public class FriendRepository : IFriendRepository
         _context.Friends.Remove(friend);
         await _context.SaveChangesAsync();
     }
+    public async Task<SubscribeDTO> CheckSubscribe(int userId, int friendId)
+    {
+        return new SubscribeDTO{
+            YourSubscriber = await _context.Friends.FirstOrDefaultAsync(f => f.UserId == friendId && f.FriendId == userId) == null ? false : true,
+            YouSubscribed = await _context.Friends.FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friendId) == null ? false : true
+        };
+    }
 
     public async Task<List<(int id, string? picUrl)>> GetFriendsPreview(int userId)
     {

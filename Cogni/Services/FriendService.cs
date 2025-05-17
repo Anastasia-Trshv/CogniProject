@@ -39,4 +39,9 @@ public class FriendService : IFriendService
     {
         await _friendRepository.Unsubscribe(userId, friendId);
     }
+
+    public async Task<SubscribeDTO> CheckSubscribe(int userId, int friendId)
+    {
+        return await _friendRepository.CheckSubscribe(userId, friendId);
+    }
 }

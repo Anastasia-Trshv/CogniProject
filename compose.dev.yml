@@ -1,0 +1,22 @@
+services:
+  dev_cogni:
+    build:
+      context: .
+      dockerfile: ./Cogni/Dockerfile.dev
+    restart: always
+    ports:
+      - 5279:5279
+    volumes:
+      - ./Cogni:/src/Cogni
+      - ./Shared:/src/Shared
+  dev_chat_service:
+    build:
+      context: .
+      dockerfile: ./ChatService/Dockerfile.dev
+    ports:
+      - 5108:5108
+    image: chat-backend
+    restart: always
+    volumes:
+      - ./ChatService:/src/ChatService
+      - ./Shared:/src/Shared

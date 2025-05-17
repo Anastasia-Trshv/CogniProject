@@ -103,14 +103,14 @@ services:
     restart: always
     environment:
       ASPNETCORE_ENVIRONMENT: "Production"
-      MIGRATE: "true"
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+      MIGRATE: "false"
+    # depends_on:
+    #   rabbitmq:
+    #     condition: service_healthy
+    #   postgres:
+    #     condition: service_healthy
+    #   redis:
+    #     condition: service_healthy
   # It's scalable!
   chat_service_1:
     build:

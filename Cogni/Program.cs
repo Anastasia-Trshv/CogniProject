@@ -138,7 +138,7 @@ if (app.Environment.IsDevelopment())
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseCors("DEV-ALL");
+    app.UseCors("Default");
 } else {
     app.UseCors("Default");
 }
@@ -161,6 +161,7 @@ if (Environment.GetEnvironmentVariable("MIGRATE")?.ToLower() == "true")
 }
 
 app.UseHttpsRedirection();
+app.UseMiddleware<TokenExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

@@ -1,5 +1,7 @@
 ﻿using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
+using Cogni.Authentication.Abstractions;
+using Cogni.Authentication;
 using Cogni.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
@@ -12,9 +14,17 @@ namespace Cogni.Controllers
     public class FriendController : ControllerBase
     {
         private readonly IFriendService _friendService;
-        public FriendController(IFriendService friendService)
-        {
+        private readonly TokenValidation _tokenValidation; 
+        private readonly ILogger<FriendController> _logger;
+
+        public FriendController(
+            IFriendService friendService,
+            IConfiguration config,
+            ILogger<FriendController> logger
+        ){
             _friendService = friendService;
+            _tokenValidation = new TokenValidation(config);
+            _logger = logger;
         }
         /// <summary>
         /// Получение количества друзей пользователя по id
@@ -53,16 +63,20 @@ namespace Cogni.Controllers
 
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
-        public async Task<ActionResult> Subscribe(int userId, int friendId)
+        public async Task<ActionResult> Subscribe(int friendId)
         {
-            // todo! : check token and read user id from it
-            if (userId == friendId)
-            {
-                return BadRequest("Нельзя подписаться на самого себя");
-            }
             try
             {
+                string token = Request.Headers["Authorization"];
+                token = token.Replace("Bearer ", string.Empty);
+                var payload = _tokenValidation.GetTokenPayload(token);
+                var userId = payload.UserId;
+                if (userId == friendId)
+                {
+                    return BadRequest("Нельзя подписаться на самого себя");
+                }
                 await _friendService.Subscribe(userId, friendId);
+                return Ok();
             }
             catch (Microsoft.EntityFrameworkCore.DbUpdateException e) when (e.InnerException is PostgresException pgEx)
             {
@@ -77,22 +91,40 @@ namespace Cogni.Controllers
                     default:
                         return StatusCode(500, "Неизвестная ошибка");
                 }
+            } catch (Exception e) {
+                return Unauthorized();
             }
-            return Ok();
-            
         }
 
         [Microsoft.AspNetCore.Mvc.HttpPost]
         [Authorize]
-        public async Task<ActionResult> Unsubscribe(int userId, int friendId)
+        public async Task<ActionResult> Unsubscribe(int friendId)
         {
-            // todo! : check token and read user id from it
             try {
+                string token = Request.Headers["Authorization"];
+                token = token.Replace("Bearer ", string.Empty);
+                var payload = _tokenValidation.GetTokenPayload(token);
+                var userId = payload.UserId;
                 await _friendService.Unsubscribe(userId, friendId);
                 return Ok();
-            } catch (Exception _) {}
-            return StatusCode(500, "Неизвестная ошибка");
+            } catch (Exception e) {
+                return Unauthorized();
+            }
+        }
 
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        [Authorize]
+        public async Task<ActionResult> CheckSubscribe(int friendId)
+        {
+            try {
+                string token = Request.Headers["Authorization"];
+                token = token.Replace("Bearer ", string.Empty);
+                var payload = _tokenValidation.GetTokenPayload(token);
+                var userId = payload.UserId;
+                return Ok(await _friendService.CheckSubscribe(userId, friendId));
+            } catch (Exception e) {
+                return Unauthorized();
+            }
         }
     }
 }
