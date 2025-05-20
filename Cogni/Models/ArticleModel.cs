@@ -11,6 +11,8 @@ public class ArticleModel
 
     public string? ArticleBody { get; set; }
 
+    public string? ArticlePreview { get; set; }
+
     public int IdUser { get; set; }
 
     public string? Annotation { get; set; }

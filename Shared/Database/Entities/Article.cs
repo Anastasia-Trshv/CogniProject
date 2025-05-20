@@ -11,6 +11,8 @@ public partial class Article
 
     public string? ArticleBody { get; set; }
 
+    public string? ArticlePreview { get; set; }
+
     public string? Annotation { get; set; }
 
     public DateTime? Created { get; set; }
