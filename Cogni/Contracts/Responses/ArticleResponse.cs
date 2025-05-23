@@ -9,7 +9,8 @@
         int IdUser,
         string? Annotation,
         DateTime? Created,
-        int? ReadsNumber
+        int? ReadsNumber,
+        string? ArticlePreview
     );
 
 }

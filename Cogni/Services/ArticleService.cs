@@ -6,6 +6,8 @@ using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
 using Cogni.Models;
 using Cogni.Contracts.Requests;
+using Cogni.Contracts.Responses;
+using Humanizer;
 
 namespace Cogni.Services
 {
@@ -13,11 +15,46 @@ namespace Cogni.Services
     {
         private readonly IArticleRepository _articleRepository;
         private readonly IImageService _imageService;
+        private readonly IUserService _userService;
 
-        public ArticleService(IArticleRepository articleRepository, IImageService imageService)
+        public ArticleService(IArticleRepository articleRepository, IImageService imageService, IUserService userService)
         {
             _articleRepository = articleRepository;
             _imageService = imageService;
+            _userService = userService;
+        }
+
+        public async Task<ArticlePreviewResponse?> GetArticlePreviewAsync(int id)
+        {
+            var article = await _articleRepository.GetById(id);
+
+            if (article == null)
+            {
+                return null;
+            }
+
+            var user = await _userService.GetPublicUser(article.IdUser);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            // Вычисление времени с момента публикации
+            var timeSincePublication = article.Created.HasValue
+                ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
+                : "Неизвестно";
+
+            return new ArticlePreviewResponse(
+                article.ArticlePreview,
+                user.Image,
+                user.Name,
+                article.ReadsNumber ?? 0,
+                timeSincePublication,
+                user.TypeMbti,
+                article.ArticleName,
+                article.Annotation
+            );
         }
 
         public async Task<List<ArticleModel>> GetAllAsync()
@@ -40,13 +77,20 @@ namespace Cogni.Services
 
         public async Task<Article> CreateArticleAsync(CreateArticleRequest request, int userId)
         {
+            string? articlePreviewUrl = null;
+
+            if (request.ArticlePreviewFile != null)
+            {
+                articlePreviewUrl = await _imageService.UploadImage(request.ArticlePreviewFile);
+            }
             var article = new Article
             {
                 ArticleName = request.ArticleName,
                 ArticleBody = request.ArticleBody,
                 IdUser = userId,
                 Annotation = request.Annotation,
-                ArticleImages = new List<ArticleImage>()
+                ArticleImages = new List<ArticleImage>(),
+                ArticlePreview = articlePreviewUrl
             };
 
             if (request.Files != null)
@@ -60,7 +104,7 @@ namespace Cogni.Services
 
             List<string> imageUrls = article.ArticleImages.Select(ai => ai.ImageUrl).ToList();
 
-            Article createdArticle = await _articleRepository.Create(article.ArticleName, article.ArticleBody, imageUrls, article.IdUser, article.Annotation);
+            Article createdArticle = await _articleRepository.Create(article.ArticleName, article.ArticleBody, imageUrls, article.IdUser, article.Annotation, article.ArticlePreview);
 
             return createdArticle;
         }
@@ -71,15 +115,23 @@ namespace Cogni.Services
         {
             var article = await _articleRepository.GetById(id);
 
+
             if (article == null)
             {
                 throw new Exception("Статья не найдена.");
+            }
+
+            string? articlePreviewUrl = article.ArticlePreview;
+            if (request.ArticlePreviewFile != null)
+            {
+                articlePreviewUrl = await _imageService.UploadImage(request.ArticlePreviewFile);
             }
 
             // Обновляем название и содержимое статьи
             article.ArticleName = request.ArticleName;
             article.ArticleBody = request.ArticleBody;
             article.Annotation = request.Annotation;
+            article.ArticlePreview = articlePreviewUrl;
 
             // Получаем существующие URL изображений
             List<string> imageUrls = article.ArticleImages.Select(ai => ai.ImageUrl).ToList();
@@ -96,7 +148,7 @@ namespace Cogni.Services
             }
 
             // Обновляем статью в репозитории
-            await _articleRepository.Update(article.Id, article.ArticleName, article.ArticleBody, imageUrls, request.Annotation);
+            await _articleRepository.Update(article.Id, article.ArticleName, article.ArticleBody, imageUrls, request.Annotation, article.ArticlePreview);
 
             // Возвращаем обновленную статью
             return article;
@@ -133,6 +185,7 @@ namespace Cogni.Services
                 Annotation = article.Annotation,
                 Created = article.Created,
                 ReadsNumber = article.ReadsNumber,
+                ArticlePreview = article.ArticlePreview,
                 ArticleImages = article.ArticleImages.Select(ai => new ArticleImageModel
                 {
                     Id = ai.Id,

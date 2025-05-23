@@ -1,4 +1,5 @@
 ﻿using Cogni.Contracts.Requests;
+using Cogni.Contracts.Responses;
 using Cogni.Database.Entities;
 using Cogni.Models;
 
@@ -10,8 +11,7 @@ public interface IArticleService
 
     Task<ArticleModel> UpdateArticleAsync(int id, ArticleUpdateRequest request, int userId);
     Task IncrementArticleReadsAsync(int id);
+    Task<ArticlePreviewResponse?> GetArticlePreviewAsync(int id);
 
     Task DeleteArticleAsync(int id);
 }
-
-

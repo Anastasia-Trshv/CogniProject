@@ -52,7 +52,7 @@ namespace Cogni.Controllers
             article = await _articleService.GetArticleByIdAsync(id);
 
             var urls = article.ArticleImages?.Select(i => i.ImageUrl).ToList() ?? new List<string>();
-            var articleResponse = new ArticleResponse(article.Id, article.ArticleName, article.ArticleBody, urls, article.IdUser, article.Annotation, article.Created, article.ReadsNumber);
+            var articleResponse = new ArticleResponse(article.Id, article.ArticleName, article.ArticleBody, urls, article.IdUser, article.Annotation, article.Created, article.ReadsNumber, article.ArticlePreview);
 
             return Ok(articleResponse);
 
@@ -79,7 +79,7 @@ namespace Cogni.Controllers
                 var createdArticle = await _articleService.CreateArticleAsync(request, userId);
 
                 var imageUrls = createdArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
-                var articleResponse = new ArticleResponse(createdArticle.Id, createdArticle.ArticleName, createdArticle.ArticleBody, imageUrls, createdArticle.IdUser, createdArticle.Annotation, createdArticle.Created, createdArticle.ReadsNumber);
+                var articleResponse = new ArticleResponse(createdArticle.Id, createdArticle.ArticleName, createdArticle.ArticleBody, imageUrls, createdArticle.IdUser, createdArticle.Annotation, createdArticle.Created, createdArticle.ReadsNumber, createdArticle.ArticlePreview);
 
                 return CreatedAtAction(nameof(GetArticleById), new { id = createdArticle.Id }, articleResponse);
             }
@@ -118,7 +118,7 @@ namespace Cogni.Controllers
                 var updatedArticle = await _articleService.UpdateArticleAsync(request.IdArticle, request, userId);
 
                 var imageUrls = updatedArticle.ArticleImages.Select(i => i.ImageUrl).ToList();
-                var articleResponse = new ArticleResponse(updatedArticle.Id, updatedArticle.ArticleName, updatedArticle.ArticleBody, imageUrls, updatedArticle.IdUser, updatedArticle.Annotation, updatedArticle.Created, updatedArticle.ReadsNumber);
+                var articleResponse = new ArticleResponse(updatedArticle.Id, updatedArticle.ArticleName, updatedArticle.ArticleBody, imageUrls, updatedArticle.IdUser, updatedArticle.Annotation, updatedArticle.Created, updatedArticle.ReadsNumber, updatedArticle.ArticlePreview);
 
                 return Ok(articleResponse);
             }
@@ -136,6 +136,19 @@ namespace Cogni.Controllers
             }
         }
 
+        /// <summary>
+        /// Превью статьи
+        /// </summary>
+        [Microsoft.AspNetCore.Mvc.HttpGet]
+        public async Task<ActionResult<ArticlePreviewResponse>> GetArticlePreview(int id)
+        {
+            var preview = await _articleService.GetArticlePreviewAsync(id);
+            if (preview == null)
+            {
+                return NotFound();
+            }
+            return Ok(preview);
+        }
 
         /// <summary>
         /// Удаление статьи
@@ -149,4 +162,3 @@ namespace Cogni.Controllers
         }
     }
 }
-
