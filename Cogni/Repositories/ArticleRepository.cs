@@ -45,6 +45,7 @@ namespace Cogni.Database.Repositories
                 Annotation = article.Annotation,
                 Created = article.Created,
                 ReadsNumber = article.ReadsNumber,
+                ArticlePreview = article.ArticlePreview,
                 ArticleImages = article.ArticleImages.Select(ai => new ArticleImageModel
                 {
                     Id = ai.Id,
@@ -55,7 +56,7 @@ namespace Cogni.Database.Repositories
             };
         }
 
-        public async Task Update(int id, string articleName, string articleBody, List<string> imageUrls, string annotation)
+        public async Task Update(int id, string articleName, string articleBody, List<string> imageUrls, string annotation, string? articlePreview)
         {
             var article = await _context.Articles.FindAsync(id);
             if (article != null)
@@ -63,6 +64,7 @@ namespace Cogni.Database.Repositories
                 article.ArticleName = articleName;
                 article.ArticleBody = articleBody;
                 article.Annotation = annotation;
+                article.ArticlePreview = articlePreview;
 
                 article.ArticleImages.Clear();
                 foreach (var imageUrl in imageUrls)
@@ -99,7 +101,7 @@ namespace Cogni.Database.Repositories
         }
 
 
-        public async Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId, string annotation)
+        public async Task<Article> Create(string articleName, string articleBody, List<string> imageUrls, int userId, string annotation, string? articlePreview)
         {
             var article = new Article
             {
@@ -107,7 +109,8 @@ namespace Cogni.Database.Repositories
                 ArticleBody = articleBody,
                 IdUser = userId,
                 Annotation = annotation,
-                Created = DateTime.UtcNow
+                Created = DateTime.UtcNow,
+                ArticlePreview = articlePreview
             };
 
             foreach (var imageUrl in imageUrls)

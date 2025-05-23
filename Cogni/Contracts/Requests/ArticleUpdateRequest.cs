@@ -8,6 +8,7 @@
         List<string> ImageUrls,
         int IdUser,
         IFormFileCollection? Files,
-        string Annotation
+        string Annotation,
+        IFormFile? ArticlePreviewFile
     );
 }
