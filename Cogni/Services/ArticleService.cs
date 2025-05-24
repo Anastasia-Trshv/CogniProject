@@ -24,37 +24,44 @@ namespace Cogni.Services
             _userService = userService;
         }
 
-        public async Task<ArticlePreviewResponse?> GetArticlePreviewAsync(int id)
+        public async Task<ArticlePreviewResponse?[]> GetArticlesPreviewesAsync()
         {
-            var article = await _articleRepository.GetById(id);
+            var articles = await _articleRepository.GetAll();
 
-            if (article == null)
+            ArticlePreviewResponse[] articlePreviewResponses = new ArticlePreviewResponse[articles.Count];
+
+            foreach (var article in articles)
             {
-                return null;
+                if (article == null)
+                {
+                    return null;
+                }
+
+                var user = await _userService.GetPublicUser(article.IdUser);
+
+                if (user == null)
+                {
+                    return null;
+                }
+
+                // Вычисление времени с момента публикации
+                var timeSincePublication = article.Created.HasValue
+                    ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
+                    : "Неизвестно";
+
+                articlePreviewResponses.Append(
+                    new ArticlePreviewResponse(
+                    article.ArticlePreview,
+                    user.Image,
+                    user.Name,
+                    article.ReadsNumber ?? 0,
+                    timeSincePublication,
+                    user.TypeMbti,
+                    article.ArticleName,
+                    article.Annotation
+                ));
             }
-
-            var user = await _userService.GetPublicUser(article.IdUser);
-
-            if (user == null)
-            {
-                return null;
-            }
-
-            // Вычисление времени с момента публикации
-            var timeSincePublication = article.Created.HasValue
-                ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
-                : "Неизвестно";
-
-            return new ArticlePreviewResponse(
-                article.ArticlePreview,
-                user.Image,
-                user.Name,
-                article.ReadsNumber ?? 0,
-                timeSincePublication,
-                user.TypeMbti,
-                article.ArticleName,
-                article.Annotation
-            );
+            return articlePreviewResponses;
         }
 
         public async Task<List<ArticleModel>> GetAllAsync()

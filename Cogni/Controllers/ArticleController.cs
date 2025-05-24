@@ -140,9 +140,9 @@ namespace Cogni.Controllers
         /// Превью статьи
         /// </summary>
         [Microsoft.AspNetCore.Mvc.HttpGet]
-        public async Task<ActionResult<ArticlePreviewResponse>> GetArticlePreview(int id)
+        public async Task<ActionResult<ArticlePreviewResponse>> GetArticlesPreviews()
         {
-            var preview = await _articleService.GetArticlePreviewAsync(id);
+            var preview = await _articleService.GetArticlesPreviewesAsync();
             if (preview == null)
             {
                 return NotFound();
