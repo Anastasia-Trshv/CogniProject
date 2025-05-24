@@ -11,7 +11,7 @@ public interface IArticleService
 
     Task<ArticleModel> UpdateArticleAsync(int id, ArticleUpdateRequest request, int userId);
     Task IncrementArticleReadsAsync(int id);
-    Task<ArticlePreviewResponse?[]> GetArticlesPreviewesAsync();
+    Task<List<ArticlePreviewResponse>> GetArticlesPreviewesAsync();
 
     Task DeleteArticleAsync(int id);
 }

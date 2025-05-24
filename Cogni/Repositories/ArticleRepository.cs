@@ -10,9 +10,10 @@ namespace Cogni.Database.Repositories
     public class ArticleRepository : IArticleRepository
     {
         private readonly CogniDbContext _context;
-
-        public ArticleRepository(CogniDbContext context)
+        private readonly ILogger<ArticleRepository> _logger;
+        public ArticleRepository(CogniDbContext context, ILogger<ArticleRepository> logger)
         {
+            _logger = logger;
             _context = context;
         }
 
@@ -21,8 +22,8 @@ namespace Cogni.Database.Repositories
             var articles = await _context.Articles
                 .Include(a => a.ArticleImages)
                 .ToListAsync();
-
-            return articles.Select(a => ToModel(a)).ToList();
+            var a = articles.Select(a => ToModel(a)).ToList();
+            return a;
         }
 
         public async Task<ArticleModel?> GetById(int id)

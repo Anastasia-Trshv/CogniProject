@@ -26,9 +26,14 @@ builder.Services.AddCors(option => option.AddPolicy(
         policy.AllowCredentials();
     }));
 
-builder.Configuration
+try
+{
+    builder.Configuration
        .SetBasePath(Directory.GetCurrentDirectory())
        .AddJsonFile("secrets.json", optional: true, reloadOnChange: true);
+}
+catch (Exception ex) { }
+
 
 
 builder.Services.AddCors(options =>
