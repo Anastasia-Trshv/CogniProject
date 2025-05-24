@@ -123,7 +123,7 @@ builder.Services.AddAuthentication(x =>
         {
             ValidIssuer = builder.Configuration["Token:Issuer"],
             ValidAudience = builder.Configuration["Token:Audience"],
-
+            ClockSkew = TimeSpan.Zero,
             ValidateAudience = true,
             ValidateIssuer = true,
             ValidateIssuerSigningKey = true,
