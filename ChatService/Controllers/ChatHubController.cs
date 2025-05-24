@@ -227,10 +227,7 @@ public class ChatHubController : Hub
     public async Task AddToGroup(string chatId, string userId) {
         var user = _hubService.GetUserId(Context.ConnectionId);
         if (user == null) return;
-        var chat = await _db.AddToGroup(user, chatId, userId);
-        if (chat != null) {
-            await _hubService.SendMessage("ChatAdded", userId, JsonSerializer.Serialize(chat));
-        }
+        await _db.AddToGroup(user, chatId, userId);
     }
 
     [InvokableSignalREvent($"Used for notifying that client is typing in specific chat. Send every (" + RedisRepository.TYPING_LIFETIME_SECONDS + " - 1) seconds."),

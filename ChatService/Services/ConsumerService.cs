@@ -60,6 +60,7 @@ public class RabbitMqConsumerService : BackgroundService
                     _logger.LogWarning($"[Consumer] Event recievers: {recievers}");
                     foreach (var reciever in recievers){
                         _logger.LogWarning($"[Consumer] Event sent to: {reciever}");
+                        invokedEvent.PreSend(reciever);
                         await _hubService.SendMessage(invokedEvent.type, reciever, invokedEvent);
                     }
                 }
