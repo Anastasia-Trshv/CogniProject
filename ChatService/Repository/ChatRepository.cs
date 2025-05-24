@@ -64,7 +64,7 @@ public class ChatRepository : IChatRepository
         .Where(ms => ms.UserId == userIntId && chatIds.Contains(ms.ChatId))
         .ToDictionaryAsync(ms => ms.ChatId, ms => ms.LastReaden);
     var messages = await _dbContext.Messages
-        .Where(msg => chatIds.Contains(msg.ChatId) && msg.SenderId != userIntId)
+        .Where(msg => chatIds.Contains(msg.ChatId) && ((msg.SenderId != userIntId) || msg.IsFunctional))
         .ToListAsync();
     var unreadCounts = messages
         .GroupBy(msg => msg.ChatId)
@@ -113,7 +113,7 @@ public class ChatRepository : IChatRepository
         var message = Message.ChatCreated(chat.Id, int.Parse(userId));
         await _dbContext.Messages.AddAsync(message);
         await _dbContext.SaveChangesAsync();
-        await SendEvent(ChatAddedEvent.FromNewChat(chat, LastMessageDto.FromMessage(message)).Serialize());
+        await SendEvent(ChatAddedEvent.FromNewChat(chat, LastMessageDto.FromMessage(message), 1).Serialize());
         return null;
     }
 
@@ -201,7 +201,9 @@ public class ChatRepository : IChatRepository
         };
         await _dbContext.Messages.AddAsync(msg);
         await _dbContext.SaveChangesAsync();
-        await SendEvent(ChatAddedEvent.FromNewChat(chat, LastMessageDto.FromMessage(msg)).Serialize());
+        await _dbContext.MessageStatus.AddAsync(new MessageStatus { LastReaden = msg.MessageId, UserId = user1.Id, ChatId = chat.Id });
+        await _dbContext.SaveChangesAsync();
+        await SendEvent(ChatAddedEvent.FromNewChat(chat, LastMessageDto.FromMessage(msg), 2).Serialize());
         return chat;
     }
 
@@ -247,20 +249,30 @@ public class ChatRepository : IChatRepository
         return null;
     }
 
-    public async Task<ChatDto?> AddToGroup(string invokerId, string chatId, string userId) {
+    public async Task AddToGroup(string invokerId, string chatId, string userId)
+    {
         var invoker = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id.ToString() == invokerId);
         var chat = await _dbContext.Chats
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id.ToString() == chatId);
         var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id.ToString() == userId);
         if (invoker == null || chat == null || user == null || chat.isDm ||
-        chat.Members.Any(m => m.UserId == user.Id) || !chat.Members.Any(m => m.UserId == invoker.Id)) return null;
+        chat.Members.Any(m => m.UserId == user.Id) || !chat.Members.Any(m => m.UserId == invoker.Id)) return;
         chat.Members.Add(new ChatMember { UserId = user.Id, Chat = chat });
         var msg = Message.UserAdded(chat.Id, user.Id, invokerId);
         await _dbContext.Messages.AddAsync(msg);
         await _dbContext.SaveChangesAsync();
         await SendEvent(NewMessageEvent.FromMessage(msg).Serialize());
-        return ChatDto.FromChatLast(chat, LastMessageDto.FromMessage(msg));
+
+        // TODO: move to pre-send?
+        var lastRead = await _dbContext.MessageStatus
+            .Where(ms => ms.UserId == user.Id && ms.ChatId == chat.Id)
+            .FirstOrDefaultAsync();
+        var unreadCount = await _dbContext.Messages
+            .Where(msg => (msg.ChatId == chat.Id) && (msg.SenderId != user.Id || msg.IsFunctional) && (lastRead == null || msg.MessageId > lastRead.LastReaden))
+            .CountAsync();
+        await SendEvent(InvitedToChat.FromChatUser(chat, LastMessageDto.FromMessage(msg), user.Id, unreadCount).Serialize());
+        return;
     }
 
     public async Task ReadMessages(string chatId, string userId, int lastMessageId) {
@@ -273,7 +285,7 @@ public class ChatRepository : IChatRepository
         if (!chat.Members.Any(m => m.UserId == user.Id)) return;
         var last = lastMessageId;
         if (lastMessageId == -1) {
-            last = await _dbContext.Messages.Where(m => m.ChatId.ToString() == chatId && m.SenderId != user.Id).MaxAsync(m => m.MessageId);
+            last = await _dbContext.Messages.Where(m => m.ChatId.ToString() == chatId && ((m.SenderId != user.Id) || m.IsFunctional)).MaxAsync(m => m.MessageId);
         }
         var existingStatus = await _dbContext.MessageStatus
             .FirstOrDefaultAsync(ms => ms.UserId == user.Id && ms.ChatId == Guid.Parse(chatId));
@@ -282,7 +294,8 @@ public class ChatRepository : IChatRepository
             _dbContext.MessageStatus.Add(new MessageStatus { LastReaden = last, UserId = user.Id, ChatId = Guid.Parse(chatId) });
         }
         await _dbContext.SaveChangesAsync();
-        var unreadCount = await _dbContext.Messages.Where(m => m.ChatId.ToString() == chatId && m.SenderId != user.Id && m.MessageId > last).CountAsync();
+        // TODO: optimize
+        var unreadCount = await _dbContext.Messages.Where(m => m.ChatId.ToString() == chatId && ((m.SenderId != user.Id) || m.IsFunctional) && m.MessageId > last).CountAsync();
         await SendEvent(new MessagesReadenEvent {
             chatId = chatId,
             unreadCount = unreadCount,
@@ -333,6 +346,7 @@ public class ChatRepository : IChatRepository
         if (user == null) return "User not found";
         if (chat.isDm) return "You can't rename dm";
         if (!chat.Members.Any(m => m.UserId == user.Id)) return "You are not in this chat";
+        if (chat.Name == name) return "Name is the same";
         chat.Name = name;
         var msg = Message.GroupRenamed(chat.Id, int.Parse(userId), name);
         await _dbContext.Messages.AddAsync(msg);

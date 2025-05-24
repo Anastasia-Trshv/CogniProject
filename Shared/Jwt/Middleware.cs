@@ -26,11 +26,5 @@ public class TokenExceptionHandlingMiddleware
             var response = new { error = "Invalid or expired token", details = ex.Message };
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
-        catch (Exception e) {
-            context.Response.StatusCode = StatusCodes.Status226IMUsed;
-            context.Response.ContentType = "application/json";
-            var response = new { error = "Invalid or expired token", details = e.Message };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-        }
     }
 }

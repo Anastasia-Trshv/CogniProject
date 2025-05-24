@@ -16,9 +16,11 @@ namespace Cogni.Controllers
     {
         private readonly IArticleService _articleService;
         private readonly ITokenService _tokenService;
+        private readonly ILogger<ArticleController> _logger;
 
-        public ArticleController(IArticleService articleService, ITokenService tokenService)
+        public ArticleController(IArticleService articleService, ITokenService tokenService, ILogger<ArticleController> logger)
         {
+            _logger = logger;
             _articleService = articleService;
             _tokenService = tokenService;
         }
@@ -143,10 +145,6 @@ namespace Cogni.Controllers
         public async Task<ActionResult<ArticlePreviewResponse>> GetArticlesPreviews()
         {
             var preview = await _articleService.GetArticlesPreviewesAsync();
-            if (preview == null)
-            {
-                return NotFound();
-            }
             return Ok(preview);
         }
 
