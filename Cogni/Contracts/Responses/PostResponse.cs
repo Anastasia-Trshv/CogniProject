@@ -4,6 +4,7 @@
     (
         int Id,
         string? PostBody,
+        DateTime? CreateDate,
         int IdUser,
         List<string>? PostImages
     );

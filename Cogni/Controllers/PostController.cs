@@ -41,7 +41,7 @@ namespace Cogni.Controllers
             {
                 urls.Add(image.ImageUrl);
             }
-            return Ok(new PostResponse(p.Id, p.PostBody, p.IdUser, urls));
+            return Ok(new PostResponse(p.Id, p.PostBody,p.CreatedAt, p.IdUser, urls));
 
         }
         /// <summary>
@@ -66,7 +66,7 @@ namespace Cogni.Controllers
             foreach (var post in posts)
             {
                 var urls = post.PostImages.Select(u => u.ImageUrl).ToList();
-                list.Add(new PostResponse(post.Id, post.PostBody, post.IdUser, urls));
+                list.Add(new PostResponse(post.Id, post.PostBody, post.CreatedAt, post.IdUser, urls));
             }
             return Ok(list);
         }
