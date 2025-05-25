@@ -203,6 +203,9 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<PublicUserModel>> GetUserById(int id)
         {
+            string token = Request.Headers["Authorization"];
+            token = token.Replace("Bearer ", string.Empty);
+            int _id = _tokenService.GetTokenPayload(token).UserId;
             var user = await _userService.GetPublicUser(id);
             if (user == null) {
                 return NotFound();

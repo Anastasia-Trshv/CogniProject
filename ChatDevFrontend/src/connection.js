@@ -5,33 +5,33 @@ import { stopSignalRConnection, startSignalRConnection, updateStatus } from "./s
 let username;
 let userId;
 
-document.getElementById("connect").addEventListener("click", async function() {
-    let token = document.getElementById("token").value.trim();
-    if (!token) {
-        showToast("Please enter a token.");
-        return;
-    }
-    let id;
-    try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log(payload);
-        id = payload["userId"];
-        if (!id) {
-            showToast("Invalid token.");
-            return;
-        }
-    } catch (err) {
-        showToast("Invalid token.");
-        return;
-    }
+// document.getElementById("connect").addEventListener("click", async function() {
+//     let token = document.getElementById("token").value.trim();
+//     if (!token) {
+//         showToast("Please enter a token.");
+//         return;
+//     }
+//     let id;
+//     try {
+//         const payload = JSON.parse(atob(token.split('.')[1]));
+//         console.log(payload);
+//         id = payload["userId"];
+//         if (!id) {
+//             showToast("Invalid token.");
+//             return;
+//         }
+//     } catch (err) {
+//         showToast("Invalid token.");
+//         return;
+//     }
     
-    setCurrentUser(id);
-    connectSignalR(token);
-});
+//     setCurrentUser(id);
+//     connectSignalR(token);
+// });
 
 
 
-async function connectSignalR(token) {
+export async function connectSignalR(token) {
     try {
         await startSignalRConnection(token);
     } catch (err) {

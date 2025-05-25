@@ -14,7 +14,7 @@ public interface IChatRepository
     Task<Chat?> StartDm(string initUserId, string userId, string message);
     Task<string?> LeaveGroup(string chatId, string userId);
     Task<string?> DeleteChat(string chatId, string userId);
-    Task<ChatDto?> AddToGroup(string invokerId, string chatId, string userId);
+    Task AddToGroup(string invokerId, string chatId, string userId);
     Task<string?> EditMessage(int messageId, string new_message, string userId);
     Task ReadMessages(string chatId, string userId, int lastMessageId);
     Task<string?> DeleteMessage(int messageId, string userId);

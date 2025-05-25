@@ -1,12 +1,13 @@
 export const DEV = import.meta.env.DEV;
+export const DOCKER_DEV = import.meta.env.VITE_DOCKER_DEV == "true";
 console.log("ISDEV: ", DEV)
-export const apiBase = DEV ? "http://127.0.0.1:5108" : "/api"
-export const fileApi =  DEV ? "http://127.0.0.1:9000" : ""
-export const cogniApi =  DEV ? "http://127.0.0.1:5279" : "/api"
+console.log("DOCKER_DEV: ", DOCKER_DEV)
+export const apiBase = DOCKER_DEV ? "http://127.0.0.1:5108" : DEV ? "http://127.0.0.1:5108" : "/api"
+export const fileApi =  DOCKER_DEV ? "http://212.22.82.127:9111" : DEV ? "http://127.0.0.1:9000" : ""
+export const cogniApi =  DOCKER_DEV ? "http://127.0.0.1:5279" : DEV ? "http://127.0.0.1:5279" : "/api"
 
 // uuid is Unique User Identifier now :D
 let uuid_to_username = {}
-let uuid_to_picture = {}
 
 export function addUsernameRelation(username, uuid) {
     uuid_to_username[uuid] = username;
@@ -70,18 +71,18 @@ export function uuidv4() {
     );
 }
 
-export function showToast(message) {
+export function showToast(message, color="rgba(255, 0, 0, 0.7)") {
     let toast = document.createElement("div");
     toast.textContent = message;
     toast.style.position = "fixed";
-    toast.style.bottom = "20px";
+    toast.style.top = "20px";
     toast.style.left = "50%";
     toast.style.transform = "translateX(-50%)";
-    toast.style.background = "rgba(0, 0, 0, 0.7)";
+    toast.style.background = color;
     toast.style.color = "#fff";
     toast.style.padding = "10px 20px";
     toast.style.borderRadius = "5px";
     toast.style.zIndex = "1000";
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 2000);
+    setTimeout(() => toast.remove(), 3000);
 }

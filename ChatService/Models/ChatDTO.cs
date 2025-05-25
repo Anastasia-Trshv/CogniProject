@@ -1,6 +1,7 @@
 using Cogni.Database.Entities;
 
 namespace ChatService.Models;
+
 public class ChatDto
 {
     public Guid id { get; set; }
@@ -11,8 +12,10 @@ public class ChatDto
     public LastMessageDto? lastMessage { get; set; }
     public int unreadCount { get; set; }
 
-    public static ChatDto FromChatLast(Chat chat, LastMessageDto msg) {
-        return new ChatDto {
+    public static ChatDto FromChatLast(Chat chat, LastMessageDto msg)
+    {
+        return new ChatDto
+        {
             id = chat.Id,
             name = chat.Name,
             ownerId = chat.OwnerId,

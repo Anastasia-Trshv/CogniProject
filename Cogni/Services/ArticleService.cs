@@ -16,41 +16,40 @@ namespace Cogni.Services
         private readonly IArticleRepository _articleRepository;
         private readonly IImageService _imageService;
         private readonly IUserService _userService;
+        private readonly ILogger<ArticleService> _logger;
 
-        public ArticleService(IArticleRepository articleRepository, IImageService imageService, IUserService userService)
+        public ArticleService(IArticleRepository articleRepository, IImageService imageService, IUserService userService, ILogger<ArticleService> logger)
         {
+            _logger = logger;
             _articleRepository = articleRepository;
             _imageService = imageService;
             _userService = userService;
         }
 
-        public async Task<ArticlePreviewResponse?[]> GetArticlesPreviewesAsync()
+        public async Task<List<ArticlePreviewResponse>> GetArticlesPreviewesAsync()
         {
             var articles = await _articleRepository.GetAll();
 
-            ArticlePreviewResponse[] articlePreviewResponses = new ArticlePreviewResponse[articles.Count];
+            List<ArticlePreviewResponse> articlePreviewResponses = new List<ArticlePreviewResponse>();
 
             foreach (var article in articles)
             {
                 if (article == null)
                 {
-                    return null;
+                    continue;
                 }
 
                 var user = await _userService.GetPublicUser(article.IdUser);
-
                 if (user == null)
                 {
-                    return null;
+                    continue;
                 }
 
                 // Вычисление времени с момента публикации
                 var timeSincePublication = article.Created.HasValue
                     ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
                     : "Неизвестно";
-
-                articlePreviewResponses.Append(
-                    new ArticlePreviewResponse(
+                var r = new ArticlePreviewResponse(
                     article.ArticlePreview,
                     user.Image,
                     user.Name,
@@ -59,7 +58,8 @@ namespace Cogni.Services
                     user.TypeMbti,
                     article.ArticleName,
                     article.Annotation
-                ));
+                );
+                articlePreviewResponses.Add(r);
             }
             return articlePreviewResponses;
         }
