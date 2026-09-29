@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: ./Cogni/Dockerfile.dev
     restart: always
+    environment:
+      MIGRATE: 'true'
     ports:
       - 5279:5279
     volumes:

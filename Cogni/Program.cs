@@ -4,6 +4,7 @@ using Cogni.Authentication;
 using Cogni.Authentication.Abstractions;
 using Cogni.Database.Context;
 using Cogni.Database.Repositories;
+using Cogni.Database.Seeding;
 using Cogni.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -133,6 +134,15 @@ builder.Services.AddAuthentication(x =>
     });
 
 var app = builder.Build();
+
+if (args.Contains("--seed-dev", StringComparer.OrdinalIgnoreCase))
+{
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<CogniDbContext>();
+    await dbContext.Database.MigrateAsync();
+    await DevelopmentDatabaseSeeder.SeedAsync(dbContext);
+    return;
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

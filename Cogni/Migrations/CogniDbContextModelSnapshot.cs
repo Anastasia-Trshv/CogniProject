@@ -45,6 +45,9 @@ namespace Cogni.Migrations
                         .HasColumnType("character varying(128)")
                         .HasColumnName("article_name");
 
+                    b.Property<string>("ArticlePreview")
+                        .HasColumnType("text");
+
                     b.Property<DateTime?>("Created")
                         .HasColumnType("timestamp with time zone");
 
