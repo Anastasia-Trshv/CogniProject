@@ -3,7 +3,7 @@ using Cogni.Authentication.Abstractions;
 using Cogni.Contracts.Requests;
 using Cogni.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
-using System.Web.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cogni.Controllers
 {

@@ -9,5 +9,9 @@ public partial class Tag
 
     public string? NameTag { get; set; }
 
+    public int? IdCategory { get; set; }
+
+    public virtual TagCategory? IdCategoryNavigation { get; set; }
+
     public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
 }

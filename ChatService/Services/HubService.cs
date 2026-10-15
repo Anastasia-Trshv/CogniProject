@@ -31,7 +31,7 @@ public class HubService : IHubService
 
         foreach (var connectionId in UserToConnections[userId])
         {
-            _logger.LogWarning($"[{method}] Sending message to connection: {connectionId}");
+            _logger.LogInformation("[{Method}] Sending message to connection: {ConnectionId}", method, connectionId);
             await _hubContext.Clients.Client(connectionId).SendAsync(method, message);
         }
     }

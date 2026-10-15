@@ -134,7 +134,7 @@ public class ChatRepository : IChatRepository
             .Take(amount)
             .ToListAsync();
         foreach (var msg in msgs) {
-            _logger.LogWarning($"Message: {msg.ChatId} {msg.Msg} {msg.Attachments}");
+            _logger.LogDebug("Message: {ChatId} {Message} {Attachments}", msg.ChatId, msg.Msg, msg.Attachments);
         }
         return msgs;
     }
@@ -164,7 +164,7 @@ public class ChatRepository : IChatRepository
     }
 
     public async Task<List<string>> GetChatMembers(string chatId) {
-        _logger.LogWarning("Getting chat members for chatId: {ChatId}", chatId);
+        _logger.LogDebug("Getting chat members for chatId: {ChatId}", chatId);
         var chat = await _dbContext.Chats
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id.ToString() == chatId);
@@ -231,11 +231,11 @@ public class ChatRepository : IChatRepository
     }
 
     public async Task<string?> DeleteChat(string chatId, string userId) {
-        _logger.LogWarning("Deleting chat: {ChatId}", chatId);
+        _logger.LogInformation("Deleting chat: {ChatId}", chatId);
         var chat = await _dbContext.Chats
             .Include(c => c.Members)
             .FirstOrDefaultAsync(c => c.Id.ToString() == chatId);
-        _logger.LogWarning("Chat: {Chat}", chat);
+        _logger.LogDebug("Chat: {Chat}", chat);
         if (chat == null) return "Chat not found";
         if (!(chat.isDm && chat.Members.Any(m => m.UserId.ToString() == userId)) && (chat.OwnerId.ToString() != userId)) return "You are not chat owner";
         var members = chat.Members.Select(m => m.UserId.ToString()).ToList();
@@ -243,8 +243,8 @@ public class ChatRepository : IChatRepository
         _dbContext.Chats.Remove(chat);
         _dbContext.Messages.RemoveRange(msgs);
         await _dbContext.SaveChangesAsync();
-        _logger.LogWarning("Chat removed: {ChatId}", chatId);
-        _logger.LogWarning("Chat members: {Members}", members);
+        _logger.LogInformation("Chat removed: {ChatId}", chatId);
+        _logger.LogDebug("Chat members: {Members}", members);
         await SendEvent(ChatRemovedEvent.FromChatId(chatId, members).Serialize());
         return null;
     }

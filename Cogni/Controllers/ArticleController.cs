@@ -6,7 +6,7 @@ using Cogni.Database.Entities;
 using Cogni.Abstractions.Services;
 using Cogni.Contracts.Requests;
 using Cogni.Authentication.Abstractions;
-using System.Web.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cogni.Controllers
 {

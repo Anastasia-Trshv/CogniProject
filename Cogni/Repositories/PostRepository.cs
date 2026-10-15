@@ -22,6 +22,10 @@ public class PostRepository : IPostRepository
     public async Task DeletePost(int id)
     {
         Post post = await _context.Posts.FindAsync(id);
+        if (post is null)
+        {
+            return;
+        }
         _context.Remove(post);
         await _context.SaveChangesAsync();
     }
