@@ -51,5 +51,7 @@ public partial class User
 
     public virtual ICollection<UserTag> UserTags { get; set; } = new List<UserTag>();
 
+    public virtual ICollection<UserTagCategory> UserTagCategories { get; set; } = new List<UserTagCategory>();
+
     public User() { }
 }
