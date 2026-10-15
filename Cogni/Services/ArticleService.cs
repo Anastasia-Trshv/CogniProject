@@ -50,6 +50,8 @@ namespace Cogni.Services
                     ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
                     : "Неизвестно";
                 var r = new ArticlePreviewResponse(
+                    article.Id,
+                    article.IdUser,
                     article.ArticlePreview,
                     user.Image,
                     user.Name,
