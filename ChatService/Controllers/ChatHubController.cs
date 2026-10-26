@@ -49,17 +49,17 @@ public class ChatHubController : Hub
     )]
     public override async Task OnConnectedAsync()
     {
-        _logger.LogWarning($"Connected: {Context.ConnectionId}");
+        _logger.LogInformation("Connected: {ConnectionId}", Context.ConnectionId);
         var token = Context.GetHttpContext()?.Request.Query["token"];
-        _logger.LogWarning($"Token: {token}");
+        _logger.LogDebug("Token: {Token}", token);
         try {
             var payload = _tokenValidation.GetTokenPayload(token);
-            _logger.LogWarning($"Payload: {payload}");
+            _logger.LogDebug("Payload: {Payload}", payload);
             var userId = payload.UserId;
             _hubService.AddRel(userId.ToString(), Context.ConnectionId);
             await base.OnConnectedAsync();
         } catch (Exception e) {
-            _logger.LogWarning($"Aborted due invalid token: {e.Message}");
+            _logger.LogWarning("Aborted due invalid token: {ErrorMessage}", e.Message);
             Context.Abort();
             return;
         }
@@ -67,7 +67,7 @@ public class ChatHubController : Hub
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _logger.LogWarning($"Disconnected: {Context.ConnectionId}");
+        _logger.LogInformation("Disconnected: {ConnectionId}", Context.ConnectionId);
         _hubService.RemoveRel(Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
@@ -76,7 +76,7 @@ public class ChatHubController : Hub
     public async Task ImHere()
     {
         var user = _hubService.GetUserId(Context.ConnectionId);
-        _logger.LogDebug($"ImHere: {user}");
+        _logger.LogDebug("ImHere: {User}", user);
         if (user == null) return;
         await _redisRepository.UserHere(user);
     }
@@ -93,7 +93,7 @@ public class ChatHubController : Hub
     )]
     public async Task GetUsersOnline(string[] userIds)
     {
-        _logger.LogDebug($"GetUsersOnline: {userIds}");
+        _logger.LogDebug("GetUsersOnline: {UserIds}", userIds);
         var online = await _redisRepository.GetOnline(userIds);
         if (online.Count == 0) return;
         await Clients.Caller.SendAsync("UsersOnline", online);
@@ -113,7 +113,7 @@ public class ChatHubController : Hub
         var user = _hubService.GetUserId(Context.ConnectionId);
         if (user == null) return;
         var chat_list = await _db.GetChatList(user);
-        _logger.LogWarning($"Chat list: {chat_list}");
+        _logger.LogDebug("Chat list: {ChatList}", chat_list);
         if (chat_list.Count == 0){
             return;
         }
@@ -147,11 +147,11 @@ public class ChatHubController : Hub
         "Use -1 as startId to start from last message in chat. List of message objects, order isn't garanteed. Message id is ordered and isn't chat-unique. If you are getting empty list - there are no messages - that may be useful for stop requesting images when approach first message in chat."
     )]
     public async Task GetMsgs(string chatId, int startId, bool toNew, int amount) {
-        _logger.LogWarning($"Getting msgs for chatId: {chatId} {startId} {amount}");
+        _logger.LogDebug("Getting msgs for chatId: {ChatId} {StartId} {Amount}", chatId, startId, amount);
         var user = _hubService.GetUserId(Context.ConnectionId);
         if (user == null) return;
         var msgs = await _db.GetMsgs(chatId, user, startId, amount, toNew);
-        _logger.LogWarning($"Will send: ", msgs);
+        _logger.LogDebug("Will send: {Messages}", msgs);
         await Clients.Caller.SendAsync("Msgs", msgs);
     }
 
@@ -169,15 +169,15 @@ public class ChatHubController : Hub
     )]
     public async Task SendMsg(string chatId, string msg, List<string> attachments) {
         var user = _hubService.GetUserId(Context.ConnectionId);
-        _logger.LogWarning($"Received message: {msg}");
-        _logger.LogWarning($"Received message: '{msg}'");
-        _logger.LogWarning($"Sending msg: {msg.Replace("\n", "\\n")}");
+        _logger.LogInformation("Received message: {Message}", msg);
+        _logger.LogInformation("Received message: '{Message}'", msg);
+        _logger.LogInformation("Sending msg: {Message}", msg.Replace("\n", "\\n"));
         if (user == null) return;
         if (attachments != null && attachments.Count > 9) {
             await Clients.Caller.SendAsync("ErrorResponse", "Too many attachments");
             return;
         }
-        _logger.LogWarning($"Sending msg for chatId: {chatId} {msg} {attachments}");
+        _logger.LogInformation("Sending msg for chatId: {ChatId} {Message} {Attachments}", chatId, msg, attachments);
         var message = await _db.SendMsg(chatId, user, msg, attachments);
         await _redisRepository.StopTyping(user, chatId);
         await Clients.Caller.SendAsync("MsgSent", message);

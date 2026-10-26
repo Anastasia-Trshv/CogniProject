@@ -33,11 +33,15 @@ public class UserService : IUserService
         return picLink;
     }
 
-    public async Task<string> ChangeBanner(int id, IFormFile picture)
+    public async Task<string?> ChangeBanner(int id, IFormFile picture)
     {
         var picLink = await _imageService.UploadImage(picture);
-        await _userRepository.ChangeBanner(id, picLink);
-        return picLink; 
+        return await _userRepository.ChangeBanner(id, picLink);
+    }
+
+    public async Task<bool> RemoveBanner(int id)
+    {
+        return await _userRepository.RemoveBanner(id);
     }
 
     public async Task<bool> ChangeDescription(int id, string description)

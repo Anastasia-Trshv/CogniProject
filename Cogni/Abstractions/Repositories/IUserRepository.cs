@@ -11,7 +11,8 @@ public interface IUserRepository
     Task<bool> CheckUser(string login);//проверка существования пользователя с таким логином
     Task SetMbtiType(int userid, int mbtiId);//установить результаты теста или изменить тип MBTY
     Task ChangeAvatar(int id,string picLink);//изменить автарарку
-    Task ChangeBanner(int id, string picLink);//изменить баннер на странице пользователя
+    Task<string?> ChangeBanner(int id, string picLink);//изменить баннер на странице пользователя
+    Task<bool> RemoveBanner(int id); // удалить баннер
     Task<bool> ChangeName(int id, string name, string surname);//изменить имя
     Task ChangePassword(int id, string PasHash, byte[] salt);//изменить пароль
     Task<bool> ChangeDescription(int id, string description);//изменить описание
@@ -20,4 +21,3 @@ public interface IUserRepository
     Task<List<FriendDto>> SearchUserByNameAndType(int userId, string NameSurname, int mbtiType);//поиск пользователей по типу и имени
     Task<List<PublicUserModel>> GetUsersByIds(List<int> userIds);
 }
-

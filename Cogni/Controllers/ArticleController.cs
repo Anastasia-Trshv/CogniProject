@@ -5,8 +5,8 @@ using Cogni.Contracts.Responses;
 using Cogni.Database.Entities;
 using Cogni.Abstractions.Services;
 using Cogni.Contracts.Requests;
-using Cogni.Authentication.Abstractions;
-using System.Web.Http;
+using Microsoft.AspNetCore.Authorization;
+using Cogni.Extensions;
 
 namespace Cogni.Controllers
 {
@@ -15,14 +15,12 @@ namespace Cogni.Controllers
     public class ArticleController : ControllerBase
     {
         private readonly IArticleService _articleService;
-        private readonly ITokenService _tokenService;
         private readonly ILogger<ArticleController> _logger;
 
-        public ArticleController(IArticleService articleService, ITokenService tokenService, ILogger<ArticleController> logger)
+        public ArticleController(IArticleService articleService, ILogger<ArticleController> logger)
         {
             _logger = logger;
             _articleService = articleService;
-            _tokenService = tokenService;
         }
 
         /// <summary>
@@ -72,9 +70,10 @@ namespace Cogni.Controllers
                 return BadRequest("Название, текст или аннотация статьи не могут быть пустыми");
             }
 
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            int userId = _tokenService.GetTokenPayload(token).UserId;
-
+            if (User.GetUserId() is not int userId)
+            {
+                return Unauthorized();
+            }
 
             try
             {
@@ -112,8 +111,10 @@ namespace Cogni.Controllers
                 return BadRequest("Некорректный ID статьи");
             }
 
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            int userId = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int userId)
+            {
+                return Unauthorized();
+            }
 
             try
             {

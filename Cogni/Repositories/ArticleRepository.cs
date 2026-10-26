@@ -19,11 +19,14 @@ namespace Cogni.Database.Repositories
 
         public async Task<List<ArticleModel>> GetAll()
         {
-            var articles = await _context.Articles
-                .Include(a => a.ArticleImages)
+            return await _context.Articles
+                .Select(a => new ArticleModel
+                {
+                    Id = a.Id,
+                    ArticleName = a.ArticleName,
+                    Annotation = a.Annotation
+                })
                 .ToListAsync();
-            var a = articles.Select(a => ToModel(a)).ToList();
-            return a;
         }
 
         public async Task<ArticleModel?> GetById(int id)

@@ -44,22 +44,22 @@ public class RabbitMqConsumerService : BackgroundService
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
-            _logger.LogWarning($"[Consumer] Event Received: {message}");
+            _logger.LogInformation("[Consumer] Event Received: {Message}", message);
             try
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var db = scope.ServiceProvider.GetRequiredService<IChatRepository>();
                     var invokedEvent = InvokedEvent.DeserializeEvent(message);
-                    _logger.LogWarning($"[Consumer] Event deserealized: {invokedEvent}, msg: {message}");
+                    _logger.LogInformation("[Consumer] Event deserealized: {InvokedEvent}, msg: {Message}", invokedEvent, message);
                     if (invokedEvent == null) {
-                        _logger.LogError($"[Consumer] Event could not be deserialized: {message}");
+                        _logger.LogError("[Consumer] Event could not be deserialized: {Message}", message);
                         return;
                     };
                     var recievers = await invokedEvent.GetRecievers(db);
-                    _logger.LogWarning($"[Consumer] Event recievers: {recievers}");
+                    _logger.LogInformation("[Consumer] Event recievers: {Receivers}", recievers);
                     foreach (var reciever in recievers){
-                        _logger.LogWarning($"[Consumer] Event sent to: {reciever}");
+                        _logger.LogInformation("[Consumer] Event sent to: {Receiver}", reciever);
                         invokedEvent.PreSend(reciever);
                         await _hubService.SendMessage(invokedEvent.type, reciever, invokedEvent);
                     }
@@ -67,7 +67,7 @@ public class RabbitMqConsumerService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error processing RabbitMQ message: {ex}");
+                _logger.LogError(ex, "Error processing RabbitMQ message");
             }
         };
         await channel.BasicConsumeAsync(queueName.QueueName, autoAck: true, consumer);
