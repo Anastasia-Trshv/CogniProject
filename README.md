@@ -9,9 +9,29 @@
 Для локальной разработки и тестирования используется **Docker Compose**. Он поднимает всю необходимую инфраструктуру (PostgreSQL, Redis, RabbitMQ, MinIO) и сервисы приложения.
 
 ### Предварительные требования
+* Заполненный [dockerized.secrets.json](#как-заполнить-dockerizedsecretsjson)
 * [Docker Desktop](https://www.docker.com/products/docker-desktop/) (запущенный)
 * PowerShell (или совместимый терминал)
 * *(Опционально)* [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) — только если планируется запуск бэкенда без Docker.
+
+---
+
+### Как заполнить [dockerized.secrets.json](./dockerized.secrets.json)
+**Нужно регистрироваться на uploadcare.com и записать ключи в dockerized.secrets.json следующим образом:**
+1. Переходите по https://app.uploadcare.com/, регистрируйтесь, затем:
+2. Создаёте новый проект (кнопка Create project)
+3. Вводите название проекта (пр.: Cogni)
+4. Оставляете чекбокс Built-In Storage
+5. Далее на панели слева выбираете API Keys.
+6. Здесь как раз берёте Public key и записываете его в dockerized.secrets.json в поле `ImageRepository:UPLOADCARE_PUB_KEY`
+7. Также создаёте новый Private key и записываете его уже в поле `ImageRepository:UPLOADCARE_SECRET_KEY`
+8. Далее на панели слева переходите в Files, нажимаете Quick start в центре страницы, пролистывайте вниз до Deliver and transform. Тут будет ссылка вида:
+```
+Your project's CDN domain       File UUID
+https://76qb94nxry.ucarecd.net/00000000-0000-0000-0000-000000000000
+```
+9. Вам нужно скопировать первую часть этой ссылки без `https://` до `.ucarecd.net` (на этом примере это `76qb94nxry`) и записать в dockerized.secrets.json в поле `ImageRepository:UPLOADCARE_BASE_CDN` вместо `YOUR_PART_HERE`
+10. Готово!
 
 ---
 
