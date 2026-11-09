@@ -25,9 +25,7 @@ builder.Services.AddCors(option => option.AddPolicy(
         policy.SetIsOriginAllowed(origin => 
         {
             if (string.IsNullOrWhiteSpace(origin)) return false;
-            if (allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase)) return true;
-            return Uri.TryCreate(origin, UriKind.Absolute, out var uri) &&
-                   (uri.Host == "localhost" || uri.Host == "127.0.0.1" || uri.Host == "::1");
+            return allowedOrigins.Contains(origin, StringComparer.OrdinalIgnoreCase);
         });
         policy.AllowAnyHeader();
         policy.AllowAnyMethod();
