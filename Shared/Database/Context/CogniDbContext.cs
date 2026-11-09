@@ -38,6 +38,8 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<MbtiQuestion> MbtiQuestions { get; set; }
 
+    public virtual DbSet<SakinorvaCatalog> SakinorvaCatalogs { get; set; }
+
     public virtual DbSet<MbtiType> MbtiTypes { get; set; }
 
     public virtual DbSet<Message> Messages { get; set; }
@@ -52,7 +54,13 @@ public partial class CogniDbContext : DbContext
 
     public virtual DbSet<Tag> Tags { get; set; }
 
+    public virtual DbSet<TagCategory> TagCategories { get; set; }
+
+    public virtual DbSet<Hobby> Hobbies { get; set; }
+
     public virtual DbSet<UserTag> UserTags { get; set; }
+
+    public virtual DbSet<UserTagCategory> UserTagCategories { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -215,21 +223,35 @@ public partial class CogniDbContext : DbContext
         modelBuilder.Entity<Like>(entity =>
         {
         entity
-            .HasNoKey()
-            .ToTable("likes");
-            entity.Property(e => e.LikedAt)
-                            .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                            .HasColumnType("timestamp without time zone")
-                            .HasColumnName("liked_at");
-            entity.Property(e => e.PostId).HasColumnName("post_id");
-            entity.Property(e => e.UserId).HasColumnName("user_id");
+            .HasKey(e => new { e.UserId, e.PostId })
+            .HasName("likes_pkey");
 
-            entity.HasOne(d => d.Post).WithMany()
+            entity.ToTable("likes");
+
+            entity.Property(e => e.UserId)
+                .HasColumnName("user_id");
+
+            entity.Property(e => e.PostId)
+                .HasColumnName("post_id");
+
+            entity.Property(e => e.ReactionType)
+                .HasMaxLength(20)
+                .HasDefaultValue("like")
+                .HasColumnName("reaction_type");
+
+            entity.Property(e => e.LikedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("liked_at");
+
+            entity.HasOne(d => d.Post)
+                .WithMany()
                 .HasForeignKey(d => d.PostId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("likes_post_id_fkey");
 
-            entity.HasOne(d => d.User).WithMany()
+            entity.HasOne(d => d.User)
+                .WithMany()
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("likes_user_id_fkey");
@@ -247,6 +269,14 @@ public partial class CogniDbContext : DbContext
             entity.Property(e => e.Question)
                 .HasMaxLength(130)
                 .HasColumnName("question");
+        });
+
+        modelBuilder.Entity<SakinorvaCatalog>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("sakinorva_catalog_pkey");
+            entity.ToTable("sakinorva_catalog");
+            entity.Property(e => e.Id).HasColumnName("id").ValueGeneratedOnAdd();
+            entity.Property(e => e.JsonContent).HasColumnName("json_content").HasColumnType("jsonb").IsRequired();
         });
 
         modelBuilder.Entity<MbtiType>(entity =>
@@ -387,6 +417,73 @@ public partial class CogniDbContext : DbContext
             entity.Property(e => e.NameTag)
                 .HasMaxLength(45)
                 .HasColumnName("name_tag");
+
+            entity.Property(e => e.IdCategory).HasColumnName("id_category");
+
+            entity.HasOne(d => d.IdCategoryNavigation).WithMany(p => p.Tags)
+                .HasForeignKey(d => d.IdCategory)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("tag_id_category_fkey");
+        });
+
+        modelBuilder.Entity<TagCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("tag_category_pkey");
+
+            entity.ToTable("tag_category");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id_category");
+            entity.Property(e => e.Name)
+                .HasMaxLength(45)
+                .HasColumnName("name");
+            entity.Property(e => e.IdHobby).HasColumnName("id_hobby");
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.HasOne(d => d.IdHobbyNavigation).WithMany(p => p.Categories)
+                .HasForeignKey(d => d.IdHobby)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("tag_category_id_hobby_fkey");
+        });
+
+        modelBuilder.Entity<Hobby>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("hobby_pkey");
+
+            entity.ToTable("hobby");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id_hobby");
+            entity.Property(e => e.Name)
+                .HasMaxLength(45)
+                .HasColumnName("name");
+            entity.HasIndex(e => e.Name).IsUnique();
+        });
+
+        modelBuilder.Entity<UserTagCategory>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("user_tag_categories_pkey");
+
+            entity.ToTable("user_tag_categories");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("id_user_tag_categories");
+            entity.Property(e => e.IdCategory).HasColumnName("id_category");
+            entity.Property(e => e.IdUser).HasColumnName("id_user");
+
+            entity.HasIndex(e => new { e.IdUser, e.IdCategory }).IsUnique();
+
+            entity.HasOne(d => d.IdCategoryNavigation).WithMany(p => p.UserTagCategories)
+                .HasForeignKey(d => d.IdCategory)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("user_tag_categories_id_category_fkey");
+
+            entity.HasOne(d => d.IdUserNavigation).WithMany(p => p.UserTagCategories)
+                .HasForeignKey(d => d.IdUser)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("user_tag_categories_id_user_fkey");
         });
 
         modelBuilder.Entity<UserTag>(entity =>

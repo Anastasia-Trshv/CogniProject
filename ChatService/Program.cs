@@ -26,6 +26,7 @@ try
 }
 catch (Exception ex) { }
 
+
 builder.Services.AddLogging();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -43,7 +44,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("DEV-CHATS-AllowFrontend",
         policy => policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins("http://localhost:3000",
+            "http://127.0.0.1:5108",
+            "http://localhost:5173",   //dev_chat_frontend
+            "http://127.0.0.1:5173")
+
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials());
@@ -109,8 +114,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => {
         c.InjectJavascript("/Swagger/inject.js");
     });
-    app.UseCors("DEV-CHATS-AllowFrontend");
 }
+app.UseCors("DEV-CHATS-AllowFrontend");
 
 app.UseMiddleware<TokenExceptionHandlingMiddleware>();
 

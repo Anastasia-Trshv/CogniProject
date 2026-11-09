@@ -6,6 +6,8 @@
         string? PostBody,
         DateTime? CreateDate,
         int IdUser,
-        List<string>? PostImages
+        List<string>? PostImages,
+        int ReactionsCount,
+        bool IsReactedByCurrentUser
     );
 }

@@ -50,6 +50,8 @@ namespace Cogni.Services
                     ? article.Created.Value.ToLocalTime().Humanize(culture: new System.Globalization.CultureInfo("ru-RU"))
                     : "Неизвестно";
                 var r = new ArticlePreviewResponse(
+                    article.Id,
+                    article.IdUser,
                     article.ArticlePreview,
                     user.Image,
                     user.Name,
@@ -193,12 +195,12 @@ namespace Cogni.Services
                 Created = article.Created,
                 ReadsNumber = article.ReadsNumber,
                 ArticlePreview = article.ArticlePreview,
-                ArticleImages = article.ArticleImages.Select(ai => new ArticleImageModel
+                ArticleImages = article.ArticleImages != null ? article.ArticleImages.Select(ai => new ArticleImageModel
                 {
                     Id = ai.Id,
                     ArticleId = ai.ArticleId,
                     ImageUrl = ai.ImageUrl
-                }).ToList(),
+                }).ToList() : new List<ArticleImageModel>(),
                 IdUserNavigation = article.IdUserNavigation
             };
         }

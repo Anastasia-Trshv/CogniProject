@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# Ensure shell scripts always use LF line endings in containers
+*.sh text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

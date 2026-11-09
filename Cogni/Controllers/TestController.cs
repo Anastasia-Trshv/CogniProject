@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Cogni.Abstractions.Services;
 using Cogni.Models;
 using Cogni.Contracts.Requests;
+using Cogni.Services;
 
 namespace Cogni.Controllers
 {
@@ -10,34 +11,56 @@ namespace Cogni.Controllers
     public class TestController : ControllerBase
     {
         private readonly ITestService _testService;
+        private readonly SakinorvaService _sakinorvaService;
 
-        public TestController(ITestService testService)
+        public TestController(ITestService testService, SakinorvaService sakinorvaService)
         {
             _testService = testService;
+            _sakinorvaService = sakinorvaService;
         }
         /// <summary>
-        /// Получение всех вопросов теста
+        /// РџРѕР»СѓС‡РµРЅРёРµ РІСЃРµС… РІРѕРїСЂРѕСЃРѕРІ С‚РµСЃС‚Р°
         /// </summary>
-        /// <response code="200">Вопросы отправлены</response>
-        /// <response code="404">В бд нет вопросов или что-то сломалось</response>
+        /// <response code="200">Р’РѕРїСЂРѕСЃС‹ РѕС‚РїСЂР°РІР»РµРЅС‹</response>
+        /// <response code="404">Р’ Р±Рґ РЅРµС‚ РІРѕРїСЂРѕСЃРѕРІ РёР»Рё С‡С‚Рѕ-С‚Рѕ СЃР»РѕРјР°Р»РѕСЃСЊ</response>
         [HttpGet]
-        public async Task<IActionResult> GetAllQuestions()
+        public async Task<IActionResult> GetAllQuestions(CancellationToken cancellationToken)
         {
-            var questions = await _testService.GetAllQuestions();
-            if (questions == null)
+            // РЎС‚Р°СЂС‹Р№ URL С‚РµРїРµСЂСЊ РІРѕР·РІСЂР°С‰Р°РµС‚ РІРѕРїСЂРѕСЃС‹ РЅРѕРІРѕРіРѕ MBTI-С‚РµСЃС‚Р°.
+            using var catalog = await _sakinorvaService.GetCatalogAsync(cancellationToken);
+            var root = catalog.RootElement;
+            var questions = root.GetProperty("questions").EnumerateArray().Select((q, index) => new
             {
-                return NotFound();
+                idMbtiQuestion = index + 1,
+                id = q.GetProperty("id").GetString(),
+                function = q.TryGetProperty("function", out var function) ? function.GetString() : null,
+                question = q.GetProperty("question").GetString(),
+                example = q.TryGetProperty("example", out var example) ? example.GetString() : null,
+                isControl = !q.TryGetProperty("function", out _)
+            }).ToArray();
+            return Ok(new { questions, scale = root.GetProperty("scale").Clone() });
+        }
+
+        /// <summary>РџРѕРґСЃС‡С‘С‚ СЂРµР·СѓР»СЊС‚Р°С‚Р° РЅРѕРІРѕРіРѕ С‚РµСЃС‚Р° С‡РµСЂРµР· РїСЂРµР¶РЅРёР№ РєРѕРЅС‚СЂРѕР»Р»РµСЂ Test.</summary>
+        [HttpPost]
+        public async Task<IActionResult> CalculateResult([FromBody] CalculateSakinorvaRequest request, CancellationToken cancellationToken)
+        {
+            if (request.Answers is null) return BadRequest(new { error = "РџРѕР»Рµ answers РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ." });
+            try
+            {
+                return Ok(await _sakinorvaService.CalculateAsync(request.Answers, cancellationToken));
             }
-            else
+            catch (ArgumentException ex)
             {
-                return Ok(questions);
+                return BadRequest(new { error = ex.Message });
             }
         }
+
         /// <summary>
-        /// Получение вопроса теста по id
+        /// РџРѕР»СѓС‡РµРЅРёРµ РІРѕРїСЂРѕСЃР° С‚РµСЃС‚Р° РїРѕ id
         /// </summary>
-        /// <response code="200">Вопросы отправлен</response>
-        /// <response code="404">В бд нет вопросов или что-то сломалось</response>
+        /// <response code="200">Р’РѕРїСЂРѕСЃС‹ РѕС‚РїСЂР°РІР»РµРЅ</response>
+        /// <response code="404">Р’ Р±Рґ РЅРµС‚ РІРѕРїСЂРѕСЃРѕРІ РёР»Рё С‡С‚Рѕ-С‚Рѕ СЃР»РѕРјР°Р»РѕСЃСЊ</response>
         [HttpGet]
         public async Task<IActionResult> GetQuestion(QuestionRequest request)
         {

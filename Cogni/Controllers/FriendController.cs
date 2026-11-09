@@ -1,11 +1,10 @@
-﻿using Cogni.Abstractions.Repositories;
+using Cogni.Abstractions.Repositories;
 using Cogni.Abstractions.Services;
-using Cogni.Authentication.Abstractions;
-using Cogni.Authentication;
+using Cogni.Extensions;
 using Cogni.Contracts.Responses;
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
-using System.Web.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Cogni.Controllers
 {
@@ -14,16 +13,14 @@ namespace Cogni.Controllers
     public class FriendController : ControllerBase
     {
         private readonly IFriendService _friendService;
-        private readonly TokenValidation _tokenValidation; 
         private readonly ILogger<FriendController> _logger;
 
         public FriendController(
             IFriendService friendService,
-            IConfiguration config,
             ILogger<FriendController> logger
-        ){
+        )
+        {
             _friendService = friendService;
-            _tokenValidation = new TokenValidation(config);
             _logger = logger;
         }
         /// <summary>
@@ -67,10 +64,10 @@ namespace Cogni.Controllers
         {
             try
             {
-                string token = Request.Headers["Authorization"];
-                token = token.Replace("Bearer ", string.Empty);
-                var payload = _tokenValidation.GetTokenPayload(token);
-                var userId = payload.UserId;
+                if (User.GetUserId() is not int userId)
+                {
+                    return Unauthorized();
+                }
                 if (userId == friendId)
                 {
                     return BadRequest("Нельзя подписаться на самого себя");
@@ -101,10 +98,10 @@ namespace Cogni.Controllers
         public async Task<ActionResult> Unsubscribe(int friendId)
         {
             try {
-                string token = Request.Headers["Authorization"];
-                token = token.Replace("Bearer ", string.Empty);
-                var payload = _tokenValidation.GetTokenPayload(token);
-                var userId = payload.UserId;
+                if (User.GetUserId() is not int userId)
+                {
+                    return Unauthorized();
+                }
                 await _friendService.Unsubscribe(userId, friendId);
                 return Ok();
             } catch (Exception e) {
@@ -117,10 +114,10 @@ namespace Cogni.Controllers
         public async Task<ActionResult> CheckSubscribe(int friendId)
         {
             try {
-                string token = Request.Headers["Authorization"];
-                token = token.Replace("Bearer ", string.Empty);
-                var payload = _tokenValidation.GetTokenPayload(token);
-                var userId = payload.UserId;
+                if (User.GetUserId() is not int userId)
+                {
+                    return Unauthorized();
+                }
                 return Ok(await _friendService.CheckSubscribe(userId, friendId));
             } catch (Exception e) {
                 return Unauthorized();

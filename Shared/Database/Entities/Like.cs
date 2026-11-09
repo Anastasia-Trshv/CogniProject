@@ -5,9 +5,11 @@ namespace Cogni.Database.Entities;
 
 public partial class Like
 {
-    public int? UserId { get; set; }
+    public int UserId { get; set; }
 
-    public int? PostId { get; set; }
+    public int PostId { get; set; }
+
+    public string ReactionType { get; set; } = "like";
 
     public DateTime? LikedAt { get; set; }
 

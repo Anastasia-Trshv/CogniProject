@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Cogni.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.Net.Mime;
-using Cogni.Authentication.Abstractions;
-using System.Security.Claims;
+using Cogni.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Swashbuckle.Swagger.Annotations;
 using Microsoft.AspNetCore.Authentication;
@@ -21,11 +20,9 @@ namespace Cogni.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ITokenService _tokenService;
-        public UserController(IUserService service, ITokenService tokenService) 
+        public UserController(IUserService service)
         {
             this._userService = service;
-            this._tokenService = tokenService;
         }
 
         /// <summary>
@@ -87,16 +84,14 @@ namespace Cogni.Controllers
         [HttpPost]
         public async Task<ActionResult> SetTestResult([FromBody] SetTestResultRequest testRequest)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             // todo: VALIDATE REQUEST! IF EMPTY SEND, IT WILL SET TO DEFAULT!
             await _userService.SetMbtiType(id, testRequest.mbtiType.ToUpper());
             return Ok();
         }
-
-        
-
 
         /// <summary>
         /// Меняет текущую аватарку на новую
@@ -107,12 +102,14 @@ namespace Cogni.Controllers
         [Consumes("multipart/form-data")]
         public async Task<ActionResult> ChangeAvatar([FromForm] ImageUploadRequest request)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             var ava = await _userService.ChangeAvatar(id, request.Picture);
             return Ok(ava);
         }
+
         /// <summary>
         /// Меняет текущий баннер на новый
         /// </summary>
@@ -121,11 +118,50 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult> ChangeBanner([FromForm] ImageUploadRequest request)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id) return Unauthorized();
+
+            
+            var file = request.Picture;
+            if (file == null || file.Length == 0) return BadRequest(new {
+                error = "Необходимо загрузить непустой файл изображения."
+            });
+
+            // 10 МиБ
+            const long maxFileSize = 10 * 1024 * 1024;
+
+            if (file.Length > maxFileSize) return BadRequest(new {
+                error = "Размер изображения не должен превышать 10 МБ."
+            });
+
+            var allowedContentTypes = new[] {
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            };
+
+            if (!allowedContentTypes.Contains(file.ContentType)) return BadRequest(new {
+                error = "Недопустимый формат изображения. Разрешены JPEG, PNG и WEBP."
+            });
+
             var ban = await _userService.ChangeBanner(id, request.Picture);
             return Ok(ban);
+        }
+
+        /// <summary>
+        /// Удаляет текущий баннер
+        /// </summary>
+        [Authorize]
+        [HttpDelete("RemoveBanner")]
+        public async Task<ActionResult> RemoveBanner()
+        {
+            if (User.GetUserId() is not int id) return Unauthorized();
+
+            bool removed = await _userService.RemoveBanner(id);
+            if (!removed) return NotFound(new {
+                error = "Пользователь не найден"
+            });
+
+            return NoContent();
         }
 
         /// <summary>
@@ -137,9 +173,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<bool>> ChangeDescription([FromBody] ChangeDescriptionRequest descRequest)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             var res = await _userService.ChangeDescription (id, descRequest.Description);
             if (res)
             {
@@ -159,9 +196,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult> ChangeName([FromBody] ChangeNameRequest name)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             var res = await _userService.ChangeName(id, name.Name, name.Surname);
             if (res)
             {
@@ -181,9 +219,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult> ChangePassword( [FromBody] ChangePasswordRequest pasRequest)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             var result = await _userService.ChangePassword(id, pasRequest.OldPassword, pasRequest.NewPassword);
             if (result){
                 return Ok();
@@ -203,9 +242,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<PublicUserModel>> GetUserById(int id)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int _id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is null)
+            {
+                return Unauthorized();
+            }
             var user = await _userService.GetPublicUser(id);
             if (user == null) {
                 return NotFound();
@@ -222,9 +262,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<List<FriendDto>>> GetRandomUsers(GetRandomUsersRequest request)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             return await _userService.GetRandomUsers(id, request.startsFrom, request.limit);
         }
 
@@ -237,9 +278,10 @@ namespace Cogni.Controllers
         [Authorize]
         public async Task<ActionResult<List<FriendDto>>> SearchUserByNameAndMbti(SearchUserRequest request)
         {
-            string token = Request.Headers["Authorization"];
-            token = token.Replace("Bearer ", string.Empty);
-            int id = _tokenService.GetTokenPayload(token).UserId;
+            if (User.GetUserId() is not int id)
+            {
+                return Unauthorized();
+            }
             return await _userService.SearchUserByNameAndType(id, request.Name, request.mbtiType);
         }
 
